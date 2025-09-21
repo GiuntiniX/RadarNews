@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +9,13 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* slate-900 */
         }
         /* Custom scrollbar for better aesthetics */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; } /* light: slate-100 */
-        .dark ::-webkit-scrollbar-track { background: #1e293b; } /* dark: slate-800 */
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; } /* light: slate-300 */
-        .dark ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; } /* dark: slate-600 */
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; } /* light: slate-400 */
-        .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; } /* dark: slate-500 */
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
         .loader {
             border-top-color: #06b6d4;
@@ -41,38 +39,32 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300">
+<body class="text-slate-200 antialiased">
 
     <div class="container mx-auto p-4 md:p-8">
         
         <header class="text-center mb-6 relative">
-             <!-- Theme Toggle -->
-            <button id="themeToggle" class="absolute top-0 right-0 p-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
-                <svg id="themeIconSun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                <svg id="themeIconMoon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-            </button>
-
             <div class="flex justify-center items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10" stroke-opacity="0.4"></circle>
                     <circle cx="12" cy="12" r="6" stroke-opacity="0.4"></circle>
                     <circle cx="12" cy="12" r="2"></circle>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v10l-4 4"></path>
                 </svg>
-                <h1 class="text-3xl md:text-4xl font-bold text-cyan-600 dark:text-cyan-400">Radar de Notícias</h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Radar de Notícias</h1>
             </div>
-            <p class="text-slate-600 dark:text-slate-400 mt-2">As últimas notícias sobre os principais assuntos do Brasil.</p>
-            <div id="lastUpdated" class="text-sm text-slate-500 dark:text-slate-500 mt-2 flex justify-center items-center gap-2"></div>
+            <p class="text-slate-400 mt-2">As últimas notícias sobre os principais assuntos do Brasil.</p>
+            <div id="lastUpdated" class="text-sm text-slate-500 mt-2 flex justify-center items-center gap-2"></div>
         </header>
 
         <!-- Control Panel Menu -->
-        <div class="sticky top-4 bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-300 dark:border-slate-700 shadow-lg mb-8">
+        <div class="sticky top-4 bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-700 shadow-lg mb-8">
             <div class="flex flex-wrap items-center justify-center gap-4">
                 
-                <div class="flex-grow flex items-center gap-4 bg-white dark:bg-slate-900 rounded-lg p-1 border border-slate-300 dark:border-slate-700 w-full lg:w-auto max-w-4xl">
-                    <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent text-slate-800 dark:text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
+                <div class="flex-grow flex items-center gap-4 bg-slate-900 rounded-lg p-1 border border-slate-700 w-full lg:w-auto max-w-4xl">
+                    <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
                     
-                    <select id="portalFilter" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
+                    <select id="portalFilter" class="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
                         <option selected value="">Todos os Portais</option>
                         <option value="g1.globo.com">G1</option>
                         <option value="uol.com.br">UOL</option>
@@ -85,7 +77,7 @@
                         <option value="metropoles.com">Metrópoles</option>
                     </select>
 
-                    <button id="searchButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed">
+                    <button id="searchButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:bg-slate-600 disabled:cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span id="buttonText">Buscar</span>
                     </button>
@@ -96,21 +88,21 @@
             <!-- Date Filter -->
             <div class="flex justify-center items-center gap-2 mt-4">
                 <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Hoje</button>
-                <button id="dateFilterYesterday" class="text-slate-600 dark:text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-300/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700">Ontem</button>
+                <button id="dateFilterYesterday" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Ontem</button>
             </div>
             
-            <p id="apiError" class="text-center text-red-500 dark:text-red-400 text-sm mt-3 h-4"></p>
+            <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
         </div>
         
         <!-- Main Content Area -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-8">
             <div class="lg:col-span-8 xl:col-span-9">
                 <div id="loadingState" class="hidden text-center py-16">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-300 dark:border-slate-700 h-12 w-12 mx-auto mb-4"></div>
-                    <h3 class="text-xl font-semibold text-slate-700 dark:text-slate-300">Buscando notícias...</h3>
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-12 w-12 mx-auto mb-4"></div>
+                    <h3 class="text-xl font-semibold text-slate-300">Buscando notícias...</h3>
                 </div>
                 
-                <div id="contentCounter" class="text-sm text-slate-500 dark:text-slate-400 mb-4 h-5"></div>
+                <div id="contentCounter" class="text-sm text-slate-400 mb-4 h-5"></div>
 
                 <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                     <!-- News will be dynamically inserted here -->
@@ -118,15 +110,15 @@
 
                 <!-- Pagination Controls -->
                 <div id="paginationControls" class="hidden flex justify-center items-center gap-4 mt-8">
-                    <button id="prevPageBtn" class="bg-slate-300/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Voltar</button>
-                    <span id="pageIndicator" class="text-slate-500 dark:text-slate-400 text-sm font-medium"></span>
-                    <button id="nextPageBtn" class="bg-slate-300/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Avançar</button>
+                    <button id="prevPageBtn" class="bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Voltar</button>
+                    <span id="pageIndicator" class="text-slate-400 text-sm font-medium"></span>
+                    <button id="nextPageBtn" class="bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Avançar</button>
                 </div>
                 
                 <div id="messageState" class="hidden text-center py-16">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-slate-400 dark:text-slate-600 mb-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>
-                    <h3 id="messageTitle" class="text-xl font-semibold text-slate-700 dark:text-slate-300">Nenhum resultado</h3>
-                    <p id="messageText" class="text-slate-500 dark:text-slate-500">Tente um termo diferente.</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-slate-600 mb-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>
+                    <h3 id="messageTitle" class="text-xl font-semibold text-slate-300">Nenhum resultado</h3>
+                    <p id="messageText" class="text-slate-500">Tente um termo diferente.</p>
                 </div>
             </div>
 
@@ -134,32 +126,32 @@
             <aside class="lg:col-span-4 xl:col-span-3 mt-8 lg:mt-0">
                 <div class="sticky top-28 flex flex-col gap-8">
                     <!-- Trending Topics Section -->
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                        <h2 class="text-lg font-bold text-cyan-600 dark:text-cyan-400 mb-4">Nuvem de Termos de Hoje</h2>
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Nuvem de Termos de Hoje</h2>
                         <div id="trendingTopicsContainer" class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-2 min-h-[10rem]">
-                            <div class="text-center text-slate-500 dark:text-slate-400 p-4">Carregando nuvem de termos...</div>
+                            <div class="text-center text-slate-400 p-4">Carregando nuvem de termos...</div>
                         </div>
                     </div>
 
                     <!-- Categories Section -->
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                        <h2 class="text-lg font-bold text-cyan-600 dark:text-cyan-400 mb-4">Navegue por Editoria</h2>
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Navegue por Editoria</h2>
                         <div id="categoriesContainer" class="flex flex-wrap gap-2">
                             <!-- Category buttons will be inserted here -->
                         </div>
                     </div>
                     
                     <!-- Sub-Categories Section -->
-                    <div id="subCategoriesWrapper" class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hidden">
-                        <h2 class="text-lg font-bold text-cyan-600 dark:text-cyan-400 mb-4">Sub-editorias</h2>
+                    <div id="subCategoriesWrapper" class="bg-slate-800 rounded-xl p-4 border border-slate-700 hidden">
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Sub-editorias</h2>
                         <div id="subCategoriesContainer" class="flex flex-wrap gap-2">
                             <!-- Sub-category buttons will be inserted here -->
                         </div>
                     </div>
 
                     <!-- Saved News Section -->
-                     <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                        <h2 class="text-lg font-bold text-cyan-600 dark:text-cyan-400 mb-4">Lista de Leitura</h2>
+                     <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Lista de Leitura</h2>
                         <div id="savedNewsContainer" class="flex flex-col">
                            <!-- Saved news will be inserted here -->
                         </div>
@@ -169,10 +161,10 @@
             </aside>
         </div>
         
-        <footer class="text-center py-4 mt-8 border-t border-slate-200 dark:border-slate-700">
-            <p class="text-sm text-slate-500 dark:text-slate-500">
+        <footer class="text-center py-4 mt-8 border-t border-slate-700">
+            <p class="text-sm text-slate-500">
                 Ferramenta desenvolvida por Estratégia de Dados - 
-                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-500 dark:text-cyan-400 hover:underline">Guilherme Giuntini</a>
+                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
             </p>
         </footer>
     </div>
@@ -202,9 +194,6 @@
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageIndicator = document.getElementById('pageIndicator');
         const contentCounter = document.getElementById('contentCounter');
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIconSun = document.getElementById('themeIconSun');
-        const themeIconMoon = document.getElementById('themeIconMoon');
 
         // App State
         let currentDateFilter = 'hoje'; // 'hoje', 'ontem'
@@ -275,10 +264,6 @@
             } catch (e) {
                 console.error("Could not parse source URL:", item.sourceUrl, e);
             }
-
-            const tempDivDesc = document.createElement('div');
-            tempDivDesc.innerHTML = item.content;
-            const imageUrl = tempDivDesc.querySelector('img')?.src || null;
             
             let finalCategory = categoryTag;
             if (!finalCategory) {
@@ -305,7 +290,6 @@
                 description: item.content,
                 sourceName: getSourceName(item.title),
                 sourceDomain: sourceDomain,
-                imageUrl: imageUrl,
                 category: finalCategory || 'Geral'
             };
         }
@@ -376,7 +360,7 @@
                 const todayNews = news.filter(item => new Date(item.timestamp) >= todayStart);
 
                 if (todayNews.length === 0) {
-                    trendingTopicsContainer.innerHTML = `<p class="text-sm text-slate-500 dark:text-slate-400 text-center">Nenhuma notícia de hoje para gerar a nuvem de termos.</p>`;
+                    trendingTopicsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center">Nenhuma notícia de hoje para gerar a nuvem de termos.</p>`;
                     return;
                 }
 
@@ -442,7 +426,7 @@
             trendingTopicsContainer.innerHTML = '';
             
             if (topics.length === 0) {
-                trendingTopicsContainer.innerHTML = `<p class="text-center text-slate-500 dark:text-slate-400 p-4">Nenhum termo popular encontrado hoje.</p>`;
+                trendingTopicsContainer.innerHTML = `<p class="text-center text-slate-400 p-4">Nenhum termo popular encontrado hoje.</p>`;
                 return;
             }
 
@@ -453,20 +437,20 @@
                 const ratio = freq / maxFreq;
 
                 let sizeClass = 'text-base';
-                let colorClass = 'text-slate-500 dark:text-slate-400';
+                let colorClass = 'text-slate-400';
 
                 if (ratio > 0.7) {
                     sizeClass = 'text-3xl';
-                    colorClass = 'text-cyan-600 dark:text-cyan-400';
+                    colorClass = 'text-cyan-400';
                 } else if (ratio > 0.4) {
                     sizeClass = 'text-xl';
-                    colorClass = 'text-slate-700 dark:text-slate-200';
+                    colorClass = 'text-slate-200';
                 } else if (ratio > 0.2) {
                     sizeClass = 'text-lg';
-                    colorClass = 'text-slate-600 dark:text-slate-300';
+                    colorClass = 'text-slate-300';
                 }
 
-                topicElement.className = `font-semibold transition-colors duration-200 ${sizeClass} ${colorClass} hover:text-orange-500 dark:hover:text-orange-400`;
+                topicElement.className = `font-semibold transition-colors duration-200 ${sizeClass} ${colorClass} hover:text-orange-400`;
                 const capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1);
                 topicElement.textContent = capitalizedWord;
                 
@@ -485,7 +469,7 @@
                 subCategoriesContainer.innerHTML = '';
                 subs.forEach(sub => {
                     const subButton = document.createElement('button');
-                    subButton.className = 'bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200';
+                    subButton.className = 'bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200';
                     subButton.textContent = sub;
                     subButton.onclick = () => {
                         searchInput.value = sub;
@@ -506,7 +490,7 @@
                 const categoryButton = document.createElement('button');
                 
                 if (index === 0) {
-                     categoryButton.className = `bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                     categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
                 } else {
                     const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
                     categoryButton.className = `${colorClass} text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200`;
@@ -580,14 +564,14 @@
         function renderSavedNews() {
             savedNewsContainer.innerHTML = '';
             if (savedNews.length === 0) {
-                savedNewsContainer.innerHTML = `<p class="text-sm text-center text-slate-500 dark:text-slate-400 p-4">Nenhuma notícia salva.</p>`;
+                savedNewsContainer.innerHTML = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`;
                 return;
             }
             savedNews.forEach(news => {
                 const savedItem = document.createElement('div');
-                savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700';
+                savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700';
                 savedItem.innerHTML = `
-                    <a href="${news.url}" target="_blank" class="text-sm text-slate-600 dark:text-slate-300 truncate" title="${news.title}">${news.title}</a>
+                    <a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a>
                     <button class="remove-saved-btn flex-shrink-0" data-url="${news.url}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
                     </button>
@@ -607,8 +591,8 @@
         function createGoogleNewsCard(news) {
             const newsElement = document.createElement('div');
             const parentCategory = news.category.split(' > ')[0];
-            const borderColorClass = categoryColorMap[parentCategory] || 'dark:border-cyan-500 border-orange-500'; // Fallback
-            newsElement.className = `bg-white dark:bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300`;
+            const borderColorClass = categoryColorMap[parentCategory] || 'border-cyan-500'; // Fallback
+            newsElement.className = `bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300`;
             
             const newsDateTime = new Date(news.timestamp);
             const newsDate = newsDateTime.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -620,13 +604,13 @@
             const snippet = (tempDiv.textContent || tempDiv.innerText || "").substring(0, 150) + '...';
 
             const logoUrl = `https://www.google.com/s2/favicons?domain=${news.sourceDomain}&sz=64`;
-            const fallbackSvg = `<div class='flex-shrink-0 w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-700 flex items-center justify-center'><svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 text-slate-400 dark:text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6' /></svg></div>`;
+            const fallbackSvg = `<div class='flex-shrink-0 w-6 h-6 rounded-md bg-slate-700 flex items-center justify-center'><svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6' /></svg></div>`;
             
             const isSaved = savedNews.some(saved => saved.url === news.url);
             const saveButtonIcon = isSaved 
                 ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-cyan-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>` 
                 : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
-
+            
             const searchTerm = searchInput.value.trim();
             let finalTitle = news.title;
             let finalSnippet = snippet;
@@ -638,8 +622,8 @@
             }
             
             const categoryIndex = mainCategories.indexOf(parentCategory);
-            const categoryColorClass = categoryIndex > 0 ? categoryButtonColors[categoryIndex - 1] : 'bg-slate-200 dark:bg-slate-700';
-            const categoryTextColorClass = categoryIndex > 0 ? 'text-white' : 'text-slate-700 dark:text-slate-300';
+            const categoryColorClass = categoryIndex > 0 ? categoryButtonColors[categoryIndex - 1] : 'bg-slate-700';
+            const categoryTextColorClass = categoryIndex > 0 ? 'text-white' : 'text-slate-300';
             const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
             
             newsElement.innerHTML = `
@@ -647,20 +631,20 @@
                     <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden">
                          <img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`">
                          <div class="truncate">
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p>
+                            <p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p>
                         </div>
                     </a>
                     <button class="save-btn" data-url="${news.url}">${saveButtonIcon}</button>
                 </div>
                  <div>
                     <a href="${news.url}" target="_blank" rel="noopener noreferrer">
-                        <p class="text-slate-700 dark:text-slate-300 font-semibold leading-relaxed mb-2">${finalTitle}</p>
+                        <p class="text-slate-300 font-semibold leading-relaxed mb-2">${finalTitle}</p>
                     </a>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-h-24 overflow-hidden">${finalSnippet}</p>
+                    <p class="text-sm text-slate-400 leading-relaxed max-h-24 overflow-hidden">${finalSnippet}</p>
                 </div>
-                <div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                <div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50">
                     <div>${categoryHTML}</div>
-                    <span class="text-xs text-slate-400 dark:text-slate-500">${fullDateTime}</span>
+                    <span class="text-xs text-slate-500">${fullDateTime}</span>
                 </div>`;
 
             newsElement.querySelector('.save-btn').addEventListener('click', (e) => {
@@ -742,7 +726,7 @@
 
             [dateFilterToday, dateFilterYesterday].forEach(btn => {
                 btn.classList.remove('date-filter-active');
-                btn.classList.add('bg-slate-300/50', 'dark:bg-slate-700/50', 'hover:bg-slate-300', 'dark:hover:bg-slate-700', 'text-slate-600', 'dark:text-slate-300');
+                btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
             });
 
             const activeBtn = {
@@ -752,28 +736,12 @@
 
             if(activeBtn) {
                 activeBtn.classList.add('date-filter-active');
-                activeBtn.classList.remove('bg-slate-300/50', 'dark:bg-slate-700/50', 'hover:bg-slate-300', 'dark:hover:bg-slate-700', 'text-slate-600', 'dark:text-slate-300');
+                activeBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
             }
             
             renderResults();
         }
-
-        function handleThemeToggle() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcons(isDark);
-        }
-
-        function updateThemeIcons(isDark) {
-            if (isDark) {
-                themeIconMoon.classList.remove('hidden');
-                themeIconSun.classList.add('hidden');
-            } else {
-                themeIconMoon.classList.add('hidden');
-                themeIconSun.classList.remove('hidden');
-            }
-        }
-
+        
         function handleSaveNews(newsItem, buttonElement) {
             const isAlreadySaved = savedNews.some(item => item.url === newsItem.url);
 
@@ -821,19 +789,7 @@
             }
         });
         
-        themeToggle.addEventListener('click', handleThemeToggle);
-
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-                document.documentElement.classList.add('dark');
-                updateThemeIcons(true);
-            } else {
-                document.documentElement.classList.remove('dark');
-                updateThemeIcons(false);
-            }
-
             const storedNews = localStorage.getItem('savedNews');
             if (storedNews) {
                 savedNews = JSON.parse(storedNews);
