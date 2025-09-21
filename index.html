@@ -25,19 +25,6 @@
             --news-border-color: var(--brand-color);
         }
 
-        /* Light Mode - OTIMIZADO */
-        body.light-mode {
-            --bg-body: #f8fafc;
-            --bg-container: #ffffff;
-            --bg-card: #ffffff;
-            --border-color: #e2e8f0;
-            --text-color: #1e293b;
-            --text-secondary: #475569;
-            --text-title: #1e293b;
-            --brand-color: #0d9488;
-            --news-border-color: rgba(255, 140, 0, 0.4); /* New translucent orange */
-        }
-
         /* Custom scrollbar for better aesthetics */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-container); }
@@ -69,15 +56,6 @@
         .news-card h3 { color: var(--text-title); }
         .news-card p { color: var(--text-secondary); }
         .footer-text { color: var(--text-secondary); }
-        
-        /* Specific Light Mode styles for buttons and text */
-        body.light-mode .button-secondary {
-            background-color: #f1f5f9; /* Lighter background for better visibility */
-            color: var(--text-secondary);
-            border-color: #cbd5e1; /* Subtle border */
-        }
-        body.light-mode .news-card h3 { color: var(--text-title); }
-        body.light-mode .news-card p { color: var(--text-secondary); }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -132,15 +110,6 @@
                     <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
                     <button id="dateFilterYesterday" class="button-secondary text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Ontem</button>
                 </div>
-                
-                <button id="themeToggleBtn" class="p-2.5 button-secondary rounded-lg transition-colors duration-200">
-                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8 0 1010.586 10.586z" />
-                    </svg>
-                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 12a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zm0-7a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zm-7 0a1 1 0 01-1 1H4a1 1 0 110-2h2a1 1 0 011 1zM4.707 14.707a1 1 0 011.414 0l1.414 1.414a1 1 0 01-1.414 1.414l-1.414-1.414a1 1 0 010-1.414zm-.707-8a1 1 0 011.414 0L6.414 8.707a1 1 0 11-1.414 1.414L4 8.414a1 1 0 010-1.414zm1.414-1.414a1 1 0 010 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414a1 1 0 011.414 0zM17.707 4.707a1 1 0 01-1.414 0l-1.414-1.414a1 1 0 111.414-1.414l1.414 1.414a1 1 0 010 1.414z" clip-rule="evenodd" />
-                    </svg>
-                </button>
             </div>
             
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
@@ -220,13 +189,10 @@
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageIndicator = document.getElementById('pageIndicator');
         const resultsInfo = document.getElementById('resultsInfo');
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const moonIcon = document.getElementById('moon-icon');
-        const sunIcon = document.getElementById('sun-icon');
 
         // App State
         let currentDateFilter = 'hoje'; 
-        let activeCategory = 'Geral'; 
+        let activeCategory = null; 
         let allNewsCache = [];
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -237,8 +203,7 @@
 
         // Google News RSS URLs for different categories
         const categoryFeeds = {
-            'Todas': 'all',
-            'Geral': 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Principal': 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419',
             'Mundo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5Y0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
             'Negócios': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5c0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
             'Tecnologia': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsVm5rQmdBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419',
@@ -594,9 +559,12 @@
                 } else if (finalQuery) {
                     const newsResults = await fetchFromGoogleNewsAPI(finalQuery);
                     allNewsCache = newsResults;
-                } else {
+                } else if (activeCategory) {
                     const categoryUrl = categoryFeeds[activeCategory];
                     const newsResults = await fetchFromGoogleNewsAPI(categoryUrl);
+                    allNewsCache = newsResults;
+                } else {
+                    const newsResults = await fetchFromGoogleNewsAPI();
                     allNewsCache = newsResults;
                 }
                 
@@ -634,7 +602,7 @@
         }
         
         function toggleClearButton() {
-            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== 'Geral') {
+            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== null) {
                 clearFiltersBtn.classList.remove('hidden');
             } else {
                 clearFiltersBtn.classList.add('hidden');
@@ -642,37 +610,13 @@
         }
 
         function handlePortalFilterVisual() {
-            if (document.body.classList.contains('light-mode')) {
-                // No need for color change in light mode, as text is dark anyway
-                portalFilter.style.color = '';
-            } else {
-                if (portalFilter.value === '') {
-                    portalFilter.style.color = 'var(--text-color)';
-                } else {
-                    portalFilter.style.color = 'var(--brand-color)';
-                }
-            }
+             if (portalFilter.value === '') {
+                 portalFilter.style.color = 'var(--text-color)';
+             } else {
+                 portalFilter.style.color = 'var(--brand-color)';
+             }
         }
 
-        // --- THEME TOGGLE LOGIC ---
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-mode');
-                moonIcon.classList.add('hidden');
-                sunIcon.classList.remove('hidden');
-            }
-             handlePortalFilterVisual(); 
-        }
-
-        function toggleTheme() {
-            const isLightMode = document.body.classList.toggle('light-mode');
-            localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
-            moonIcon.classList.toggle('hidden', isLightMode);
-            sunIcon.classList.toggle('hidden', !isLightMode);
-            handlePortalFilterVisual();
-        }
-        
         // --- INITIAL LOAD & EVENT LISTENERS ---
         searchButton.addEventListener('click', handleSearch);
         searchInput.addEventListener('keyup', (event) => {
@@ -688,7 +632,7 @@
         clearFiltersBtn.addEventListener('click', () => {
             searchInput.value = '';
             portalFilter.value = '';
-            activeCategory = 'Geral';
+            activeCategory = null;
             toggleClearButton();
             renderCategories(); 
             handleSearch();
@@ -712,11 +656,8 @@
                 renderResults();
             }
         });
-
-        themeToggleBtn.addEventListener('click', toggleTheme);
         
         document.addEventListener('DOMContentLoaded', () => {
-            loadTheme();
             loadInitialContent();
             fetchTrendingTopics();
             renderCategories();
