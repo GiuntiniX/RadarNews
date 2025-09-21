@@ -348,6 +348,9 @@
                 allNewsCache = combinedNews;
                 renderResults();
                 updateTimestamp();
+                
+                // --- NOVO: GERA OS TOPICOS A PARTIR DAS NOTICIAS CARREGADAS ---
+                fetchTrendingTopics(allNewsCache); 
             } catch (error) {
                 handleApiError(error);
             } finally {
@@ -355,10 +358,9 @@
             }
         }
 
-        async function fetchTrendingTopics() {
+        function fetchTrendingTopics(newsData) {
             try {
-                const news = await fetchFromGoogleNewsAPI();
-                const todayNews = applyDateFilter(news, 'hoje');
+                const todayNews = applyDateFilter(newsData, 'hoje');
 
                 if (todayNews.length === 0) {
                     trendingTopicsContainer.innerHTML = `<p class="text-center w-full text-sm text-slate-400 p-4">Nenhum tópico em alta hoje.</p>`;
@@ -385,7 +387,6 @@
         }
 
         async function loadInitialContent() {
-             // Initial load logic now handles 'Todas' as default
              setLoading(true);
              try {
                 await fetchAllCategoryNews();
@@ -726,7 +727,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
             loadInitialContent();
-            fetchTrendingTopics();
             renderCategories();
 
             setInterval(() => handleSearch({type: 'auto-refresh'}), refreshIntervalInMinutes * 60 * 1000);
