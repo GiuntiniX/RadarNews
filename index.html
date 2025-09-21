@@ -223,6 +223,38 @@
             'Política': ['Governo', 'Eleições', 'Congresso', 'STF']
         };
         const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'A Fazenda 2025', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Games', 'Moda', 'Meio Ambiente'];
+        const categoryColorMap = {
+            'Política': 'border-blue-500',
+            'Economia': 'border-emerald-500',
+            'Esportes': 'border-red-500',
+            'Tecnologia': 'border-purple-500',
+            'Cultura': 'border-yellow-500',
+            'Saúde': 'border-pink-500',
+            'Mundo': 'border-sky-500',
+            'Horóscopo': 'border-orange-500',
+            'Entretenimento': 'border-teal-500',
+            'A Fazenda 2025': 'border-fuchsia-500',
+            'Ciência': 'border-lime-500',
+            'Educação': 'border-rose-500',
+            'Viagem': 'border-indigo-500',
+            'Gastronomia': 'border-amber-500',
+            'Carros': 'border-slate-500',
+            'Imóveis': 'border-gray-500',
+            'Música': 'border-pink-400',
+            'Cinema': 'border-yellow-400',
+            'Games': 'border-purple-400',
+            'Moda': 'border-rose-400',
+            'Meio Ambiente': 'border-green-500'
+        };
+        const categoryButtonColors = [
+            'bg-blue-600 hover:bg-blue-500', 'bg-emerald-600 hover:bg-emerald-500', 'bg-red-600 hover:bg-red-500',
+            'bg-purple-600 hover:bg-purple-500', 'bg-yellow-600 hover:bg-yellow-500', 'bg-pink-600 hover:bg-pink-500',
+            'bg-sky-600 hover:bg-sky-500', 'bg-orange-600 hover:bg-orange-500', 'bg-teal-600 hover:bg-teal-500',
+            'bg-fuchsia-600 hover:bg-fuchsia-500', 'bg-lime-600 hover:bg-lime-500', 'bg-rose-600 hover:bg-rose-500',
+            'bg-indigo-600 hover:bg-indigo-500', 'bg-amber-600 hover:bg-amber-500', 'bg-cyan-600 hover:bg-cyan-500',
+            'bg-slate-600 hover:bg-slate-500', 'bg-pink-400 hover:bg-pink-300', 'bg-yellow-400 hover:bg-yellow-300',
+            'bg-purple-400 hover:bg-purple-300', 'bg-rose-400 hover:bg-rose-300', 'bg-green-600 hover:bg-green-500'
+        ];
 
         // --- MAPPING HELPERS ---
         function mapGoogleNewsData(item, categoryTag = null) {
@@ -472,7 +504,14 @@
             categoriesContainer.innerHTML = '';
             mainCategories.forEach((category, index) => {
                 const categoryButton = document.createElement('button');
-                categoryButton.className = `bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                
+                if (index === 0) {
+                     categoryButton.className = `bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                } else {
+                    const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
+                    categoryButton.className = `${colorClass} text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200`;
+                }
+
                 categoryButton.textContent = category;
                 
                 categoryButton.onclick = () => {
@@ -503,7 +542,6 @@
         function renderResults() {
             const filteredByDate = applyDateFilter(allNewsCache, currentDateFilter);
             
-            // Pagination logic
             const totalItems = filteredByDate.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -568,7 +606,9 @@
         
         function createGoogleNewsCard(news) {
             const newsElement = document.createElement('div');
-            newsElement.className = 'bg-white dark:bg-slate-800 border-l-4 border-orange-500 dark:border-cyan-500 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300';
+            const parentCategory = news.category.split(' > ')[0];
+            const borderColorClass = categoryColorMap[parentCategory] || 'dark:border-cyan-500 border-orange-500'; // Fallback
+            newsElement.className = `bg-white dark:bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300`;
             
             const newsDateTime = new Date(news.timestamp);
             const newsDate = newsDateTime.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -587,8 +627,6 @@
                 ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-cyan-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>` 
                 : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
 
-            const imageHTML = news.imageUrl ? `<a href="${news.url}" target="_blank" rel="noopener noreferrer"><img src="${news.imageUrl}" alt="Imagem da notícia" class="w-full h-40 object-cover rounded-lg mb-2" onerror="this.style.display='none'"></a>` : '';
-            
             const searchTerm = searchInput.value.trim();
             let finalTitle = news.title;
             let finalSnippet = snippet;
@@ -598,11 +636,13 @@
                 finalTitle = finalTitle.replace(regex, `<span class="highlight">$1</span>`);
                 finalSnippet = finalSnippet.replace(regex, `<span class="highlight">$1</span>`);
             }
-
-            const categoryHTML = `<span class="text-xs font-medium bg-slate-200 dark:bg-slate-700 text-cyan-600 dark:text-cyan-400 px-2 py-1 rounded-full">${news.category}</span>`;
+            
+            const categoryIndex = mainCategories.indexOf(parentCategory);
+            const categoryColorClass = categoryIndex > 0 ? categoryButtonColors[categoryIndex - 1] : 'bg-slate-200 dark:bg-slate-700';
+            const categoryTextColorClass = categoryIndex > 0 ? 'text-white' : 'text-slate-700 dark:text-slate-300';
+            const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
             
             newsElement.innerHTML = `
-                ${imageHTML}
                 <div class="flex justify-between items-start">
                     <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden">
                          <img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`">
