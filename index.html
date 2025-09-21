@@ -255,6 +255,8 @@
             'Turismo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTkVsZ0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419'
         };
 
+        const PROXY_URL = 'https://corsproxy.io/?';
+
         // --- MAPPING HELPERS ---
         function mapGoogleNewsData(item) {
             const getSourceName = (sourceString) => {
@@ -292,8 +294,7 @@
                  ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
                  : `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
 
-             const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`;
-             const response = await fetch(proxyUrl);
+             const response = await fetch(`${PROXY_URL}${encodeURIComponent(searchUrl)}`);
              if (!response.ok) throw new Error('Falha ao buscar notícias do Google.');
              
              const data = await response.json();
@@ -319,7 +320,7 @@
                     .map(key => categoryFeeds[key]);
 
                 const promises = feedUrls.map(url => 
-                    fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
+                    fetch(`${PROXY_URL}${encodeURIComponent(url)}`)
                         .then(response => response.json())
                         .then(data => {
                             if (!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
