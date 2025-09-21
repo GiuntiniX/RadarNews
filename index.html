@@ -192,7 +192,7 @@
 
         // App State
         let currentDateFilter = 'hoje'; 
-        let activeCategory = null; 
+        let activeCategory = 'Principal'; 
         let allNewsCache = [];
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -204,6 +204,7 @@
         // Google News RSS URLs for different categories
         const categoryFeeds = {
             'Principal': 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Todas': 'all',
             'Mundo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5Y0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
             'Negócios': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5c0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
             'Tecnologia': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsVm5rQmdBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419',
@@ -254,40 +255,35 @@
         }
         
         // --- API FETCHER ---
-        async function fetchFromGoogleNewsAPI(query = null) {
-             const searchUrl = query 
-                 ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
-                 : `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
-
-             const response = await fetch(`${PROXY_URL}${encodeURIComponent(searchUrl)}`);
-             if (!response.ok) throw new Error('Falha na resposta do proxy.');
+        async function fetchFromGoogleNewsAPI(url) {
+            const response = await fetch(`${PROXY_URL}${encodeURIComponent(url)}`);
+            if (!response.ok) throw new Error('Falha na resposta do proxy.');
              
-             let data;
-             try {
+            let data;
+            try {
                 data = await response.json();
-             } catch (e) {
+            } catch (e) {
                 throw new Error('O proxy de notícias retornou um erro inesperado. Tente novamente.');
-             }
+            }
 
-             if(!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
+            if(!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
              
-             const parser = new DOMParser();
-             const xmlDoc = parser.parseFromString(data.contents, "application/xml");
-             const items = xmlDoc.querySelectorAll("item");
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data.contents, "application/xml");
+            const items = xmlDoc.querySelectorAll("item");
              
-             const newsResults = [];
-             items.forEach(item => {
+            const newsResults = [];
+            items.forEach(item => {
                 newsResults.push(item);
-             });
-             return newsResults.map(mapGoogleNewsData);
+            });
+            return newsResults.map(mapGoogleNewsData);
         }
 
         async function fetchAllCategoryNews() {
             setLoading(true);
             try {
-                // Get all feeds except the special 'Todas' entry
                 const feedUrls = Object.keys(categoryFeeds)
-                    .filter(key => key !== 'Todas')
+                    .filter(key => key !== 'Principal' && key !== 'Todas')
                     .map(key => categoryFeeds[key]);
 
                 const promises = feedUrls.map(url => 
@@ -322,7 +318,8 @@
 
         async function fetchTrendingTopics() {
             try {
-                const news = await fetchFromGoogleNewsAPI();
+                const url = categoryFeeds['Principal'];
+                const news = await fetchFromGoogleNewsAPI(url);
                 const todayNews = applyDateFilter(news, 'hoje');
 
                 if (todayNews.length === 0) {
@@ -557,14 +554,16 @@
                 if (activeCategory === 'Todas') {
                     await fetchAllCategoryNews();
                 } else if (finalQuery) {
-                    const newsResults = await fetchFromGoogleNewsAPI(finalQuery);
+                    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(finalQuery)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+                    const newsResults = await fetchFromGoogleNewsAPI(url);
                     allNewsCache = newsResults;
                 } else if (activeCategory) {
                     const categoryUrl = categoryFeeds[activeCategory];
                     const newsResults = await fetchFromGoogleNewsAPI(categoryUrl);
                     allNewsCache = newsResults;
                 } else {
-                    const newsResults = await fetchFromGoogleNewsAPI();
+                    const url = `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+                    const newsResults = await fetchFromGoogleNewsAPI(url);
                     allNewsCache = newsResults;
                 }
                 
