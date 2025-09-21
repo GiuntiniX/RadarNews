@@ -9,53 +9,22 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+            background-color: #0f172a; /* slate-900 */
         }
-
-        /* Default Dark Mode */
-        :root {
-            --bg-body: #0f172a;
-            --bg-container: #1e293b;
-            --bg-card: #1e293b;
-            --border-color: #334155;
-            --text-color: #cbd5e1;
-            --text-secondary: #94a3b8;
-            --text-title: #e2e8f0;
-            --brand-color: #06b6d4;
-            --news-border-color: var(--brand-color);
-        }
-
         /* Custom scrollbar for better aesthetics */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-container); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+        ::-webkit-scrollbar-track { background: #1e293b; } /* slate-800 */
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; } /* slate-600 */
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; } /* slate-500 */
         .loader {
-            border-top-color: var(--brand-color);
+            border-top-color: #06b6d4;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .date-filter-active {
-            background-color: var(--brand-color);
+            background-color: #06b6d4;
             color: #ffffff;
         }
-        .category-filter-active {
-            background-color: var(--brand-color) !important;
-            color: #ffffff !important;
-        }
-
-        /* Applying theme colors to elements */
-        body { background-color: var(--bg-body); color: var(--text-color); }
-        .container-panel { background-color: var(--bg-container); border-color: var(--border-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
-        .input-group { background-color: var(--bg-body); border-color: var(--border-color); }
-        input, select { background-color: transparent; color: var(--text-color); }
-        input::placeholder { color: var(--text-secondary); }
-        .button-primary { background-color: var(--brand-color); color: #fff; }
-        .button-secondary { background-color: var(--bg-body); color: var(--text-secondary); border-color: var(--border-color); }
-        .news-card { background-color: var(--bg-card); border-left-color: var(--news-border-color); }
-        .news-card h3 { color: var(--text-title); }
-        .news-card p { color: var(--text-secondary); }
-        .footer-text { color: var(--text-secondary); }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -65,8 +34,10 @@
         <header class="text-center mb-6">
             <div class="flex justify-center items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.465 14.535a6.002 6.002 0 018.07 0M5.93 12.005a10.002 10.002 0 0112.14 0" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01" />
+                    <circle cx="12" cy="12" r="10" stroke-opacity="0.4"></circle>
+                    <circle cx="12" cy="12" r="6" stroke-opacity="0.4"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v10l-4 4"></path>
                 </svg>
                 <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Radar de Notícias</h1>
             </div>
@@ -74,14 +45,15 @@
             <div id="lastUpdated" class="text-sm text-slate-500 mt-2"></div>
         </header>
 
-        <div class="sticky top-4 container-panel backdrop-blur-sm z-10 p-4 rounded-xl border-2 shadow-lg mb-8">
+        <!-- Control Panel Menu -->
+        <div class="sticky top-4 bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-700 shadow-lg mb-8">
             <div class="flex flex-wrap items-center justify-center gap-4">
                 
-                <div class="flex-grow flex items-center gap-4 input-group rounded-lg p-1 border w-full lg:w-auto max-w-4xl">
-                    <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent focus:outline-none px-4 py-2">
+                <div class="flex-grow flex items-center gap-4 bg-slate-900 rounded-lg p-1 border border-slate-700 w-full lg:w-auto max-w-4xl">
+                    <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
                     
-                    <select id="portalFilter" class="bg-transparent text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
-                        <option selected value="">Todos os Portais</option>
+                    <select id="portalFilter" class="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
+                        <option selected="" value="">Todos os Portais</option>
                         <option value="g1.globo.com">G1</option>
                         <option value="uol.com.br">UOL</option>
                         <option value="folha.uol.com.br">Folha de S.Paulo</option>
@@ -93,44 +65,41 @@
                         <option value="metropoles.com">Metrópoles</option>
                     </select>
 
-                    <button id="searchButton" class="button-primary hover:bg-cyan-600 font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="searchButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:bg-slate-600 disabled:cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span id="buttonText">Buscar</span>
-                    </button>
-                    
-                    <button id="clearFiltersBtn" class="p-2.5 button-secondary hover:bg-slate-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
 
             </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
-                <div class="flex gap-2">
-                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
-                    <button id="dateFilterYesterday" class="button-secondary text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Ontem</button>
-                </div>
+            <!-- Date Filter -->
+            <div class="flex justify-center items-center gap-2 mt-4">
+                <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
+                <button id="dateFilterYesterday" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Ontem</button>
+                <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Última Semana</button>
             </div>
             
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
         </div>
         
+        <!-- Main Content Area -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-8">
             <div class="lg:col-span-8 xl:col-span-9">
                 <div id="loadingState" class="hidden text-center py-16">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 h-12 w-12 mx-auto mb-4"></div>
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-12 w-12 mx-auto mb-4"></div>
                     <h3 class="text-xl font-semibold text-slate-300">Buscando notícias...</h3>
                 </div>
 
-                <div id="resultsInfo" class="text-sm text-slate-500 mb-4 h-5"></div>
-                
                 <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                    </main>
+                    <!-- News will be dynamically inserted here -->
+                </main>
 
+                <!-- Pagination Controls -->
                 <div id="paginationControls" class="hidden flex justify-center items-center gap-4 mt-8">
-                    <button id="prevPageBtn" class="button-secondary font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Voltar</button>
+                    <button id="prevPageBtn" class="bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Voltar</button>
                     <span id="pageIndicator" class="text-slate-400 text-sm font-medium"></span>
-                    <button id="nextPageBtn" class="button-secondary font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Avançar</button>
+                    <button id="nextPageBtn" class="bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Avançar</button>
                 </div>
                 
                 <div id="messageState" class="hidden text-center py-16">
@@ -140,26 +109,30 @@
                 </div>
             </div>
 
+            <!-- Sidebar Sections -->
             <aside class="lg:col-span-4 xl:col-span-3 mt-8 lg:mt-0">
                 <div class="sticky top-28 flex flex-col gap-8">
-                    <div class="container-panel rounded-xl p-4 border">
+                    <!-- Trending Topics Section -->
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
                         <h2 class="text-lg font-bold text-cyan-400 mb-4">Principais Assuntos Hoje</h2>
-                        <div id="trendingTopicsContainer" class="flex flex-wrap gap-2">
-                            <div class="text-center w-full text-slate-400 p-4">Carregando tópicos...</div>
+                        <div id="trendingTopicsContainer" class="flex flex-col">
+                            <div class="text-center text-slate-400 p-4">Carregando tópicos...</div>
                         </div>
                     </div>
 
-                    <div class="container-panel rounded-xl p-4 border">
+                    <!-- Categories Section -->
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
                         <h2 class="text-lg font-bold text-cyan-400 mb-4">Navegue por Editoria</h2>
                         <div id="categoriesContainer" class="flex flex-wrap gap-2">
-                            </div>
+                            <!-- Category buttons will be inserted here -->
+                        </div>
                     </div>
                 </div>
             </aside>
         </div>
         
         <footer class="text-center py-4 mt-8 border-t border-slate-700">
-            <p class="text-sm footer-text">
+            <p class="text-sm text-slate-500">
                 Ferramenta desenvolvida por Estratégia de Dados - 
                 <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
             </p>
@@ -171,7 +144,6 @@
         const resultsContainer = document.getElementById('resultsContainer');
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
-        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
         const portalFilter = document.getElementById('portalFilter');
         const buttonText = document.getElementById('buttonText');
         const messageState = document.getElementById('messageState');
@@ -184,44 +156,17 @@
         const lastUpdatedElement = document.getElementById('lastUpdated');
         const dateFilterToday = document.getElementById('dateFilterToday');
         const dateFilterYesterday = document.getElementById('dateFilterYesterday');
+        const dateFilterWeek = document.getElementById('dateFilterWeek');
         const paginationControls = document.getElementById('paginationControls');
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageIndicator = document.getElementById('pageIndicator');
-        const resultsInfo = document.getElementById('resultsInfo');
 
         // App State
-        let currentDateFilter = 'hoje'; 
-        let activeCategory = 'Principal'; 
-        let allNewsCache = [];
+        let currentDateFilter = 'hoje'; // 'hoje', 'ontem', 'semana'
+        let allNewsCache = []; // Cache news to avoid re-fetching
         let currentPage = 1;
         const itemsPerPage = 20;
-        const refreshIntervalInMinutes = 20;
-        const stopWords = new Set([
-            'a', 'ao', 'aos', 'às', 'aqui', 'basta', 'bem', 'cá', 'cerca', 'com', 'conforme', 'da', 'das', 'de', 'do', 'dos', 'desde', 'e', 'em', 'entre', 'está', 'este', 'e', 'ela', 'ele', 'essa', 'esse', 'estar', 'estou', 'eu', 'foi', 'fui', 'há', 'isso', 'isto', 'lá', 'lhe', 'lhes', 'mas', 'me', 'mesmo', 'meu', 'minha', 'no', 'nos', 'na', 'nas', 'nem', 'no', 'nós', 'onde', 'o', 'os', 'ou', 'para', 'pela', 'pelas', 'pelo', 'pelos', 'por', 'pra', 'pelo', 'qual', 'quando', 'que', 'quem', 'se', 'sem', 'ser', 'seu', 'sua', 'suas', 'te', 'também', 'ter', 'tinha', 'toda', 'todo', 'um', 'uma', 'uns', 'umas', 'você', 'vocês', 'vai', 'vai', 'vou', 'ver', 'vez', 'vezes', 'vir'
-        ]);
-
-        // Google News RSS URLs for different categories
-        const categoryFeeds = {
-            'Principal': 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Todas': 'all',
-            'Mundo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5Y0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Negócios': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5c0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Tecnologia': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsVm5rQmdBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Esportes': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsWmhCY0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Ciência': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTllYWTNsZ2dBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Saúde': 'https://news.google.com/rss/topics/CAAqJQgKIh9DQkFTRVFvSUFmZ0tDUXhHTi13eTNsUW9Jc0FnQVJpZ0FQAQ?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Política': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTWtxc0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Entretenimento': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHT3p3c0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Automóveis': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTjBnd0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Meio Ambiente': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHT2twc0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Justiça': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlV3Y0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Educação': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTjB0Z0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Cultura': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHT1J0Z0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
-            'Turismo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTkVsZ0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419'
-        };
-
-        const PROXY_URL = 'https://corsproxy.io/?';
 
         // --- MAPPING HELPERS ---
         function mapGoogleNewsData(item) {
@@ -234,7 +179,7 @@
                 return parts[parts.length - 1].trim();
             };
 
-            let sourceDomain = 'news.google.com'; 
+            let sourceDomain = 'news.google.com'; // A safe default
             try {
                 if (item.sourceUrl && typeof item.sourceUrl === 'string') {
                     sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', '');
@@ -245,68 +190,74 @@
 
             return {
                 source: 'googlenews',
-                title: item.querySelector("title").textContent,
-                timestamp: new Date(item.querySelector("pubDate").textContent).getTime(),
-                url: item.querySelector("link").textContent,
-                description: item.querySelector("description").textContent,
-                sourceName: getSourceName(item.querySelector("title").textContent),
+                title: item.title,
+                timestamp: new Date(item.pubDate).getTime(),
+                url: item.link,
+                description: item.content,
+                sourceName: getSourceName(item.title),
                 sourceDomain: sourceDomain
             };
         }
         
         // --- API FETCHER ---
-        async function fetchFromGoogleNewsAPI(url) {
-            const response = await fetch(`${PROXY_URL}${encodeURIComponent(url)}`);
-            if (!response.ok) throw new Error('Falha na resposta do proxy.');
-             
-            let data;
-            try {
-                data = await response.json();
-            } catch (e) {
-                throw new Error('O proxy de notícias retornou um erro inesperado. Tente novamente.');
-            }
+        async function fetchFromGoogleNewsAPI(query = null) {
+             const searchUrl = query 
+                ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+                : `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
 
-            if(!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
+             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`;
+             const response = await fetch(proxyUrl);
+             if (!response.ok) throw new Error('Falha ao buscar notícias do Google.');
              
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(data.contents, "application/xml");
-            const items = xmlDoc.querySelectorAll("item");
+             const textData = await response.text();
+             if(!textData) throw new Error('Proxy não retornou conteúdo válido.');
              
-            const newsResults = [];
-            items.forEach(item => {
-                newsResults.push(item);
-            });
-            return newsResults.map(mapGoogleNewsData);
+             const parser = new DOMParser();
+             const xmlDoc = parser.parseFromString(textData, "application/xml");
+             const items = xmlDoc.querySelectorAll("item");
+             
+             const newsResults = [];
+             items.forEach(item => {
+                const sourceElement = item.querySelector("source");
+                newsResults.push({
+                    title: item.querySelector("title").textContent,
+                    link: item.querySelector("link").textContent,
+                    sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent,
+                    pubDate: item.querySelector("pubDate").textContent,
+                    content: item.querySelector("description").textContent
+                });
+             });
+             return newsResults.map(mapGoogleNewsData);
         }
 
-        async function fetchAllCategoryNews() {
+        async function fetchTrendingTopics() {
+            try {
+                const news = await fetchFromGoogleNewsAPI();
+                
+                const topics = news.slice(0, 10).map(item => {
+                    const fullTitle = item.title.split(' - ')[0];
+                    const words = fullTitle.split(/\s+/);
+                    const truncatedTitle = words.slice(0, 4).join(' ');
+                    
+                    return {
+                        full: fullTitle,
+                        truncated: words.length > 4 ? truncatedTitle + '...' : truncatedTitle
+                    };
+                });
+                
+                renderTrendingTopics(topics);
+
+            } catch (error) {
+                console.error("Trending Topics Error:", error);
+                trendingTopicsContainer.innerHTML = `<p class="text-sm text-red-400">Não foi possível carregar os tópicos.</p>`;
+            }
+        }
+
+        async function loadInitialContent() {
             setLoading(true);
             try {
-                const feedUrls = Object.keys(categoryFeeds)
-                    .filter(key => key !== 'Principal' && key !== 'Todas')
-                    .map(key => categoryFeeds[key]);
-
-                const promises = feedUrls.map(url => 
-                    fetch(`${PROXY_URL}${encodeURIComponent(url)}`)
-                        .then(response => {
-                            if (!response.ok) throw new Error('Falha na resposta do proxy.');
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
-                            const parser = new DOMParser();
-                            const xmlDoc = parser.parseFromString(data.contents, "application/xml");
-                            const items = xmlDoc.querySelectorAll("item");
-                            const newsResults = [];
-                            items.forEach(item => newsResults.push(item));
-                            return newsResults.map(mapGoogleNewsData);
-                        })
-                );
-
-                const allResults = await Promise.all(promises);
-                const combinedNews = allResults.flat().sort((a, b) => b.timestamp - a.timestamp);
-                
-                allNewsCache = combinedNews;
+                const news = await fetchFromGoogleNewsAPI();
+                allNewsCache = news;
                 renderResults();
                 updateTimestamp();
             } catch (error) {
@@ -314,40 +265,6 @@
             } finally {
                 setLoading(false);
             }
-        }
-
-        async function fetchTrendingTopics() {
-            try {
-                const url = categoryFeeds['Principal'];
-                const news = await fetchFromGoogleNewsAPI(url);
-                const todayNews = applyDateFilter(news, 'hoje');
-
-                if (todayNews.length === 0) {
-                    trendingTopicsContainer.innerHTML = `<p class="text-center w-full text-sm text-slate-400 p-4">Nenhum tópico em alta hoje.</p>`;
-                    return;
-                }
-                
-                const titles = todayNews.map(item => item.title.toLowerCase().replace(/[^a-z0-9\s]/g, ''));
-                const allWords = titles.join(' ').split(/\s+/).filter(word => word.length > 2 && !stopWords.has(word));
-
-                const wordCounts = allWords.reduce((acc, word) => {
-                    acc[word] = (acc[word] || 0) + 1;
-                    return acc;
-                }, {});
-
-                const sortedWords = Object.keys(wordCounts).sort((a, b) => wordCounts[b] - wordCounts[a]);
-                const topKeywords = sortedWords.slice(0, 10);
-                
-                renderTrendingTopics(topKeywords);
-
-            } catch (error) {
-                console.error("Trending Topics Error:", error);
-                trendingTopicsContainer.innerHTML = `<p class="text-center w-full text-sm text-red-400 p-4">Não foi possível carregar os tópicos.</p>`;
-            }
-        }
-
-        async function loadInitialContent() {
-             handleSearch();
         }
 
         // --- RENDERERS & FILTERS ---
@@ -363,51 +280,48 @@
                         const itemDate = new Date(item.timestamp);
                         return itemDate >= yesterdayStart && itemDate < todayStart;
                     });
+                case 'semana':
+                    const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return items.filter(item => new Date(item.timestamp) >= weekStart);
                 default:
                     return items;
             }
         }
-        
+
         function renderTrendingTopics(topics) {
             trendingTopicsContainer.innerHTML = '';
-            if (topics.length === 0) {
-                 trendingTopicsContainer.innerHTML = `<p class="text-center w-full text-sm text-slate-400 p-4">Nenhum tópico em alta hoje.</p>`;
-                 return;
-            }
             topics.forEach(topic => {
-                const topicButton = document.createElement('button');
-                topicButton.textContent = topic.charAt(0).toUpperCase() + topic.slice(1);
-                topicButton.className = 'button-secondary text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200';
+                const topicElement = document.createElement('button');
+                topicElement.className = 'text-left text-sm text-slate-300 p-3 hover:bg-slate-700 transition-colors duration-200 cursor-pointer w-full flex items-center gap-3 border-b border-slate-700 last:border-b-0';
                 
-                topicButton.onclick = () => {
-                    searchInput.value = topic;
-                    activeCategory = null;
+                topicElement.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="truncate">${topic.truncated}</span>
+                `;
+                
+                topicElement.title = topic.full;
+                topicElement.onclick = () => {
+                    searchInput.value = topic.full;
                     handleSearch();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
-                trendingTopicsContainer.appendChild(topicButton);
+                trendingTopicsContainer.appendChild(topicElement);
             });
         }
 
         function renderCategories() {
-            const categories = Object.keys(categoryFeeds);
+            const categories = ['Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'A Fazenda 2025', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis'];
             
             categoriesContainer.innerHTML = '';
             categories.forEach((category) => {
                 const categoryButton = document.createElement('button');
+                categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
                 categoryButton.textContent = category;
-                
-                let buttonClasses = `button-secondary text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
-                if (activeCategory === category) {
-                    buttonClasses += ' category-filter-active';
-                }
-                categoryButton.className = buttonClasses;
-
                 categoryButton.onclick = () => {
-                    activeCategory = category;
-                    searchInput.value = '';
-                    portalFilter.value = ""; 
-                    handlePortalFilterVisual();
+                    searchInput.value = category;
+                    portalFilter.value = ""; // Reset portal filter
                     handleSearch();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
@@ -417,12 +331,10 @@
 
         function renderResults() {
             const filteredByDate = applyDateFilter(allNewsCache, currentDateFilter);
-            const searchTerm = searchInput.value.trim();
-
-            resultsInfo.textContent = `Encontradas ${filteredByDate.length} notícias.`;
             
+            // Pagination logic
             const totalItems = filteredByDate.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const totalPages = Math.min(3, Math.ceil(totalItems / itemsPerPage)); // Max 3 pages
             const startIndex = (currentPage - 1) * itemsPerPage;
             const paginatedItems = filteredByDate.slice(startIndex, startIndex + itemsPerPage);
 
@@ -438,7 +350,7 @@
 
             messageState.classList.add('hidden');
             paginatedItems.forEach(item => {
-                resultsContainer.appendChild(createGoogleNewsCard(item, searchTerm));
+                resultsContainer.appendChild(createGoogleNewsCard(item));
             });
 
             renderPaginationControls(totalPages);
@@ -456,25 +368,16 @@
             nextPageBtn.disabled = currentPage === totalPages;
         }
         
-        function createGoogleNewsCard(news, searchTerm = '') {
+        function createGoogleNewsCard(news) {
             const newsElement = document.createElement('a');
             newsElement.href = news.url;
             newsElement.target = '_blank';
             newsElement.rel = 'noopener noreferrer';
-            newsElement.className = 'news-card border-l-4 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300';
+            newsElement.className = 'bg-slate-800 border-l-4 border-cyan-500 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300';
             const newsDate = new Date(news.timestamp).toLocaleDateString('pt-BR');
-            const newsTime = new Date(news.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = news.description;
-            let snippet = tempDiv.textContent || tempDiv.innerText || "";
-            let highlightedTitle = news.title;
-
-            if (searchTerm) {
-                const searchRegex = new RegExp(`(${searchTerm})`, 'gi');
-                highlightedTitle = news.title.replace(searchRegex, '<strong>$1</strong>');
-                snippet = snippet.replace(searchRegex, '<strong>$1</strong>');
-            }
+            const snippet = tempDiv.textContent || tempDiv.innerText || "";
 
             const logoUrl = `https://www.google.com/s2/favicons?domain=${news.sourceDomain}&sz=64`;
             const fallbackSvg = `<div class='flex-shrink-0 w-6 h-6 rounded-md bg-slate-700 flex items-center justify-center'><svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6' /></svg></div>`;
@@ -490,11 +393,11 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6"></path></svg>
                 </div>
                  <div>
-                    <p class="text-slate-300 font-semibold leading-relaxed mb-2">${highlightedTitle}</p>
+                    <p class="text-slate-300 font-semibold leading-relaxed mb-2">${news.title}</p>
                     <p class="text-sm text-slate-400 leading-relaxed max-h-24 overflow-hidden">${snippet}</p>
                 </div>
                 <div class="flex items-center justify-end text-sm mt-auto pt-4 border-t border-slate-700/50">
-                    <span class="text-xs text-slate-500">${newsDate} - ${newsTime}</span>
+                    <span class="text-xs text-slate-500">${newsDate}</span>
                 </div>`;
             return newsElement;
         }
@@ -503,20 +406,20 @@
         function updateTimestamp() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            lastUpdatedElement.textContent = `Atualizado em ${timeString}. Próxima atualização em ${refreshIntervalInMinutes} minutos.`;
+            lastUpdatedElement.textContent = `Atualizado às ${timeString}`;
         }
 
         function setLoading(isLoading) {
              if(isLoading) {
-                 searchButton.disabled = true;
-                 buttonText.textContent = "Buscando...";
-                 messageState.classList.add('hidden');
-                 loadingState.classList.remove('hidden');
-                 apiError.textContent = '';
+                searchButton.disabled = true;
+                buttonText.textContent = "Buscando...";
+                messageState.classList.add('hidden');
+                loadingState.classList.remove('hidden');
+                apiError.textContent = '';
              } else {
-                 searchButton.disabled = false;
-                 buttonText.textContent = "Buscar";
-                 loadingState.classList.add('hidden');
+                searchButton.disabled = false;
+                buttonText.textContent = "Buscar";
+                loadingState.classList.add('hidden');
              }
         }
         
@@ -530,43 +433,31 @@
         }
 
         async function handleSearch(event) {
-            const searchTerm = searchInput.value.trim();
+            let searchTerm = searchInput.value.trim();
             const portal = portalFilter.value;
 
+            // If it's an auto-refresh and the user has a specific search active, do nothing.
             if ((searchTerm || portal) && event?.type === 'auto-refresh') {
                 return;
             }
             
-            setLoading(true);
-            currentPage = 1; 
-            
-            if (searchTerm && activeCategory && searchTerm !== activeCategory) {
-                activeCategory = null;
+            // If it's a manual search with no terms, or an auto-refresh, load the main feed.
+            if ((!searchTerm && !portal) || event?.type === 'auto-refresh') {
+                loadInitialContent();
+                return;
             }
-            renderCategories();
-
+            
+            setLoading(true);
+            currentPage = 1; // Reset to first page on new search
+            
             let finalQuery = searchTerm;
             if (portal) {
                 finalQuery = `${searchTerm} site:${portal}`.trim();
             }
 
             try {
-                if (activeCategory === 'Todas') {
-                    await fetchAllCategoryNews();
-                } else if (finalQuery) {
-                    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(finalQuery)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
-                    const newsResults = await fetchFromGoogleNewsAPI(url);
-                    allNewsCache = newsResults;
-                } else if (activeCategory) {
-                    const categoryUrl = categoryFeeds[activeCategory];
-                    const newsResults = await fetchFromGoogleNewsAPI(categoryUrl);
-                    allNewsCache = newsResults;
-                } else {
-                    const url = `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
-                    const newsResults = await fetchFromGoogleNewsAPI(url);
-                    allNewsCache = newsResults;
-                }
-                
+                const newsResults = await fetchFromGoogleNewsAPI(finalQuery || null);
+                allNewsCache = newsResults;
                 renderResults();
                 updateTimestamp();
 
@@ -579,67 +470,38 @@
         
         function setDateFilter(filter) {
             currentDateFilter = filter;
-            currentPage = 1; 
+            currentPage = 1; // Reset to first page on date change
 
-            const allDateButtons = [dateFilterToday, dateFilterYesterday];
-            allDateButtons.forEach(btn => {
+            // Update button styles
+            [dateFilterToday, dateFilterYesterday, dateFilterWeek].forEach(btn => {
                 btn.classList.remove('date-filter-active', 'bg-cyan-600', 'text-white');
-                btn.classList.add('button-secondary');
+                btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
             });
 
             const activeBtn = {
                 'hoje': dateFilterToday,
                 'ontem': dateFilterYesterday,
+                'semana': dateFilterWeek
             }[filter];
 
             if(activeBtn) {
                 activeBtn.classList.add('date-filter-active', 'bg-cyan-600', 'text-white');
-                activeBtn.classList.remove('button-secondary');
+                activeBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
             }
             
             renderResults();
         }
         
-        function toggleClearButton() {
-            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== null) {
-                clearFiltersBtn.classList.remove('hidden');
-            } else {
-                clearFiltersBtn.classList.add('hidden');
-            }
-        }
-
-        function handlePortalFilterVisual() {
-             if (portalFilter.value === '') {
-                 portalFilter.style.color = 'var(--text-color)';
-             } else {
-                 portalFilter.style.color = 'var(--brand-color)';
-             }
-        }
-
         // --- INITIAL LOAD & EVENT LISTENERS ---
         searchButton.addEventListener('click', handleSearch);
         searchInput.addEventListener('keyup', (event) => {
-            toggleClearButton();
             if (event.key === 'Enter') handleSearch();
         });
-        portalFilter.addEventListener('change', () => {
-            toggleClearButton();
-            handlePortalFilterVisual();
-            handleSearch();
-        });
-
-        clearFiltersBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            portalFilter.value = '';
-            activeCategory = null;
-            toggleClearButton();
-            renderCategories(); 
-            handleSearch();
-            handlePortalFilterVisual();
-        });
+        portalFilter.addEventListener('change', handleSearch);
         
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
         dateFilterYesterday.addEventListener('click', () => setDateFilter('ontem'));
+        dateFilterWeek.addEventListener('click', () => setDateFilter('semana'));
 
         prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
@@ -649,7 +511,7 @@
         });
 
         nextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(applyDateFilter(allNewsCache, currentDateFilter).length / itemsPerPage);
+            const totalPages = Math.min(3, Math.ceil(applyDateFilter(allNewsCache, currentDateFilter).length / itemsPerPage));
             if (currentPage < totalPages) {
                 currentPage++;
                 renderResults();
@@ -661,9 +523,11 @@
             fetchTrendingTopics();
             renderCategories();
 
-            setInterval(() => handleSearch({type: 'auto-refresh'}), refreshIntervalInMinutes * 60 * 1000);
+            // Auto-refresh every 20 minutes
+            setInterval(() => handleSearch({type: 'auto-refresh'}), 20 * 60 * 1000);
         });
 
     </script>
 </body>
 </html>
+
