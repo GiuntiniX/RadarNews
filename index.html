@@ -458,7 +458,12 @@
             newsElement.target = '_blank';
             newsElement.rel = 'noopener noreferrer';
             newsElement.className = 'bg-slate-800 border-l-4 border-cyan-500 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300';
-            const newsDate = new Date(news.timestamp).toLocaleDateString('pt-BR');
+            
+            const newsDateTime = new Date(news.timestamp);
+            const newsDate = newsDateTime.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const newsTime = newsDateTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            const fullDateTime = `${newsDate} às ${newsTime}`;
+
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = news.description;
             const snippet = tempDiv.textContent || tempDiv.innerText || "";
@@ -481,7 +486,7 @@
                     <p class="text-sm text-slate-400 leading-relaxed max-h-24 overflow-hidden">${snippet}</p>
                 </div>
                 <div class="flex items-center justify-end text-sm mt-auto pt-4 border-t border-slate-700/50">
-                    <span class="text-xs text-slate-500">${newsDate}</span>
+                    <span class="text-xs text-slate-500">${fullDateTime}</span>
                 </div>`;
             return newsElement;
         }
