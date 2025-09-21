@@ -25,6 +25,10 @@
             background-color: #06b6d4;
             color: #ffffff;
         }
+        .category-filter-active {
+            background-color: #06b6d4 !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -66,13 +70,27 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span id="buttonText">Buscar</span>
                     </button>
+                    
+                    <button id="clearFiltersBtn" class="p-2.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
 
             </div>
 
-            <div class="flex justify-center items-center gap-2 mt-4">
-                <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
-                <button id="dateFilterYesterday" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Ontem</button>
+            <div class="flex flex-wrap justify-center items-center gap-2 mt-4">
+                <div class="flex gap-2">
+                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
+                    <button id="dateFilterYesterday" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Ontem</button>
+                </div>
+                
+                <div class="flex items-center gap-2 text-sm text-slate-400">
+                    <span>Ordenar por:</span>
+                    <select id="sortOptions" class="bg-slate-700/50 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2">
+                        <option value="relevantes">Mais Relevantes</option>
+                        <option value="recentes">Mais Recentes</option>
+                    </select>
+                </div>
             </div>
             
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
@@ -85,6 +103,8 @@
                     <h3 class="text-xl font-semibold text-slate-300">Buscando notícias...</h3>
                 </div>
 
+                <div id="resultsInfo" class="text-sm text-slate-500 mb-4 h-5"></div>
+                
                 <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                     </main>
 
@@ -132,6 +152,7 @@
         const resultsContainer = document.getElementById('resultsContainer');
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
         const portalFilter = document.getElementById('portalFilter');
         const buttonText = document.getElementById('buttonText');
         const messageState = document.getElementById('messageState');
@@ -148,13 +169,27 @@
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageIndicator = document.getElementById('pageIndicator');
+        const sortOptions = document.getElementById('sortOptions');
+        const resultsInfo = document.getElementById('resultsInfo');
 
         // App State
-        let currentDateFilter = 'hoje'; // 'hoje', 'ontem'
-        let allNewsCache = []; // Cache news to avoid re-fetching
+        let currentDateFilter = 'hoje'; 
+        let currentSort = 'relevantes'; 
+        let activeCategory = null; 
+        let allNewsCache = [];
         let currentPage = 1;
         const itemsPerPage = 20;
         const refreshIntervalInMinutes = 20;
+
+        // Google News RSS URLs for different categories
+        const categoryFeeds = {
+            'Geral': 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Mundo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5Y0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Negócios': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5c0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Tecnologia': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsVm5rQmdBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Esportes': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsWmhCY0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Ciência': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTllYWTNsZ2dBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419'
+        };
 
         // --- MAPPING HELPERS ---
         function mapGoogleNewsData(item) {
@@ -167,7 +202,7 @@
                 return parts[parts.length - 1].trim();
             };
 
-            let sourceDomain = 'news.google.com'; // A safe default
+            let sourceDomain = 'news.google.com'; 
             try {
                 if (item.sourceUrl && typeof item.sourceUrl === 'string') {
                     sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', '');
@@ -218,6 +253,46 @@
              return newsResults.map(mapGoogleNewsData);
         }
 
+        async function fetchAllCategoryNews() {
+            setLoading(true);
+            try {
+                const promises = Object.values(categoryFeeds).map(url => 
+                    fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(data.contents, "application/xml");
+                            const items = xmlDoc.querySelectorAll("item");
+                            const newsResults = [];
+                            items.forEach(item => {
+                                const sourceElement = item.querySelector("source");
+                                newsResults.push({
+                                    title: item.querySelector("title").textContent,
+                                    link: item.querySelector("link").textContent,
+                                    sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent,
+                                    pubDate: item.querySelector("pubDate").textContent,
+                                    content: item.querySelector("description").textContent
+                                });
+                            });
+                            return newsResults.map(mapGoogleNewsData);
+                        })
+                );
+
+                const allResults = await Promise.all(promises);
+                // Flatten the array of arrays and sort by timestamp
+                const combinedNews = allResults.flat().sort((a, b) => b.timestamp - a.timestamp);
+                
+                allNewsCache = combinedNews;
+                renderResults();
+                updateTimestamp();
+            } catch (error) {
+                handleApiError(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
         async function fetchTrendingTopics() {
             try {
                 const news = await fetchFromGoogleNewsAPI();
@@ -244,10 +319,7 @@
         async function loadInitialContent() {
             setLoading(true);
             try {
-                const news = await fetchFromGoogleNewsAPI();
-                allNewsCache = news;
-                renderResults();
-                updateTimestamp();
+                await fetchAllCategoryNews();
             } catch (error) {
                 handleApiError(error);
             } finally {
@@ -272,6 +344,13 @@
                     return items;
             }
         }
+        
+        function sortNews(items, sortType) {
+            if (sortType === 'recentes') {
+                return [...items].sort((a, b) => b.timestamp - a.timestamp);
+            }
+            return items; // Default to 'relevantes' (API default order)
+        }
 
         function renderTrendingTopics(topics) {
             trendingTopicsContainer.innerHTML = '';
@@ -289,6 +368,7 @@
                 topicElement.title = topic.full;
                 topicElement.onclick = () => {
                     searchInput.value = topic.full;
+                    activeCategory = null; 
                     handleSearch();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
@@ -302,11 +382,18 @@
             categoriesContainer.innerHTML = '';
             categories.forEach((category) => {
                 const categoryButton = document.createElement('button');
-                categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
                 categoryButton.textContent = category;
+                
+                let buttonClasses = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                if (activeCategory === category) {
+                    buttonClasses += ' category-filter-active';
+                }
+                categoryButton.className = buttonClasses;
+
                 categoryButton.onclick = () => {
                     searchInput.value = category;
-                    portalFilter.value = ""; // Reset portal filter
+                    portalFilter.value = ""; 
+                    activeCategory = category;
                     handleSearch();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
@@ -315,9 +402,12 @@
         }
 
         function renderResults() {
-            const filteredByDate = applyDateFilter(allNewsCache, currentDateFilter);
+            const sortedItems = sortNews(allNewsCache, currentSort);
             
-            // Pagination logic
+            const filteredByDate = applyDateFilter(sortedItems, currentDateFilter);
+            
+            resultsInfo.textContent = `Encontradas ${filteredByDate.length} notícias.`;
+            
             const totalItems = filteredByDate.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -429,14 +519,24 @@
             setLoading(true);
             currentPage = 1; 
             
+            if (searchTerm && activeCategory && searchTerm !== activeCategory) {
+                activeCategory = null;
+            }
+            renderCategories();
+
             let finalQuery = searchTerm;
             if (portal) {
                 finalQuery = `${searchTerm} site:${portal}`.trim();
             }
 
             try {
-                const newsResults = await fetchFromGoogleNewsAPI(finalQuery || null);
-                allNewsCache = newsResults;
+                if (finalQuery) {
+                    const newsResults = await fetchFromGoogleNewsAPI(finalQuery);
+                    allNewsCache = newsResults;
+                } else {
+                    await fetchAllCategoryNews();
+                }
+
                 renderResults();
                 updateTimestamp();
 
@@ -469,15 +569,673 @@
             renderResults();
         }
         
+        function toggleClearButton() {
+            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== null) {
+                clearFiltersBtn.classList.remove('hidden');
+            } else {
+                clearFiltersBtn.classList.add('hidden');
+            }
+        }
+        
         // --- INITIAL LOAD & EVENT LISTENERS ---
         searchButton.addEventListener('click', handleSearch);
         searchInput.addEventListener('keyup', (event) => {
+            toggleClearButton();
             if (event.key === 'Enter') handleSearch();
         });
-        portalFilter.addEventListener('change', handleSearch);
+        portalFilter.addEventListener('change', () => {
+            toggleClearButton();
+            handleSearch();
+        });
+
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            portalFilter.value = '';
+            activeCategory = null;
+            toggleClearButton();
+            renderCategories(); 
+            handleSearch();
+        });
         
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
         dateFilterYesterday.addEventListener('click', () => setDateFilter('ontem'));
+        
+        sortOptions.addEventListener('change', () => {
+            currentSort = sortOptions.value;
+            renderResults();
+        });
+
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderResults();
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(applyDateFilter(allNewsCache, currentDateFilter).length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderResults();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInitialContent();
+            fetchTrendingTopics();
+            renderCategories();
+
+            setInterval(() => handleSearch({type: 'auto-refresh'}), refreshIntervalInMinutes * 60 * 1000);
+        });
+
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar de Notícias</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; } /* slate-800 */
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; } /* slate-600 */
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; } /* slate-500 */
+        .loader {
+            border-top-color: #06b6d4;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .date-filter-active {
+            background-color: #06b6d4;
+            color: #ffffff;
+        }
+        .category-filter-active {
+            background-color: #06b6d4 !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body class="text-slate-200 antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-6">
+            <div class="flex justify-center items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.465 14.535a6.002 6.002 0 018.07 0M5.93 12.005a10.002 10.002 0 0112.14 0" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01" />
+                </svg>
+                <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Radar de Notícias</h1>
+            </div>
+            <p class="text-slate-400 mt-2">As últimas notícias sobre os principais assuntos do Brasil.</p>
+            <div id="lastUpdated" class="text-sm text-slate-500 mt-2"></div>
+        </header>
+
+        <div class="sticky top-4 bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-700 shadow-lg mb-8">
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                
+                <div class="flex-grow flex items-center gap-4 bg-slate-900 rounded-lg p-1 border border-slate-700 w-full lg:w-auto max-w-4xl">
+                    <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
+                    
+                    <select id="portalFilter" class="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
+                        <option selected value="">Todos os Portais</option>
+                        <option value="g1.globo.com">G1</option>
+                        <option value="uol.com.br">UOL</option>
+                        <option value="folha.uol.com.br">Folha de S.Paulo</option>
+                        <option value="estadao.com.br">Estadão</option>
+                        <option value="r7.com">R7</option>
+                        <option value="cnnbrasil.com.br">CNN Brasil</option>
+                        <option value="terra.com.br">Terra</option>
+                        <option value="valor.globo.com">Valor Econômico</option>
+                        <option value="metropoles.com">Metrópoles</option>
+                    </select>
+
+                    <button id="searchButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:bg-slate-600 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <span id="buttonText">Buscar</span>
+                    </button>
+                    
+                    <button id="clearFiltersBtn" class="p-2.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="flex flex-wrap justify-center items-center gap-2 mt-4">
+                <div class="flex gap-2">
+                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
+                    <button id="dateFilterYesterday" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Ontem</button>
+                </div>
+                
+                <div class="flex items-center gap-2 text-sm text-slate-400">
+                    <span>Ordenar por:</span>
+                    <select id="sortOptions" class="bg-slate-700/50 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2">
+                        <option value="relevantes">Mais Relevantes</option>
+                        <option value="recentes">Mais Recentes</option>
+                    </select>
+                </div>
+            </div>
+            
+            <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
+        </div>
+        
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-8 xl:col-span-9">
+                <div id="loadingState" class="hidden text-center py-16">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-12 w-12 mx-auto mb-4"></div>
+                    <h3 class="text-xl font-semibold text-slate-300">Buscando notícias...</h3>
+                </div>
+
+                <div id="resultsInfo" class="text-sm text-slate-500 mb-4 h-5"></div>
+                
+                <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                    </main>
+
+                <div id="paginationControls" class="hidden flex justify-center items-center gap-4 mt-8">
+                    <button id="prevPageBtn" class="bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Voltar</button>
+                    <span id="pageIndicator" class="text-slate-400 text-sm font-medium"></span>
+                    <button id="nextPageBtn" class="bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">Avançar</button>
+                </div>
+                
+                <div id="messageState" class="hidden text-center py-16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-slate-600 mb-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>
+                    <h3 id="messageTitle" class="text-xl font-semibold text-slate-300">Nenhum resultado</h3>
+                    <p id="messageText" class="text-slate-500">Tente um termo diferente.</p>
+                </div>
+            </div>
+
+            <aside class="lg:col-span-4 xl:col-span-3 mt-8 lg:mt-0">
+                <div class="sticky top-28 flex flex-col gap-8">
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Principais Assuntos Hoje</h2>
+                        <div id="trendingTopicsContainer" class="flex flex-col">
+                            <div class="text-center text-slate-400 p-4">Carregando tópicos...</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Navegue por Editoria</h2>
+                        <div id="categoriesContainer" class="flex flex-wrap gap-2">
+                            </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        
+        <footer class="text-center py-4 mt-8 border-t border-slate-700">
+            <p class="text-sm text-slate-500">
+                Ferramenta desenvolvida por Estratégia de Dados - 
+                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const resultsContainer = document.getElementById('resultsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        const portalFilter = document.getElementById('portalFilter');
+        const buttonText = document.getElementById('buttonText');
+        const messageState = document.getElementById('messageState');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const loadingState = document.getElementById('loadingState');
+        const apiError = document.getElementById('apiError');
+        const trendingTopicsContainer = document.getElementById('trendingTopicsContainer');
+        const categoriesContainer = document.getElementById('categoriesContainer');
+        const lastUpdatedElement = document.getElementById('lastUpdated');
+        const dateFilterToday = document.getElementById('dateFilterToday');
+        const dateFilterYesterday = document.getElementById('dateFilterYesterday');
+        const paginationControls = document.getElementById('paginationControls');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const sortOptions = document.getElementById('sortOptions');
+        const resultsInfo = document.getElementById('resultsInfo');
+
+        // App State
+        let currentDateFilter = 'hoje'; 
+        let currentSort = 'relevantes'; 
+        let activeCategory = null; 
+        let allNewsCache = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+        const refreshIntervalInMinutes = 20;
+
+        // Google News RSS URLs for different categories
+        const categoryFeeds = {
+            'Geral': 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Mundo': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5Y0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Negócios': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTlZJTlJ5c0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Tecnologia': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsVm5rQmdBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Esportes': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTnllWjNsWmhCY0FnQVJpQVAB?hl=pt-BR&gl=BR&ceid=BR:pt-419',
+            'Ciência': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRlFvSUFmZ0tDUXhHTllYWTNsZ2dBUklBQQA?hl=pt-BR&gl=BR&ceid=BR:pt-419'
+        };
+
+        // --- MAPPING HELPERS ---
+        function mapGoogleNewsData(item) {
+            const getSourceName = (sourceString) => {
+                if (!sourceString) return 'Fonte Desconhecida';
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = sourceString;
+                const text = tempDiv.textContent || tempDiv.innerText || "";
+                const parts = text.split(' - ');
+                return parts[parts.length - 1].trim();
+            };
+
+            let sourceDomain = 'news.google.com'; 
+            try {
+                if (item.sourceUrl && typeof item.sourceUrl === 'string') {
+                    sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', '');
+                }
+            } catch (e) {
+                console.error("Could not parse source URL:", item.sourceUrl, e);
+            }
+
+            return {
+                source: 'googlenews',
+                title: item.title,
+                timestamp: new Date(item.pubDate).getTime(),
+                url: item.link,
+                description: item.content,
+                sourceName: getSourceName(item.title),
+                sourceDomain: sourceDomain
+            };
+        }
+        
+        // --- API FETCHER ---
+        async function fetchFromGoogleNewsAPI(query = null) {
+             const searchUrl = query 
+                 ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+                 : `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+
+             const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`;
+             const response = await fetch(proxyUrl);
+             if (!response.ok) throw new Error('Falha ao buscar notícias do Google.');
+             
+             const data = await response.json();
+             if(!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
+             
+             const parser = new DOMParser();
+             const xmlDoc = parser.parseFromString(data.contents, "application/xml");
+             const items = xmlDoc.querySelectorAll("item");
+             
+             const newsResults = [];
+             items.forEach(item => {
+                 const sourceElement = item.querySelector("source");
+                 newsResults.push({
+                     title: item.querySelector("title").textContent,
+                     link: item.querySelector("link").textContent,
+                     sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent,
+                     pubDate: item.querySelector("pubDate").textContent,
+                     content: item.querySelector("description").textContent
+                 });
+             });
+             return newsResults.map(mapGoogleNewsData);
+        }
+
+        async function fetchAllCategoryNews() {
+            setLoading(true);
+            try {
+                const promises = Object.values(categoryFeeds).map(url => 
+                    fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(data.contents, "application/xml");
+                            const items = xmlDoc.querySelectorAll("item");
+                            const newsResults = [];
+                            items.forEach(item => {
+                                const sourceElement = item.querySelector("source");
+                                newsResults.push({
+                                    title: item.querySelector("title").textContent,
+                                    link: item.querySelector("link").textContent,
+                                    sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent,
+                                    pubDate: item.querySelector("pubDate").textContent,
+                                    content: item.querySelector("description").textContent
+                                });
+                            });
+                            return newsResults.map(mapGoogleNewsData);
+                        })
+                );
+
+                const allResults = await Promise.all(promises);
+                // Flatten the array of arrays and sort by timestamp
+                const combinedNews = allResults.flat().sort((a, b) => b.timestamp - a.timestamp);
+                
+                allNewsCache = combinedNews;
+                renderResults();
+                updateTimestamp();
+            } catch (error) {
+                handleApiError(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function fetchTrendingTopics() {
+            try {
+                const news = await fetchFromGoogleNewsAPI();
+                
+                const topics = news.slice(0, 10).map(item => {
+                    const fullTitle = item.title.split(' - ')[0];
+                    const words = fullTitle.split(/\s+/);
+                    const truncatedTitle = words.slice(0, 4).join(' ');
+                    
+                    return {
+                        full: fullTitle,
+                        truncated: words.length > 4 ? truncatedTitle + '...' : truncatedTitle
+                    };
+                });
+                
+                renderTrendingTopics(topics);
+
+            } catch (error) {
+                console.error("Trending Topics Error:", error);
+                trendingTopicsContainer.innerHTML = `<p class="text-sm text-red-400">Não foi possível carregar os tópicos.</p>`;
+            }
+        }
+
+        async function loadInitialContent() {
+            setLoading(true);
+            try {
+                await fetchAllCategoryNews();
+            } catch (error) {
+                handleApiError(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // --- RENDERERS & FILTERS ---
+        function applyDateFilter(items, filter) {
+            const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+
+            switch (filter) {
+                case 'hoje':
+                    return items.filter(item => new Date(item.timestamp) >= todayStart);
+                case 'ontem':
+                    const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+                    return items.filter(item => {
+                        const itemDate = new Date(item.timestamp);
+                        return itemDate >= yesterdayStart && itemDate < todayStart;
+                    });
+                default:
+                    return items;
+            }
+        }
+        
+        function sortNews(items, sortType) {
+            if (sortType === 'recentes') {
+                return [...items].sort((a, b) => b.timestamp - a.timestamp);
+            }
+            return items; // Default to 'relevantes' (API default order)
+        }
+
+        function renderTrendingTopics(topics) {
+            trendingTopicsContainer.innerHTML = '';
+            topics.forEach(topic => {
+                const topicElement = document.createElement('button');
+                topicElement.className = 'text-left text-sm text-slate-300 p-3 hover:bg-slate-700 transition-colors duration-200 cursor-pointer w-full flex items-center gap-3 border-b border-slate-700 last:border-b-0';
+                
+                topicElement.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="truncate">${topic.truncated}</span>
+                `;
+                
+                topicElement.title = topic.full;
+                topicElement.onclick = () => {
+                    searchInput.value = topic.full;
+                    activeCategory = null; 
+                    handleSearch();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                trendingTopicsContainer.appendChild(topicElement);
+            });
+        }
+
+        function renderCategories() {
+            const categories = ['Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'A Fazenda 2025', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Celebridades'];
+            
+            categoriesContainer.innerHTML = '';
+            categories.forEach((category) => {
+                const categoryButton = document.createElement('button');
+                categoryButton.textContent = category;
+                
+                let buttonClasses = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                if (activeCategory === category) {
+                    buttonClasses += ' category-filter-active';
+                }
+                categoryButton.className = buttonClasses;
+
+                categoryButton.onclick = () => {
+                    searchInput.value = category;
+                    portalFilter.value = ""; 
+                    activeCategory = category;
+                    handleSearch();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                categoriesContainer.appendChild(categoryButton);
+            });
+        }
+
+        function renderResults() {
+            const sortedItems = sortNews(allNewsCache, currentSort);
+            
+            const filteredByDate = applyDateFilter(sortedItems, currentDateFilter);
+            
+            resultsInfo.textContent = `Encontradas ${filteredByDate.length} notícias.`;
+            
+            const totalItems = filteredByDate.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedItems = filteredByDate.slice(startIndex, startIndex + itemsPerPage);
+
+            resultsContainer.innerHTML = '';
+
+            if (paginatedItems.length === 0) {
+                messageState.classList.remove('hidden');
+                paginationControls.classList.add('hidden');
+                messageTitle.textContent = 'Nenhum resultado para este período';
+                messageText.textContent = 'Tente um termo diferente ou altere o filtro de data.';
+                return;
+            }
+
+            messageState.classList.add('hidden');
+            paginatedItems.forEach(item => {
+                resultsContainer.appendChild(createGoogleNewsCard(item));
+            });
+
+            renderPaginationControls(totalPages);
+        }
+
+        function renderPaginationControls(totalPages) {
+            if (totalPages <= 1) {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+
+            paginationControls.classList.remove('hidden');
+            pageIndicator.textContent = `Página ${currentPage} de ${totalPages}`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages;
+        }
+        
+        function createGoogleNewsCard(news) {
+            const newsElement = document.createElement('a');
+            newsElement.href = news.url;
+            newsElement.target = '_blank';
+            newsElement.rel = 'noopener noreferrer';
+            newsElement.className = 'bg-slate-800 border-l-4 border-cyan-500 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-105 transition-transform duration-300';
+            const newsDate = new Date(news.timestamp).toLocaleDateString('pt-BR');
+            const newsTime = new Date(news.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = news.description;
+            const snippet = tempDiv.textContent || tempDiv.innerText || "";
+
+            const logoUrl = `https://www.google.com/s2/favicons?domain=${news.sourceDomain}&sz=64`;
+            const fallbackSvg = `<div class='flex-shrink-0 w-6 h-6 rounded-md bg-slate-700 flex items-center justify-center'><svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6' /></svg></div>`;
+            
+            newsElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                         <img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`">
+                         <div class="truncate">
+                            <p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p>
+                        </div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6"></path></svg>
+                </div>
+                 <div>
+                    <p class="text-slate-300 font-semibold leading-relaxed mb-2">${news.title}</p>
+                    <p class="text-sm text-slate-400 leading-relaxed max-h-24 overflow-hidden">${snippet}</p>
+                </div>
+                <div class="flex items-center justify-end text-sm mt-auto pt-4 border-t border-slate-700/50">
+                    <span class="text-xs text-slate-500">${newsDate} - ${newsTime}</span>
+                </div>`;
+            return newsElement;
+        }
+        
+        // --- UI & EVENT HANDLERS ---
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            lastUpdatedElement.textContent = `Atualizado em ${timeString}. Próxima atualização em ${refreshIntervalInMinutes} minutos.`;
+        }
+
+        function setLoading(isLoading) {
+             if(isLoading) {
+                 searchButton.disabled = true;
+                 buttonText.textContent = "Buscando...";
+                 messageState.classList.add('hidden');
+                 loadingState.classList.remove('hidden');
+                 apiError.textContent = '';
+             } else {
+                 searchButton.disabled = false;
+                 buttonText.textContent = "Buscar";
+                 loadingState.classList.add('hidden');
+             }
+        }
+        
+        function handleApiError(error) {
+            console.error(error);
+            apiError.textContent = error.message;
+            resultsContainer.innerHTML = '';
+            messageState.classList.remove('hidden');
+            messageTitle.textContent = 'Erro na busca';
+            messageText.textContent = 'Não foi possível se conectar à API. Tente novamente mais tarde.';
+        }
+
+        async function handleSearch(event) {
+            const searchTerm = searchInput.value.trim();
+            const portal = portalFilter.value;
+
+            if ((searchTerm || portal) && event?.type === 'auto-refresh') {
+                return;
+            }
+            
+            setLoading(true);
+            currentPage = 1; 
+            
+            if (searchTerm && activeCategory && searchTerm !== activeCategory) {
+                activeCategory = null;
+            }
+            renderCategories();
+
+            let finalQuery = searchTerm;
+            if (portal) {
+                finalQuery = `${searchTerm} site:${portal}`.trim();
+            }
+
+            try {
+                if (finalQuery) {
+                    const newsResults = await fetchFromGoogleNewsAPI(finalQuery);
+                    allNewsCache = newsResults;
+                } else {
+                    await fetchAllCategoryNews();
+                }
+
+                renderResults();
+                updateTimestamp();
+
+            } catch (error) {
+                handleApiError(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        function setDateFilter(filter) {
+            currentDateFilter = filter;
+            currentPage = 1; 
+
+            [dateFilterToday, dateFilterYesterday].forEach(btn => {
+                btn.classList.remove('date-filter-active', 'bg-cyan-600', 'text-white');
+                btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
+            });
+
+            const activeBtn = {
+                'hoje': dateFilterToday,
+                'ontem': dateFilterYesterday,
+            }[filter];
+
+            if(activeBtn) {
+                activeBtn.classList.add('date-filter-active', 'bg-cyan-600', 'text-white');
+                activeBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
+            }
+            
+            renderResults();
+        }
+        
+        function toggleClearButton() {
+            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== null) {
+                clearFiltersBtn.classList.remove('hidden');
+            } else {
+                clearFiltersBtn.classList.add('hidden');
+            }
+        }
+        
+        // --- INITIAL LOAD & EVENT LISTENERS ---
+        searchButton.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keyup', (event) => {
+            toggleClearButton();
+            if (event.key === 'Enter') handleSearch();
+        });
+        portalFilter.addEventListener('change', () => {
+            toggleClearButton();
+            handleSearch();
+        });
+
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            portalFilter.value = '';
+            activeCategory = null;
+            toggleClearButton();
+            renderCategories(); 
+            handleSearch();
+        });
+        
+        dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
+        dateFilterYesterday.addEventListener('click', () => setDateFilter('ontem'));
+        
+        sortOptions.addEventListener('change', () => {
+            currentSort = sortOptions.value;
+            renderResults();
+        });
 
         prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
