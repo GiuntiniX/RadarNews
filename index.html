@@ -63,10 +63,15 @@
         input::placeholder { color: var(--text-secondary); }
         .button-primary { background-color: var(--brand-color); color: #fff; }
         .button-secondary { background-color: var(--bg-body); color: var(--text-secondary); border-color: var(--border-color); }
-        .news-card { background-color: var(--bg-card); border-left-color: var(--brand-color); }
-        .news-card h3 { color: var(--text-title); }
-        .news-card p { color: var(--text-secondary); }
-        .footer-text { color: var(--text-secondary); }
+        
+        /* Specific Light Mode styles for buttons and text */
+        body.light-mode .button-secondary {
+            background-color: #f1f5f9; /* Lighter background for better visibility */
+            color: var(--text-secondary);
+            border-color: #cbd5e1; /* Subtle border */
+        }
+        body.light-mode .news-card h3 { color: var(--text-title); }
+        body.light-mode .news-card p { color: var(--text-secondary); }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -436,6 +441,7 @@
                 categoryButton.onclick = () => {
                     searchInput.value = category;
                     portalFilter.value = ""; 
+                    handlePortalFilterVisual(); // Update portal visual
                     activeCategory = category;
                     handleSearch();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -619,6 +625,19 @@
             }
         }
 
+        function handlePortalFilterVisual() {
+            if (document.body.classList.contains('light-mode')) {
+                // No need for color change in light mode, as text is dark anyway
+                portalFilter.style.color = '';
+            } else {
+                if (portalFilter.value === '') {
+                    portalFilter.style.color = 'var(--text-color)';
+                } else {
+                    portalFilter.style.color = 'var(--brand-color)';
+                }
+            }
+        }
+
         // --- THEME TOGGLE LOGIC ---
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
@@ -627,6 +646,7 @@
                 moonIcon.classList.add('hidden');
                 sunIcon.classList.remove('hidden');
             }
+             handlePortalFilterVisual(); 
         }
 
         function toggleTheme() {
@@ -634,6 +654,7 @@
             localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
             moonIcon.classList.toggle('hidden', isLightMode);
             sunIcon.classList.toggle('hidden', !isLightMode);
+            handlePortalFilterVisual();
         }
         
         // --- INITIAL LOAD & EVENT LISTENERS ---
@@ -644,6 +665,7 @@
         });
         portalFilter.addEventListener('change', () => {
             toggleClearButton();
+            handlePortalFilterVisual();
             handleSearch();
         });
 
@@ -654,6 +676,7 @@
             toggleClearButton();
             renderCategories(); 
             handleSearch();
+            handlePortalFilterVisual();
         });
         
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
