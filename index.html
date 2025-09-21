@@ -422,13 +422,12 @@
             const searchTerm = searchInput.value.trim();
             const portal = portalFilter.value;
 
-            // If it's an auto-refresh and the user has a specific search active, do nothing.
             if ((searchTerm || portal) && event?.type === 'auto-refresh') {
                 return;
             }
             
             setLoading(true);
-            currentPage = 1; // Reset to first page on new search
+            currentPage = 1; 
             
             let finalQuery = searchTerm;
             if (portal) {
@@ -450,9 +449,8 @@
         
         function setDateFilter(filter) {
             currentDateFilter = filter;
-            currentPage = 1; // Reset to first page on date change
+            currentPage = 1; 
 
-            // Update button styles
             [dateFilterToday, dateFilterYesterday].forEach(btn => {
                 btn.classList.remove('date-filter-active', 'bg-cyan-600', 'text-white');
                 btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
@@ -501,7 +499,6 @@
             fetchTrendingTopics();
             renderCategories();
 
-            // Auto-refresh every 20 minutes
             setInterval(() => handleSearch({type: 'auto-refresh'}), refreshIntervalInMinutes * 60 * 1000);
         });
 
