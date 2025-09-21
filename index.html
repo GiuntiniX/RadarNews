@@ -226,7 +226,7 @@
 
         // App State
         let currentDateFilter = 'hoje'; 
-        let activeCategory = 'Todas'; 
+        let activeCategory = 'Geral'; 
         let allNewsCache = [];
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -348,9 +348,6 @@
                 allNewsCache = combinedNews;
                 renderResults();
                 updateTimestamp();
-                
-                // --- NOVO: GERA OS TOPICOS A PARTIR DAS NOTICIAS CARREGADAS ---
-                fetchTrendingTopics(allNewsCache); 
             } catch (error) {
                 handleApiError(error);
             } finally {
@@ -358,9 +355,10 @@
             }
         }
 
-        function fetchTrendingTopics(newsData) {
+        async function fetchTrendingTopics() {
             try {
-                const todayNews = applyDateFilter(newsData, 'hoje');
+                const news = await fetchFromGoogleNewsAPI();
+                const todayNews = applyDateFilter(news, 'hoje');
 
                 if (todayNews.length === 0) {
                     trendingTopicsContainer.innerHTML = `<p class="text-center w-full text-sm text-slate-400 p-4">Nenhum tópico em alta hoje.</p>`;
@@ -387,14 +385,7 @@
         }
 
         async function loadInitialContent() {
-             setLoading(true);
-             try {
-                await fetchAllCategoryNews();
-             } catch (error) {
-                handleApiError(error);
-             } finally {
-                setLoading(false);
-             }
+             handleSearch();
         }
 
         // --- RENDERERS & FILTERS ---
@@ -643,7 +634,7 @@
         }
         
         function toggleClearButton() {
-            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== 'Todas') {
+            if (searchInput.value.trim() !== '' || portalFilter.value !== '' || activeCategory !== 'Geral') {
                 clearFiltersBtn.classList.remove('hidden');
             } else {
                 clearFiltersBtn.classList.add('hidden');
@@ -697,7 +688,7 @@
         clearFiltersBtn.addEventListener('click', () => {
             searchInput.value = '';
             portalFilter.value = '';
-            activeCategory = 'Todas';
+            activeCategory = 'Geral';
             toggleClearButton();
             renderCategories(); 
             handleSearch();
@@ -727,6 +718,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
             loadInitialContent();
+            fetchTrendingTopics();
             renderCategories();
 
             setInterval(() => handleSearch({type: 'auto-refresh'}), refreshIntervalInMinutes * 60 * 1000);
