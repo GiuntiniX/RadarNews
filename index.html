@@ -295,9 +295,15 @@
                  : `https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419`;
 
              const response = await fetch(`${PROXY_URL}${encodeURIComponent(searchUrl)}`);
-             if (!response.ok) throw new Error('Falha ao buscar notícias do Google.');
+             if (!response.ok) throw new Error('Falha na resposta do proxy.');
              
-             const data = await response.json();
+             let data;
+             try {
+                data = await response.json();
+             } catch (e) {
+                throw new Error('O proxy de notícias retornou um erro inesperado. Tente novamente.');
+             }
+
              if(!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
              
              const parser = new DOMParser();
@@ -321,7 +327,10 @@
 
                 const promises = feedUrls.map(url => 
                     fetch(`${PROXY_URL}${encodeURIComponent(url)}`)
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) throw new Error('Falha na resposta do proxy.');
+                            return response.json();
+                        })
                         .then(data => {
                             if (!data.contents) throw new Error('Proxy não retornou conteúdo válido.');
                             const parser = new DOMParser();
