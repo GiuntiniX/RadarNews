@@ -22,6 +22,7 @@
             --text-secondary: #94a3b8;
             --text-title: #e2e8f0;
             --brand-color: #06b6d4;
+            --news-border-color: var(--brand-color);
         }
 
         /* Light Mode - OTIMIZADO */
@@ -34,6 +35,7 @@
             --text-secondary: #475569;
             --text-title: #1e293b;
             --brand-color: #0d9488;
+            --news-border-color: rgba(255, 140, 0, 0.4); /* New translucent orange */
         }
 
         /* Custom scrollbar for better aesthetics */
@@ -63,6 +65,10 @@
         input::placeholder { color: var(--text-secondary); }
         .button-primary { background-color: var(--brand-color); color: #fff; }
         .button-secondary { background-color: var(--bg-body); color: var(--text-secondary); border-color: var(--border-color); }
+        .news-card { background-color: var(--bg-card); border-left-color: var(--news-border-color); }
+        .news-card h3 { color: var(--text-title); }
+        .news-card p { color: var(--text-secondary); }
+        .footer-text { color: var(--text-secondary); }
         
         /* Specific Light Mode styles for buttons and text */
         body.light-mode .button-secondary {
@@ -126,8 +132,6 @@
                     <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-cyan-600">Hoje</button>
                     <button id="dateFilterYesterday" class="button-secondary text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Ontem</button>
                 </div>
-
-                <div class="flex-grow"></div>
                 
                 <button id="themeToggleBtn" class="p-2.5 button-secondary rounded-lg transition-colors duration-200">
                     <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
