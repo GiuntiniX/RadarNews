@@ -17,6 +17,7 @@
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
+        .view-filter-active,
         .date-filter-active {
             background-color: #06b6d4 !important;
             color: #ffffff !important;
@@ -40,17 +41,9 @@
         #backToTopBtn {
             transition: opacity 0.3s, transform 0.3s;
         }
-        /* Flying Icon for Save Animation */
-        .flying-icon {
-            position: fixed;
-            z-index: 1000;
-            transition: transform 0.7s cubic-bezier(0.5, -0.5, 1, 1), opacity 0.7s ease-out;
-        }
-        .read-item {
-            opacity: 0.6;
-        }
-        .read-item:hover {
-            opacity: 1;
+        .follow-btn.followed svg {
+            fill: #22d3ee;
+            stroke: #22d3ee;
         }
     </style>
 </head>
@@ -69,14 +62,7 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Radar de Notícias</h1>
             </div>
             <p class="text-slate-400 mt-2">As últimas notícias sobre os principais assuntos do Brasil.</p>
-            <div id="lastUpdatedContainer" class="text-sm text-slate-500 mt-2 flex justify-center items-center flex-wrap gap-x-2">
-                <div id="lastUpdated"></div>
-                <span class="hidden md:inline">|</span>
-                 <p class="text-sm text-slate-500">
-                    Ferramenta desenvolvida por Estratégia de Dados - 
-                    <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
-                </p>
-            </div>
+            <div id="lastUpdated" class="text-sm text-slate-500 mt-2 flex justify-center items-center gap-2"></div>
         </header>
 
         <!-- Control Panel Menu -->
@@ -107,21 +93,27 @@
 
             </div>
 
-            <!-- Date Filter -->
-            <div class="flex justify-center items-center gap-3 mt-4 flex-wrap">
-                <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Hoje</button>
-                <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Última Semana</button>
-                <span class="text-slate-600">|</span>
-                <button id="refreshButton" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                    Atualizar
-                </button>
-                <span class="text-slate-600 hidden md:inline">|</span>
-                <button id="readingListBtn" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2 relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                   Lista de Leitura
-                   <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
-                </button>
+            <!-- View and Date Filters -->
+            <div class="flex justify-center items-center mt-4 flex-wrap gap-x-4 gap-y-2">
+                 <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
+                    <button id="viewFilterAll" class="view-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Geral</button>
+                    <button id="viewFilterForYou" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700">Para Si</button>
+                </div>
+
+                <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
+                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Hoje</button>
+                    <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700">Semana</button>
+                </div>
+
+                 <div class="flex items-center gap-2">
+                    <button id="refreshButton" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                    <button id="readingListBtn" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2 relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                       <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                    </button>
+                 </div>
             </div>
             
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
@@ -175,7 +167,10 @@
         </div>
         
         <footer class="text-center py-4 mt-8 border-t border-slate-700">
-            <!-- Footer is now empty, content moved to header -->
+            <p class="text-sm text-slate-500">
+                Ferramenta desenvolvida por Estratégia de Dados - 
+                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
+            </p>
         </footer>
     </div>
     
@@ -227,6 +222,8 @@
         const lastUpdatedElement = document.getElementById('lastUpdated');
         const dateFilterToday = document.getElementById('dateFilterToday');
         const dateFilterWeek = document.getElementById('dateFilterWeek');
+        const viewFilterAll = document.getElementById('viewFilterAll');
+        const viewFilterForYou = document.getElementById('viewFilterForYou');
         const refreshButton = document.getElementById('refreshButton');
         const contentCounter = document.getElementById('contentCounter');
         const toast = document.getElementById('toast');
@@ -241,12 +238,14 @@
 
 
         // App State
+        let currentView = 'all'; // 'all', 'paraSi'
         let currentDateFilter = 'hoje'; // 'hoje', 'semana'
         let allNewsCache = []; // Cache news to avoid re-fetching
         let currentPage = 1;
         const itemsPerPage = 20;
         let activeCategoryButton = null;
         let savedNews = [];
+        let followedTopics = [];
         let currentCategorySearch = null;
         let isLoadingMore = false;
         
@@ -470,7 +469,7 @@
                 }
 
                 const wordFrequency = {};
-                const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda', 'disse', 'nesta', 'neste', 'feira', 'abre', 'fecha', 'afirma', 'alerta', 'deve', 'pede', 'contra', 'onde', 'porque', 'depois', 'novo', 'nova', 'novos', 'novas', 'grande', 'antes', 'tudo', 'sem', 'com', 'anos'];
+                const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda', 'disse', 'nesta', 'neste', 'feira', 'abre', 'fecha', 'afirma', 'alerta', 'deve', 'pede', 'contra', 'onde', 'porque', 'depois', 'novo', 'nova', 'novos', 'novas', 'grande', 'antes', 'tudo', 'sem', 'com', 'anos', 'sades'];
                 const processedTitles = new Set(); 
 
                 todayNews.forEach(item => {
@@ -551,6 +550,9 @@
             const maxFreq = topics[0][1];
 
             topics.forEach(([word, freq]) => {
+                const topicWrapper = document.createElement('div');
+                topicWrapper.className = 'flex items-center gap-1';
+
                 const topicElement = document.createElement('button');
                 const ratio = freq / maxFreq;
 
@@ -577,7 +579,16 @@
                     handleSearch();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
-                trendingTopicsContainer.appendChild(topicElement);
+
+                const followButton = document.createElement('button');
+                const isFollowed = followedTopics.includes(capitalizedWord);
+                followButton.className = `follow-btn ${isFollowed ? 'followed' : ''}`;
+                followButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 hover:text-cyan-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                followButton.onclick = () => toggleFollowTopic(capitalizedWord);
+
+                topicWrapper.appendChild(topicElement);
+                topicWrapper.appendChild(followButton);
+                trendingTopicsContainer.appendChild(topicWrapper);
             });
         }
 
@@ -605,13 +616,16 @@
         function renderCategories() {
             categoriesContainer.innerHTML = '';
             mainCategories.forEach((category, index) => {
+                const categoryWrapper = document.createElement('div');
+                categoryWrapper.className = 'flex items-center';
+
                 const categoryButton = document.createElement('button');
                 
                 if (index === 0) {
-                     categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                     categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold pl-3 pr-2 py-1.5 rounded-l-lg transition-all duration-200`;
                 } else {
                     const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
-                    categoryButton.className = `${colorClass} text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200`;
+                    categoryButton.className = `${colorClass} text-white text-xs font-semibold pl-3 pr-2 py-1.5 rounded-l-lg transition-colors duration-200`;
                 }
 
                 categoryButton.textContent = category;
@@ -633,12 +647,30 @@
                     generateTrendingTopics(searchTerm); // Update word cloud on category click
                 };
 
+                categoryWrapper.appendChild(categoryButton);
+                
+                if (category !== 'Todas') {
+                    const followButton = document.createElement('button');
+                    const isFollowed = followedTopics.includes(category);
+                    followButton.className = `follow-btn ${isFollowed ? 'followed' : ''} h-full px-2 rounded-r-lg`;
+                    followButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-300"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                    followButton.onclick = () => toggleFollowTopic(category);
+                    
+                    if (index === 0) {
+                        followButton.classList.add('bg-slate-700/50', 'hover:bg-slate-700');
+                    } else {
+                        const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
+                        colorClass.split(' ').forEach(cls => followButton.classList.add(cls));
+                    }
+                    categoryWrapper.appendChild(followButton);
+                }
+
                 if (index === 0) {
-                    categoryButton.classList.add('category-active');
+                    categoryButton.classList.add('category-active', 'rounded-lg');
                     activeCategoryButton = categoryButton;
                 }
 
-                categoriesContainer.appendChild(categoryButton);
+                categoriesContainer.appendChild(categoryWrapper);
             });
         }
 
@@ -647,16 +679,41 @@
                 resultsContainer.innerHTML = '';
             }
 
-            const filteredByDate = applyDateFilter(allNewsCache, currentDateFilter);
+            let filteredNews = applyDateFilter(allNewsCache, currentDateFilter);
+
+            if (currentView === 'paraSi' && followedTopics.length > 0) {
+                const followedNews = [];
+                const restOfNews = [];
+                const followedTopicsLower = followedTopics.map(t => t.toLowerCase());
+
+                filteredNews.forEach(news => {
+                    const titleLower = news.title.toLowerCase();
+                    const categoryLower = news.category.toLowerCase();
+                    const isMatch = followedTopicsLower.some(topic => titleLower.includes(topic) || categoryLower.includes(topic));
+
+                    if (isMatch) {
+                        followedNews.push(news);
+                    } else {
+                        restOfNews.push(news);
+                    }
+                });
+                filteredNews = [...followedNews, ...restOfNews];
+            }
             
-            const totalItems = filteredByDate.length;
+            const totalItems = filteredNews.length;
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const paginatedItems = filteredByDate.slice(startIndex, endIndex);
+            const paginatedItems = filteredNews.slice(startIndex, endIndex);
 
             if (paginatedItems.length === 0 && currentPage === 1) {
                 messageState.classList.remove('hidden');
-                contentCounter.textContent = 'Nenhuma notícia encontrada.';
+                messageTitle.textContent = currentView === 'paraSi' && followedTopics.length === 0 
+                    ? 'Comece a seguir tópicos!'
+                    : 'Nenhuma notícia encontrada.';
+                messageText.textContent = currentView === 'paraSi' && followedTopics.length === 0
+                    ? 'Clique nas estrelas ao lado das editorias ou dos assuntos do dia para personalizar o seu feed.'
+                    : 'Tente um termo diferente ou ajuste os filtros.';
+                contentCounter.textContent = '';
                 return;
             }
 
@@ -676,20 +733,11 @@
                 savedNewsContainer.innerHTML = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`;
                 return;
             }
-            savedNews.sort((a,b) => a.read - b.read); // Show unread items first
             savedNews.forEach(news => {
                 const savedItem = document.createElement('div');
-                savedItem.className = `flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700 ${news.read ? 'read-item' : ''}`;
+                savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700';
                 savedItem.innerHTML = `
-                    <div class="flex items-center gap-2 overflow-hidden">
-                       <button class="mark-as-read-btn flex-shrink-0" data-url="${news.url}" title="${news.read ? 'Marcar como não lida' : 'Marcar como lida'}">
-                            ${news.read 
-                                ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
-                                : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 hover:text-cyan-400"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="22" y1="2" x2="2" y2="22"></line></svg>`
-                            }
-                       </button>
-                        <a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a>
-                    </div>
+                    <a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a>
                     <button class="remove-saved-btn flex-shrink-0" data-url="${news.url}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
                     </button>
@@ -702,13 +750,6 @@
                     e.preventDefault();
                     e.stopPropagation();
                     handleRemoveNews(button.dataset.url);
-                });
-            });
-             document.querySelectorAll('.mark-as-read-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleMarkAsRead(button.dataset.url);
                 });
             });
         }
@@ -862,25 +903,23 @@
                 setLoading(false);
             }
         }
+
+        function setViewFilter(view) {
+            currentView = view;
+            currentPage = 1;
+            [viewFilterAll, viewFilterForYou].forEach(btn => btn.classList.remove('view-filter-active'));
+            if(view === 'all') viewFilterAll.classList.add('view-filter-active');
+            else viewFilterForYou.classList.add('view-filter-active');
+            renderResults();
+        }
         
         function setDateFilter(filter) {
             currentDateFilter = filter;
             currentPage = 1; 
 
-            [dateFilterToday, dateFilterWeek].forEach(btn => {
-                btn.classList.remove('date-filter-active');
-                btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
-            });
-
-            const activeBtn = {
-                'hoje': dateFilterToday,
-                'semana': dateFilterWeek,
-            }[filter];
-
-            if(activeBtn) {
-                activeBtn.classList.add('date-filter-active');
-                activeBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
-            }
+            [dateFilterToday, dateFilterWeek].forEach(btn => btn.classList.remove('date-filter-active'));
+            if(filter === 'hoje') dateFilterToday.classList.add('date-filter-active');
+            else dateFilterWeek.classList.add('date-filter-active');
             
             renderResults();
         }
@@ -894,11 +933,9 @@
                 buttonElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
                 message = 'Notícia removida da lista!';
             } else {
-                const newItem = {...newsItem, read: false}; // Add read property
-                savedNews.push(newItem);
+                savedNews.push(newsItem);
                 buttonElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-cyan-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>`;
                 message = 'Notícia salva!';
-                animateSave(buttonElement); // Trigger animation
             }
             
             localStorage.setItem('savedNews', JSON.stringify(savedNews));
@@ -914,17 +951,25 @@
             showToast('Notícia removida da lista!');
         }
 
-        function handleMarkAsRead(newsUrl) {
-            const newsIndex = savedNews.findIndex(item => item.url === newsUrl);
-            if (newsIndex > -1) {
-                savedNews[newsIndex].read = !savedNews[newsIndex].read;
-                localStorage.setItem('savedNews', JSON.stringify(savedNews));
-                renderSavedNews();
-                const message = savedNews[newsIndex].read ? 'Marcada como lida!' : 'Marcada como não lida!';
-                showToast(message);
+        function toggleFollowTopic(topic) {
+            const topicIndex = followedTopics.indexOf(topic);
+            if (topicIndex > -1) {
+                followedTopics.splice(topicIndex, 1);
+                 showToast(`Deixou de seguir "${topic}"`);
+            } else {
+                followedTopics.push(topic);
+                 showToast(`Agora segue "${topic}"`);
+            }
+            localStorage.setItem('followedTopics', JSON.stringify(followedTopics));
+            
+            // Re-render components that show follow status
+            renderCategories();
+            generateTrendingTopics(currentCategorySearch);
+            if (currentView === 'paraSi') {
+                renderResults();
             }
         }
-
+        
         function showToast(message) {
             toastMessage.textContent = message;
             toast.classList.remove('opacity-0', 'translate-y-20');
@@ -933,34 +978,6 @@
                 toast.classList.add('opacity-0', 'translate-y-20');
                 toast.classList.remove('opacity-100', 'translate-y-0');
             }, 3000);
-        }
-
-        function animateSave(buttonElement) {
-            const icon = buttonElement.querySelector('svg').cloneNode(true);
-            icon.classList.add('flying-icon');
-            document.body.appendChild(icon);
-
-            const startRect = buttonElement.getBoundingClientRect();
-            const endRect = readingListBtn.getBoundingClientRect();
-            
-            // Set initial position
-            icon.style.left = `${startRect.left}px`;
-            icon.style.top = `${startRect.top}px`;
-
-            // Animate to end position
-            requestAnimationFrame(() => {
-                const x = endRect.left - startRect.left + (endRect.width / 2);
-                const y = endRect.top - startRect.top + (endRect.height / 2);
-                icon.style.transform = `translate(${x}px, ${y}px) scale(0.3)`;
-                icon.style.opacity = '0';
-            });
-            
-            // Clean up the icon after animation
-            setTimeout(() => {
-                icon.remove();
-                savedNewsCountBadge.classList.add('animate-pulse');
-                setTimeout(() => savedNewsCountBadge.classList.remove('animate-pulse'), 500);
-            }, 700);
         }
         
         // --- INITIAL LOAD & EVENT LISTENERS ---
@@ -972,6 +989,8 @@
         
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
         dateFilterWeek.addEventListener('click', () => setDateFilter('semana'));
+        viewFilterAll.addEventListener('click', () => setViewFilter('all'));
+        viewFilterForYou.addEventListener('click', () => setViewFilter('paraSi'));
 
         refreshButton.addEventListener('click', () => {
             const icon = refreshButton.querySelector('svg');
@@ -1024,6 +1043,10 @@
             if (storedNews) {
                 savedNews = JSON.parse(storedNews);
             } 
+            const storedTopics = localStorage.getItem('followedTopics');
+            if(storedTopics) {
+                followedTopics = JSON.parse(storedTopics);
+            }
             renderSavedNews();
 
             loadInitialContent();
