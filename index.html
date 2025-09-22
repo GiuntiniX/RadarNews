@@ -62,6 +62,10 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Radar de Notícias</h1>
             </div>
             <p class="text-slate-400 mt-2">As últimas notícias sobre os principais assuntos do Brasil.</p>
+             <p class="text-sm text-slate-500 mt-1">
+                Ferramenta desenvolvida por Estratégia de Dados - 
+                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
+            </p>
             <div id="lastUpdated" class="text-sm text-slate-500 mt-2 flex justify-center items-center gap-2"></div>
         </header>
 
@@ -167,10 +171,7 @@
         </div>
         
         <footer class="text-center py-4 mt-8 border-t border-slate-700">
-            <p class="text-sm text-slate-500">
-                Ferramenta desenvolvida por Estratégia de Dados - 
-                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
-            </p>
+            <!-- Footer content moved to header -->
         </footer>
     </div>
     
@@ -469,7 +470,7 @@
                 }
 
                 const wordFrequency = {};
-                const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda', 'disse', 'nesta', 'neste', 'feira', 'abre', 'fecha', 'afirma', 'alerta', 'deve', 'pede', 'contra', 'onde', 'porque', 'depois', 'novo', 'nova', 'novos', 'novas', 'grande', 'antes', 'tudo', 'sem', 'com', 'anos', 'sades'];
+                const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda', 'disse', 'nesta', 'neste', 'feira', 'abre', 'fecha', 'afirma', 'alerta', 'deve', 'pede', 'contra', 'onde', 'porque', 'depois', 'novo', 'nova', 'novos', 'novas', 'grande', 'antes', 'tudo', 'sem', 'com', 'anos', 'sades', 'sade'];
                 const processedTitles = new Set(); 
 
                 todayNews.forEach(item => {
@@ -656,12 +657,12 @@
                     followButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-300"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
                     followButton.onclick = () => toggleFollowTopic(category);
                     
-                    if (index === 0) {
-                        followButton.classList.add('bg-slate-700/50', 'hover:bg-slate-700');
-                    } else {
-                        const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
-                        colorClass.split(' ').forEach(cls => followButton.classList.add(cls));
-                    }
+                    const colorClass = index === 0 
+                        ? 'bg-slate-700/50 hover:bg-slate-700'
+                        : categoryButtonColors[(index - 1) % categoryButtonColors.length];
+                    
+                    colorClass.split(' ').forEach(cls => followButton.classList.add(cls));
+                    
                     categoryWrapper.appendChild(followButton);
                 }
 
