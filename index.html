@@ -89,9 +89,20 @@
             </div>
 
             <!-- Date Filter -->
-            <div class="flex justify-center items-center gap-2 mt-4">
+            <div class="flex justify-center items-center gap-3 mt-4 flex-wrap">
                 <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Hoje</button>
                 <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Última Semana</button>
+                <span class="text-slate-600">|</span>
+                <button id="refreshButton" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    Atualizar
+                </button>
+                <span class="text-slate-600 hidden md:inline">|</span>
+                <button id="readingListBtn" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                   Lista de Leitura
+                   <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                </button>
             </div>
             
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
@@ -118,7 +129,7 @@
                 <div class="sticky top-28 flex flex-col gap-8">
                     <!-- Trending Topics Section -->
                     <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Nuvem de Termos de Hoje</h2>
+                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Assuntos do Dia</h2>
                         <div id="trendingTopicsContainer" class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-2 min-h-[10rem]">
                             <div class="text-center text-slate-400 p-4">Carregando nuvem de termos...</div>
                         </div>
@@ -140,14 +151,6 @@
                         </div>
                     </div>
 
-                    <!-- Saved News Section -->
-                     <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                        <h2 class="text-lg font-bold text-cyan-400 mb-4">Lista de Leitura</h2>
-                        <div id="savedNewsContainer" class="flex flex-col">
-                           <!-- Saved news will be inserted here -->
-                        </div>
-                    </div>
-
                 </div>
             </aside>
         </div>
@@ -160,6 +163,23 @@
         </footer>
     </div>
     
+    <!-- Reading List Modal -->
+    <div id="readingListModal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-lg w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <header class="flex items-center justify-between p-4 border-b border-slate-700 flex-shrink-0">
+                <h2 class="text-lg font-bold text-cyan-400">Lista de Leitura</h2>
+                <button id="closeReadingListBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+            <div id="savedNewsContainer" class="flex-grow p-4 overflow-y-auto space-y-2">
+                <!-- Saved news will be inserted here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-transform duration-300">
         <p id="toastMessage"></p>
@@ -188,14 +208,21 @@
         const categoriesContainer = document.getElementById('categoriesContainer');
         const subCategoriesWrapper = document.getElementById('subCategoriesWrapper');
         const subCategoriesContainer = document.getElementById('subCategoriesContainer');
-        const savedNewsContainer = document.getElementById('savedNewsContainer');
         const lastUpdatedElement = document.getElementById('lastUpdated');
         const dateFilterToday = document.getElementById('dateFilterToday');
         const dateFilterWeek = document.getElementById('dateFilterWeek');
+        const refreshButton = document.getElementById('refreshButton');
         const contentCounter = document.getElementById('contentCounter');
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
         const backToTopBtn = document.getElementById('backToTopBtn');
+        // Reading List Modal Elements
+        const readingListBtn = document.getElementById('readingListBtn');
+        const readingListModal = document.getElementById('readingListModal');
+        const closeReadingListBtn = document.getElementById('closeReadingListBtn');
+        const savedNewsContainer = document.getElementById('savedNewsContainer');
+        const savedNewsCountBadge = document.getElementById('savedNewsCountBadge');
+
 
         // App State
         let currentDateFilter = 'hoje'; // 'hoje', 'semana'
@@ -280,7 +307,9 @@
                 }
                 if (!finalCategory) {
                     const foundMain = mainCategories.find(cat => cat !== 'Todas' && titleLower.includes(cat.toLowerCase()));
-                    if(foundMain) finalCategory = foundMain;
+                    if(foundMain) {
+                        finalCategory = foundMain;
+                    }
                 }
             }
 
@@ -363,18 +392,26 @@
                 const todayNews = news.filter(item => new Date(item.timestamp) >= todayStart);
 
                 if (todayNews.length === 0) {
-                    trendingTopicsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center">Nenhuma notícia de hoje para gerar a nuvem de termos.</p>`;
+                    trendingTopicsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center">Nenhum assunto popular encontrado hoje.</p>`;
                     return;
                 }
 
                 const wordFrequency = {};
                 const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda'];
+                const processedTitles = new Set(); 
 
                 todayNews.forEach(item => {
-                    const title = item.title.split(' - ')[0].toLowerCase().replace(/[^\w\s]/g, '');
+                    const titleRaw = item.title.split(' - ')[0];
+                    if (processedTitles.has(titleRaw)) {
+                        return; // Skip if we've seen this exact title
+                    }
+                    processedTitles.add(titleRaw);
+
+                    const title = titleRaw.toLowerCase().replace(/[^\w\s]/g, '');
                     const words = title.split(/\s+/);
-                    
-                    words.forEach(word => {
+                    const uniqueWordsInTitle = new Set(words);
+
+                    uniqueWordsInTitle.forEach(word => {
                         if (word && word.length > 3 && !stopwords.includes(word)) {
                             wordFrequency[word] = (wordFrequency[word] || 0) + 1;
                         }
@@ -383,7 +420,7 @@
 
                 const sortedKeywords = Object.entries(wordFrequency)
                     .sort(([,a],[,b]) => b - a)
-                    .slice(0, 40);
+                    .slice(0, 25);
 
                 renderTrendingTopics(sortedKeywords);
 
@@ -429,7 +466,7 @@
             trendingTopicsContainer.innerHTML = '';
             
             if (topics.length === 0) {
-                trendingTopicsContainer.innerHTML = `<p class="text-center text-slate-400 p-4">Nenhum termo popular encontrado hoje.</p>`;
+                trendingTopicsContainer.innerHTML = `<p class="text-center text-slate-400 p-4">Nenhum assunto popular encontrado hoje.</p>`;
                 return;
             }
 
@@ -554,6 +591,8 @@
         
         function renderSavedNews() {
             savedNewsContainer.innerHTML = '';
+            savedNewsCountBadge.textContent = savedNews.length;
+
             if (savedNews.length === 0) {
                 savedNewsContainer.innerHTML = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`;
                 return;
@@ -620,7 +659,7 @@
                          <img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`">
                          <div class="truncate">
                             <p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p>
-                        </div>
+                         </div>
                     </a>
                     <div class="flex items-center gap-2">
                         <button class="save-btn" data-url="${news.url}">${saveButtonIcon}</button>
@@ -703,7 +742,7 @@
                 return;
             }
             
-            if ((!searchInput.value.trim() && !portal) || event?.type === 'auto-refresh') {
+            if ((!searchInput.value.trim() && !portal) || event?.type === 'auto-refresh' || event?.type === 'manual-refresh') {
                 loadInitialContent();
                 return;
             }
@@ -798,6 +837,16 @@
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
         dateFilterWeek.addEventListener('click', () => setDateFilter('semana'));
 
+        refreshButton.addEventListener('click', () => {
+            const icon = refreshButton.querySelector('svg');
+            icon.classList.add('rotate-[360deg]');
+            handleSearch({type: 'manual-refresh'});
+            fetchTrendingTopics();
+            setTimeout(() => {
+                icon.classList.remove('rotate-[360deg]');
+            }, 1000);
+        });
+
         backToTopBtn.addEventListener('click', () => {
              window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -820,6 +869,20 @@
             }
         });
         
+        // Modal Listeners
+        readingListBtn.addEventListener('click', () => {
+            readingListModal.classList.remove('hidden');
+        });
+        closeReadingListBtn.addEventListener('click', () => {
+            readingListModal.classList.add('hidden');
+        });
+        readingListModal.addEventListener('click', (e) => {
+            if (e.target === readingListModal) {
+                readingListModal.classList.add('hidden');
+            }
+        });
+
+
         document.addEventListener('DOMContentLoaded', () => {
             const storedNews = localStorage.getItem('savedNews');
             if (storedNews) {
