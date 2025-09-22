@@ -88,7 +88,7 @@
             <!-- Date Filter -->
             <div class="flex justify-center items-center gap-2 mt-4">
                 <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Hoje</button>
-                <button id="dateFilterYesterday" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Ontem</button>
+                <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700">Última Semana</button>
             </div>
             
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
@@ -188,7 +188,7 @@
         const savedNewsContainer = document.getElementById('savedNewsContainer');
         const lastUpdatedElement = document.getElementById('lastUpdated');
         const dateFilterToday = document.getElementById('dateFilterToday');
-        const dateFilterYesterday = document.getElementById('dateFilterYesterday');
+        const dateFilterWeek = document.getElementById('dateFilterWeek');
         const paginationControls = document.getElementById('paginationControls');
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
@@ -196,7 +196,7 @@
         const contentCounter = document.getElementById('contentCounter');
 
         // App State
-        let currentDateFilter = 'hoje'; // 'hoje', 'ontem'
+        let currentDateFilter = 'hoje'; // 'hoje', 'semana'
         let allNewsCache = []; // Cache news to avoid re-fetching
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -411,11 +411,11 @@
             switch (filter) {
                 case 'hoje':
                     return items.filter(item => new Date(item.timestamp) >= todayStart);
-                case 'ontem':
-                    const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+                case 'semana':
+                    const weekStart = new Date(todayStart.getTime() - 4 * 24 * 60 * 60 * 1000);
                     return items.filter(item => {
                         const itemDate = new Date(item.timestamp);
-                        return itemDate >= yesterdayStart && itemDate < todayStart;
+                        return itemDate >= weekStart && itemDate < todayStart;
                     });
                 default:
                     return items;
@@ -613,16 +613,17 @@
             
             const searchTerm = searchInput.value.trim();
             let finalTitle = news.title;
-            let finalSnippet = snippet;
-
+            
             if (searchTerm) {
                 const regex = new RegExp(`(${searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
                 finalTitle = finalTitle.replace(regex, `<span class="highlight">$1</span>`);
-                finalSnippet = finalSnippet.replace(regex, `<span class="highlight">$1</span>`);
             }
             
             const categoryIndex = mainCategories.indexOf(parentCategory);
-            const categoryColorClass = categoryIndex > 0 ? categoryButtonColors[categoryIndex - 1] : 'bg-slate-700';
+            let categoryColorClass = 'bg-slate-700';
+            if (categoryIndex > 0) {
+                 categoryColorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length];
+            }
             const categoryTextColorClass = categoryIndex > 0 ? 'text-white' : 'text-slate-300';
             const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
             
@@ -640,7 +641,7 @@
                     <a href="${news.url}" target="_blank" rel="noopener noreferrer">
                         <p class="text-slate-300 font-semibold leading-relaxed mb-2">${finalTitle}</p>
                     </a>
-                    <p class="text-sm text-slate-400 leading-relaxed max-h-24 overflow-hidden">${finalSnippet}</p>
+                    <p class="text-sm text-slate-400 leading-relaxed max-h-24 overflow-hidden">${snippet}</p>
                 </div>
                 <div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50">
                     <div>${categoryHTML}</div>
@@ -724,14 +725,14 @@
             currentDateFilter = filter;
             currentPage = 1; 
 
-            [dateFilterToday, dateFilterYesterday].forEach(btn => {
+            [dateFilterToday, dateFilterWeek].forEach(btn => {
                 btn.classList.remove('date-filter-active');
                 btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
             });
 
             const activeBtn = {
                 'hoje': dateFilterToday,
-                'ontem': dateFilterYesterday,
+                'semana': dateFilterWeek,
             }[filter];
 
             if(activeBtn) {
@@ -741,7 +742,7 @@
             
             renderResults();
         }
-        
+
         function handleSaveNews(newsItem, buttonElement) {
             const isAlreadySaved = savedNews.some(item => item.url === newsItem.url);
 
@@ -772,7 +773,7 @@
         portalFilter.addEventListener('change', () => handleSearch());
         
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
-        dateFilterYesterday.addEventListener('click', () => setDateFilter('ontem'));
+        dateFilterWeek.addEventListener('click', () => setDateFilter('semana'));
 
         prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
