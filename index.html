@@ -680,9 +680,18 @@
                 resultsContainer.innerHTML = '';
             }
 
+            if (currentView === 'paraSi' && followedTopics.length === 0) {
+                messageState.classList.remove('hidden');
+                messageTitle.textContent = 'Comece a seguir tópicos!';
+                messageText.textContent = 'Clique nas estrelas ao lado das editorias ou dos assuntos do dia para personalizar o seu feed.';
+                contentCounter.textContent = '';
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
             let filteredNews = applyDateFilter(allNewsCache, currentDateFilter);
 
-            if (currentView === 'paraSi' && followedTopics.length > 0) {
+            if (currentView === 'paraSi') {
                 const followedNews = [];
                 const restOfNews = [];
                 const followedTopicsLower = followedTopics.map(t => t.toLowerCase());
@@ -708,12 +717,8 @@
 
             if (paginatedItems.length === 0 && currentPage === 1) {
                 messageState.classList.remove('hidden');
-                messageTitle.textContent = currentView === 'paraSi' && followedTopics.length === 0 
-                    ? 'Comece a seguir tópicos!'
-                    : 'Nenhuma notícia encontrada.';
-                messageText.textContent = currentView === 'paraSi' && followedTopics.length === 0
-                    ? 'Clique nas estrelas ao lado das editorias ou dos assuntos do dia para personalizar o seu feed.'
-                    : 'Tente um termo diferente ou ajuste os filtros.';
+                messageTitle.textContent = 'Nenhuma notícia encontrada.';
+                messageText.textContent = 'Tente um termo diferente ou ajuste os filtros.';
                 contentCounter.textContent = '';
                 return;
             }
