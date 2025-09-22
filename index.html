@@ -695,22 +695,14 @@
             let filteredNews = applyDateFilter(allNewsCache, currentDateFilter);
 
             if (currentView === 'paraSi') {
-                const followedNews = [];
-                const restOfNews = [];
-                const followedTopicsLower = followedTopics.map(t => t.toLowerCase());
-
-                filteredNews.forEach(news => {
+                 filteredNews = filteredNews.filter(news => {
                     const titleLower = news.title.toLowerCase();
                     const categoryLower = news.category.toLowerCase();
-                    const isMatch = followedTopicsLower.some(topic => titleLower.includes(topic) || categoryLower.includes(topic));
-
-                    if (isMatch) {
-                        followedNews.push(news);
-                    } else {
-                        restOfNews.push(news);
-                    }
+                    return followedTopics.some(topic => {
+                        const topicLower = topic.toLowerCase();
+                        return titleLower.includes(topicLower) || categoryLower.includes(topicLower);
+                    });
                 });
-                filteredNews = [...followedNews, ...restOfNews];
             }
             
             const totalItems = filteredNews.length;
@@ -721,7 +713,7 @@
             if (paginatedItems.length === 0 && currentPage === 1) {
                 messageState.classList.remove('hidden');
                 messageTitle.textContent = 'Nenhuma notícia encontrada.';
-                messageText.textContent = 'Tente um termo diferente ou ajuste os filtros.';
+                messageText.textContent = 'Não foram encontrados resultados para os seus tópicos seguidos. Tente seguir outros assuntos ou ajustar os filtros.';
                 contentCounter.textContent = '';
                 return;
             }
@@ -797,7 +789,7 @@
             }
             const isLightBg = lightBgClasses.some(lightClass => categoryColorClass.includes(lightClass));
             const categoryTextColorClass = isLightBg ? 'text-black' : 'text-white';
-            const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
+            const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass.split(' ')[0]} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
             
             newsElement.innerHTML = `
                 <div class="flex justify-between items-start">
