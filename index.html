@@ -40,6 +40,18 @@
         #backToTopBtn {
             transition: opacity 0.3s, transform 0.3s;
         }
+        /* Flying Icon for Save Animation */
+        .flying-icon {
+            position: fixed;
+            z-index: 1000;
+            transition: transform 0.7s cubic-bezier(0.5, -0.5, 1, 1), opacity 0.7s ease-out;
+        }
+        .read-item {
+            opacity: 0.6;
+        }
+        .read-item:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -57,7 +69,14 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Radar de Notícias</h1>
             </div>
             <p class="text-slate-400 mt-2">As últimas notícias sobre os principais assuntos do Brasil.</p>
-            <div id="lastUpdated" class="text-sm text-slate-500 mt-2 flex justify-center items-center gap-2"></div>
+            <div id="lastUpdatedContainer" class="text-sm text-slate-500 mt-2 flex justify-center items-center flex-wrap gap-x-2">
+                <div id="lastUpdated"></div>
+                <span class="hidden md:inline">|</span>
+                 <p class="text-sm text-slate-500">
+                    Ferramenta desenvolvida por Estratégia de Dados - 
+                    <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
+                </p>
+            </div>
         </header>
 
         <!-- Control Panel Menu -->
@@ -156,10 +175,7 @@
         </div>
         
         <footer class="text-center py-4 mt-8 border-t border-slate-700">
-            <p class="text-sm text-slate-500">
-                Ferramenta desenvolvida por Estratégia de Dados - 
-                <a href="mailto:guilherme.giuntini@telefonica.com" class="text-cyan-400 hover:underline">Guilherme Giuntini</a>
-            </p>
+            <!-- Footer is now empty, content moved to header -->
         </footer>
     </div>
     
@@ -363,7 +379,7 @@
             }
 
             // If no keyword match was found, use the category from the RSS feed as a fallback
-            if (!foundMatch && fallbackCategory) {
+            if (!foundMatch && fallbackCategory && mainCategories.includes(fallbackCategory)) {
                 finalCategory = fallbackCategory;
             }
 
@@ -660,11 +676,20 @@
                 savedNewsContainer.innerHTML = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`;
                 return;
             }
+            savedNews.sort((a,b) => a.read - b.read); // Show unread items first
             savedNews.forEach(news => {
                 const savedItem = document.createElement('div');
-                savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700';
+                savedItem.className = `flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700 ${news.read ? 'read-item' : ''}`;
                 savedItem.innerHTML = `
-                    <a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a>
+                    <div class="flex items-center gap-2 overflow-hidden">
+                       <button class="mark-as-read-btn flex-shrink-0" data-url="${news.url}" title="${news.read ? 'Marcar como não lida' : 'Marcar como lida'}">
+                            ${news.read 
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
+                                : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 hover:text-cyan-400"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="22" y1="2" x2="2" y2="22"></line></svg>`
+                            }
+                       </button>
+                        <a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a>
+                    </div>
                     <button class="remove-saved-btn flex-shrink-0" data-url="${news.url}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
                     </button>
@@ -677,6 +702,13 @@
                     e.preventDefault();
                     e.stopPropagation();
                     handleRemoveNews(button.dataset.url);
+                });
+            });
+             document.querySelectorAll('.mark-as-read-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleMarkAsRead(button.dataset.url);
                 });
             });
         }
@@ -862,9 +894,11 @@
                 buttonElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
                 message = 'Notícia removida da lista!';
             } else {
-                savedNews.push(newsItem);
+                const newItem = {...newsItem, read: false}; // Add read property
+                savedNews.push(newItem);
                 buttonElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-cyan-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>`;
                 message = 'Notícia salva!';
+                animateSave(buttonElement); // Trigger animation
             }
             
             localStorage.setItem('savedNews', JSON.stringify(savedNews));
@@ -880,6 +914,17 @@
             showToast('Notícia removida da lista!');
         }
 
+        function handleMarkAsRead(newsUrl) {
+            const newsIndex = savedNews.findIndex(item => item.url === newsUrl);
+            if (newsIndex > -1) {
+                savedNews[newsIndex].read = !savedNews[newsIndex].read;
+                localStorage.setItem('savedNews', JSON.stringify(savedNews));
+                renderSavedNews();
+                const message = savedNews[newsIndex].read ? 'Marcada como lida!' : 'Marcada como não lida!';
+                showToast(message);
+            }
+        }
+
         function showToast(message) {
             toastMessage.textContent = message;
             toast.classList.remove('opacity-0', 'translate-y-20');
@@ -888,6 +933,34 @@
                 toast.classList.add('opacity-0', 'translate-y-20');
                 toast.classList.remove('opacity-100', 'translate-y-0');
             }, 3000);
+        }
+
+        function animateSave(buttonElement) {
+            const icon = buttonElement.querySelector('svg').cloneNode(true);
+            icon.classList.add('flying-icon');
+            document.body.appendChild(icon);
+
+            const startRect = buttonElement.getBoundingClientRect();
+            const endRect = readingListBtn.getBoundingClientRect();
+            
+            // Set initial position
+            icon.style.left = `${startRect.left}px`;
+            icon.style.top = `${startRect.top}px`;
+
+            // Animate to end position
+            requestAnimationFrame(() => {
+                const x = endRect.left - startRect.left + (endRect.width / 2);
+                const y = endRect.top - startRect.top + (endRect.height / 2);
+                icon.style.transform = `translate(${x}px, ${y}px) scale(0.3)`;
+                icon.style.opacity = '0';
+            });
+            
+            // Clean up the icon after animation
+            setTimeout(() => {
+                icon.remove();
+                savedNewsCountBadge.classList.add('animate-pulse');
+                setTimeout(() => savedNewsCountBadge.classList.remove('animate-pulse'), 500);
+            }, 700);
         }
         
         // --- INITIAL LOAD & EVENT LISTENERS ---
@@ -915,7 +988,7 @@
         });
         
         window.addEventListener('scroll', () => {
-            const totalPages = Math.ceil(applyDateFilter(allNewsCache, currentDateFilter).length / itemsPerPage);
+            const totalPages = Math.ceil(allNewsCache.length / itemsPerPage);
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && !isLoadingMore && currentPage < totalPages) {
                 currentPage++;
                 isLoadingMore = true;
