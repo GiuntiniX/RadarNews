@@ -131,7 +131,7 @@
                     <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
                         <h2 class="text-lg font-bold text-cyan-400 mb-4">Assuntos do Dia</h2>
                         <div id="trendingTopicsContainer" class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-2 min-h-[10rem]">
-                            <div class="text-center text-slate-400 p-4">Carregando nuvem de termos...</div>
+                            <div class="text-center text-slate-400 p-4">Carregando assuntos...</div>
                         </div>
                     </div>
 
@@ -233,15 +233,57 @@
         let savedNews = [];
         let currentCategorySearch = null;
         let isLoadingMore = false;
-
-        const subCategoriesMap = {
-            'Esportes': ['Futebol', 'Basquete', 'Fórmula 1', 'Vôlei', 'UFC', 'Tênis'],
-            'Tecnologia': ['Inteligência Artificial', 'Smartphones', 'Games', 'Startups', 'Inovação'],
-            'Cultura': ['Música', 'Cinema', 'Séries', 'Livros', 'Teatro'],
-            'Economia': ['Inflação', 'Investimentos', 'Juros', 'Câmbio', 'Bolsa de Valores'],
-            'Política': ['Governo', 'Eleições', 'Congresso', 'STF']
-        };
+        
         const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'A Fazenda 2025', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Games', 'Moda', 'Meio Ambiente'];
+
+        // New detailed keyword map for categorization
+        const categoryKeywordsMap = {
+            'Política': ['eleições', 'campanha', 'partido', 'congresso', 'stf', 'escândalo', 'investigação', 'reforma', 'governo', 'presidente', 'deputado', 'senador', 'ministro'],
+            'Economia': ['inflação', 'juros', 'indicadores econômicos', 'mercado financeiro', 'bolsa de valores', 'emprego', 'renda', 'políticas econômicas', 'impostos', 'dólar', 'câmbio', 'pib'],
+            'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'jogos', 'resultados', 'atletas', 'clube', 'olimpíadas', 'fórmula 1', 'ufc', 'tênis'],
+            'Tecnologia': ['gadgets', 'apps', 'inteligência artificial', 'inovação', 'cibersegurança', 'privacidade', 'startups', 'smartphone', 'celular', 'software', 'hardware'],
+            'Cultura': ['artes', 'teatro', 'literatura', 'festivais', 'exposição', 'patrimônio histórico', 'movimentos culturais', 'show'],
+            'Saúde': ['pandemia', 'surto', 'vacina', 'tratamento', 'sistema de saúde', 'bem-estar', 'medicina', 'anvisa', 'oms', 'hospital'],
+            'Mundo': ['conflitos internacionais', 'diplomacia', 'acordos globais', 'eleições', 'governos estrangeiros', 'crises humanitárias', 'guerra', 'onu'],
+            'Horóscopo': ['previsões astrológicas', 'signos', 'compatibilidade', 'mapa astral', 'astrologia'],
+            'Entretenimento': ['celebridades', 'bastidores', 'reality show', 'novela', 'música pop', 'cultura de massa', 'premiação', 'famosos'],
+            'A Fazenda 2025': ['a fazenda', 'participante', 'eliminação', 'polêmica', 'romance', 'prova', 'estratégia', 'reality'],
+            'Ciência': ['descobertas científicas', 'espaço', 'astronomia', 'pesquisa', 'biodiversidade', 'nasa'],
+            'Educação': ['enem', 'vestibular', 'concurso', 'políticas educacionais', 'escola', 'universidade', 'inclusão', 'alfabetização', 'mec'],
+            'Viagem': ['destinos turísticos', 'hospedagem', 'roteiro', 'passagens', 'turismo', 'viajar'],
+            'Gastronomia': ['receita', 'culinária', 'restaurante', 'chef', 'alimentação saudável', 'bebidas', 'harmonização'],
+            'Carros': ['veículos', 'mobilidade urbana', 'automotiva', 'lançamento', 'teste de carro'],
+            'Imóveis': ['compra', 'venda', 'aluguel', 'financiamento', 'crédito imobiliário', 'arquitetura', 'decoração'],
+            'Música': ['lançamento', 'clipe', 'artista', 'banda', 'gênero musical', 'festival', 'turnê', 'show'],
+            'Cinema': ['estreia', 'crítica', 'bastidores', 'produção', 'oscar', 'cannes', 'streaming', 'bilheteria', 'filme', 'série'],
+            'Games': ['lançamento', 'atualização', 'esports', 'competição', 'gamer', 'console', 'plataforma', 'jogo'],
+            'Moda': ['tendência', 'coleção', 'estilista', 'marca', 'spfw', 'moda sustentável', 'desfile'],
+            'Meio Ambiente': ['mudanças climáticas', 'sustentabilidade', 'reciclagem', 'desmatamento', 'conservação', 'políticas ambientais', 'ecologia']
+        };
+
+        // New map for sub-category buttons in the UI
+        const subCategoriesMap = {
+            'Política': ['Eleições', 'Congresso', 'STF', 'Investigações', 'Reformas'],
+            'Economia': ['Inflação', 'Bolsa de Valores', 'Emprego', 'Impostos'],
+            'Esportes': ['Futebol', 'Vôlei', 'Basquete', 'Fórmula 1', 'Olimpíadas'],
+            'Tecnologia': ['Inteligência Artificial', 'Gadgets', 'Startups', 'Cibersegurança'],
+            'Cultura': ['Artes', 'Teatro', 'Literatura', 'Festivais'],
+            'Saúde': ['Pandemias', 'Vacinas', 'Bem-estar', 'Medicina'],
+            'Mundo': ['Conflitos', 'Diplomacia', 'Eleições', 'Crises Humanitárias'],
+            'Entretenimento': ['Celebridades', 'Reality Shows', 'Música Pop', 'Premiações'],
+            'Ciência': ['Descobertas', 'Espaço', 'Pesquisas', 'Biodiversidade'],
+            'Educação': ['ENEM', 'Vestibulares', 'Universidades', 'Políticas Educacionais'],
+            'Viagem': ['Destinos', 'Roteiros', 'Promoções', 'Culturais'],
+            'Gastronomia': ['Receitas', 'Restaurantes', 'Chefs', 'Alimentação Saudável'],
+            'Carros': ['Lançamentos', 'Testes', 'Mobilidade', 'Mercado'],
+            'Imóveis': ['Compra e Venda', 'Aluguel', 'Decoração', 'Financiamento'],
+            'Música': ['Lançamentos', 'Artistas', 'Festivais', 'Shows'],
+            'Cinema': ['Estreias', 'Críticas', 'Streaming', 'Premiações'],
+            'Games': ['Lançamentos', 'Esports', 'Consoles', 'Competições'],
+            'Moda': ['Tendências', 'Coleções', 'SPFW', 'Sustentável'],
+            'Meio Ambiente': ['Mudanças Climáticas', 'Sustentabilidade', 'Desmatamento', 'Conservação']
+        };
+
         const categoryColorMap = {
             'Política': 'border-blue-500',
             'Economia': 'border-emerald-500',
@@ -295,22 +337,34 @@
                 console.error("Could not parse source URL:", item.sourceUrl, e);
             }
             
-            let finalCategory = categoryTag;
-            if (!finalCategory) {
-                const titleLower = item.title.toLowerCase();
-                 for (const [parent, children] of Object.entries(subCategoriesMap)) {
-                    const foundSub = children.find(child => titleLower.includes(child.toLowerCase()));
-                    if(foundSub) {
-                        finalCategory = `${parent} > ${foundSub}`;
-                        break;
+            const titleLower = item.title.toLowerCase();
+            let finalCategory = 'Geral'; // Start with a default
+
+            // Mapeamento das categorias do fetch para as categorias da UI para usar como fallback
+            const fetchCategoryMap = {
+                'Negócios': 'Economia',
+                'Ciência e Tecnologia': 'Tecnologia'
+            };
+            const fallbackCategory = fetchCategoryMap[categoryTag] || categoryTag;
+
+            // Loop through the detailed keyword map to find the best category
+            let foundMatch = false;
+            for (const [category, keywords] of Object.entries(categoryKeywordsMap)) {
+                for (const keyword of keywords) {
+                    if (titleLower.includes(keyword)) {
+                        finalCategory = category;
+                        foundMatch = true;
+                        break; // Exit inner loop once a keyword is found for a category
                     }
                 }
-                if (!finalCategory) {
-                    const foundMain = mainCategories.find(cat => cat !== 'Todas' && titleLower.includes(cat.toLowerCase()));
-                    if(foundMain) {
-                        finalCategory = foundMain;
-                    }
+                if (foundMatch) {
+                    break; // Exit outer loop once a category is found
                 }
+            }
+
+            // If no keyword match was found, use the category from the RSS feed as a fallback
+            if (!foundMatch && fallbackCategory) {
+                finalCategory = fallbackCategory;
             }
 
 
@@ -322,7 +376,7 @@
                 description: item.content,
                 sourceName: getSourceName(item.title),
                 sourceDomain: sourceDomain,
-                category: finalCategory || 'Geral'
+                category: finalCategory
             };
         }
         
@@ -385,19 +439,22 @@
         }
 
 
-        async function fetchTrendingTopics() {
+        function generateTrendingTopics(selectedCategory = null) {
             try {
-                const news = await fetchFromGoogleNewsAPI();
                 const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
-                const todayNews = news.filter(item => new Date(item.timestamp) >= todayStart);
+                let todayNews = allNewsCache.filter(item => new Date(item.timestamp) >= todayStart);
+
+                if (selectedCategory) {
+                    todayNews = todayNews.filter(item => item.category && item.category.startsWith(selectedCategory));
+                }
 
                 if (todayNews.length === 0) {
-                    trendingTopicsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center">Nenhum assunto popular encontrado hoje.</p>`;
+                    trendingTopicsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center">Nenhum assunto popular encontrado hoje${selectedCategory ? ` em ${selectedCategory}` : ''}.</p>`;
                     return;
                 }
 
                 const wordFrequency = {};
-                const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda'];
+                const stopwords = ['a', 'o', 'e', 'é', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'que', 'com', 'por', 'para', 'se', 'como', 'mas', 'foi', 'ser', 'ter', 'pelo', 'pela', 'seu', 'sua', 'meu', 'minha', 'num', 'à', 'ao', 'qual', 'quando', 'quem', 'são', 'você', 'ele', 'ela', 'nós', 'este', 'esta', 'isto', 'esse', 'essa', 'isso', 'já', 'ou', 'até', 'muito', 'pode', 'sobre', 'está', 'só', 'mais', 'tem', 'era', 'vai', 'pra', 'após', 'diz', 'faz', 'veja', 'ainda', 'disse', 'nesta', 'neste', 'feira', 'abre', 'fecha', 'afirma', 'alerta', 'deve', 'pede', 'contra', 'onde', 'porque', 'depois', 'novo', 'nova', 'novos', 'novas', 'grande', 'antes', 'tudo', 'sem', 'com', 'anos'];
                 const processedTitles = new Set(); 
 
                 todayNews.forEach(item => {
@@ -407,7 +464,7 @@
                     }
                     processedTitles.add(titleRaw);
 
-                    const title = titleRaw.toLowerCase().replace(/[^\w\s]/g, '');
+                    const title = titleRaw.toLowerCase().replace(/[^\w\s]|[\d]/g, '');
                     const words = title.split(/\s+/);
                     const uniqueWordsInTitle = new Set(words);
 
@@ -419,10 +476,14 @@
                 });
 
                 const sortedKeywords = Object.entries(wordFrequency)
-                    .sort(([,a],[,b]) => b - a)
+                    .sort(([,a],[,b]) => b - a);
+
+                // Filter out topics that only appear once to improve quality
+                const finalKeywords = sortedKeywords
+                    .filter(([,freq]) => freq > 1)
                     .slice(0, 25);
 
-                renderTrendingTopics(sortedKeywords);
+                renderTrendingTopics(finalKeywords);
 
             } catch (error) {
                 console.error("Trending Topics Error:", error);
@@ -436,6 +497,7 @@
                 const news = await fetchFromGoogleNewsAPI();
                 allNewsCache = news;
                 renderResults();
+                generateTrendingTopics();
                 updateTimestamp();
             } catch (error) {
                 handleApiError(error);
@@ -552,6 +614,7 @@
                     categoryButton.classList.add('category-active');
                     activeCategoryButton = categoryButton;
                     renderSubCategories(category);
+                    generateTrendingTopics(searchTerm); // Update word cloud on category click
                 };
 
                 if (index === 0) {
@@ -840,11 +903,11 @@
         refreshButton.addEventListener('click', () => {
             const icon = refreshButton.querySelector('svg');
             icon.classList.add('rotate-[360deg]');
-            handleSearch({type: 'manual-refresh'});
-            fetchTrendingTopics();
-            setTimeout(() => {
-                icon.classList.remove('rotate-[360deg]');
-            }, 1000);
+            loadInitialContent().then(() => {
+                setTimeout(() => {
+                    icon.classList.remove('rotate-[360deg]');
+                }, 1000);
+            });
         });
 
         backToTopBtn.addEventListener('click', () => {
@@ -891,12 +954,10 @@
             renderSavedNews();
 
             loadInitialContent();
-            fetchTrendingTopics();
             renderCategories();
 
             setInterval(() => {
-                handleSearch({type: 'auto-refresh'});
-                fetchTrendingTopics();
+                loadInitialContent();
             }, 20 * 60 * 1000);
         });
 
