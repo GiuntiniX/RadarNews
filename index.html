@@ -583,7 +583,15 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
 
-                trendingTopicsContainer.appendChild(topicElement);
+                const followButton = document.createElement('button');
+                const isFollowed = followedTopics.includes(capitalizedWord);
+                followButton.className = `follow-btn ${isFollowed ? 'followed' : ''}`;
+                followButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 hover:text-cyan-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                followButton.onclick = () => toggleFollowTopic(capitalizedWord);
+
+                topicWrapper.appendChild(topicElement);
+                topicWrapper.appendChild(followButton);
+                trendingTopicsContainer.appendChild(topicWrapper);
             });
         }
 
@@ -611,13 +619,18 @@
         function renderCategories() {
             categoriesContainer.innerHTML = '';
             mainCategories.forEach((category, index) => {
+                const categoryWrapper = document.createElement('div');
+                categoryWrapper.className = 'flex items-center';
+
                 const categoryButton = document.createElement('button');
                 
                 if (index === 0) {
-                     categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
+                     categoryButton.className = `bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold pl-3 pr-2 py-1.5 rounded-l-lg transition-all duration-200`;
                 } else {
                     const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
-                    categoryButton.className = `${colorClass} text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200`;
+                    const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass));
+            		const textColorClass = isLightBg ? 'text-black' : 'text-white';
+                    categoryButton.className = `${colorClass} ${textColorClass} text-xs font-semibold pl-3 pr-2 py-1.5 rounded-l-lg transition-colors duration-200`;
                 }
 
                 categoryButton.textContent = category;
@@ -639,12 +652,31 @@
                     generateTrendingTopics(searchTerm); // Update word cloud on category click
                 };
 
+                categoryWrapper.appendChild(categoryButton);
+                
+                if (category !== 'Todas') {
+                    const followButton = document.createElement('button');
+                    const isFollowed = followedTopics.includes(category);
+                    followButton.className = `follow-btn ${isFollowed ? 'followed' : ''} h-full px-2 rounded-r-lg`;
+
+                    const colorClass = categoryButtonColors[(index - 1) % categoryButtonColors.length];
+            		const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass));
+            		const iconColorClass = isLightBg ? 'text-black' : 'text-slate-300';
+                    
+                    followButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="${iconColorClass}"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                    followButton.onclick = () => toggleFollowTopic(category);
+                    
+                    colorClass.split(' ').forEach(cls => followButton.classList.add(cls));
+                    
+                    categoryWrapper.appendChild(followButton);
+                }
+
                 if (index === 0) {
-                    categoryButton.classList.add('category-active');
+                    categoryButton.classList.add('category-active', 'rounded-lg');
                     activeCategoryButton = categoryButton;
                 }
 
-                categoriesContainer.appendChild(categoryButton);
+                categoriesContainer.appendChild(categoryWrapper);
             });
         }
 
@@ -652,8 +684,27 @@
             if (!append) {
                 resultsContainer.innerHTML = '';
             }
+             if (currentView === 'paraSi' && followedTopics.length === 0) {
+                messageState.classList.remove('hidden');
+                messageTitle.textContent = 'Comece a seguir tópicos!';
+                messageText.textContent = 'Clique nas estrelas ao lado das editorias ou dos assuntos do dia para personalizar o seu feed.';
+                contentCounter.textContent = '';
+                resultsContainer.innerHTML = '';
+                return;
+            }
 
             let filteredNews = applyDateFilter(allNewsCache, currentDateFilter);
+
+            if (currentView === 'paraSi') {
+                 filteredNews = filteredNews.filter(news => {
+                    const titleLower = news.title.toLowerCase();
+                    const categoryLower = news.category.toLowerCase();
+                    return followedTopics.some(topic => {
+                        const topicLower = topic.toLowerCase();
+                        return titleLower.includes(topicLower) || categoryLower.includes(topicLower);
+                    });
+                });
+            }
             
             const totalItems = filteredNews.length;
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -663,7 +714,7 @@
             if (paginatedItems.length === 0 && currentPage === 1) {
                 messageState.classList.remove('hidden');
                 messageTitle.textContent = 'Nenhuma notícia encontrada.';
-                messageText.textContent = 'Tente um termo diferente ou ajuste os filtros.';
+                messageText.textContent = 'Não foram encontrados resultados para os seus tópicos seguidos. Tente seguir outros assuntos ou ajustar os filtros.';
                 contentCounter.textContent = '';
                 return;
             }
@@ -737,7 +788,9 @@
             if (categoryIndex > 0) {
                  categoryColorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length];
             }
-            const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass.split(' ')[0]} text-white px-2 py-1 rounded-full">${news.category}</span>`;
+            const isLightBg = lightBgClasses.some(lightClass => categoryColorClass.includes(lightClass));
+            const categoryTextColorClass = isLightBg ? 'text-black' : 'text-white';
+            const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass.split(' ')[0]} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
             
             newsElement.innerHTML = `
                 <div class="flex justify-between items-start">
@@ -853,25 +906,23 @@
                 setLoading(false);
             }
         }
+
+        function setViewFilter(view) {
+            currentView = view;
+            currentPage = 1;
+            [viewFilterAll, viewFilterForYou].forEach(btn => btn.classList.remove('view-filter-active'));
+            if(view === 'all') viewFilterAll.classList.add('view-filter-active');
+            else viewFilterForYou.classList.add('view-filter-active');
+            renderResults();
+        }
         
         function setDateFilter(filter) {
             currentDateFilter = filter;
             currentPage = 1; 
 
-            [dateFilterToday, dateFilterWeek].forEach(btn => {
-                btn.classList.remove('date-filter-active');
-                btn.classList.add('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
-            });
-
-            const activeBtn = {
-                'hoje': dateFilterToday,
-                'semana': dateFilterWeek,
-            }[filter];
-
-            if(activeBtn) {
-                activeBtn.classList.add('date-filter-active');
-                activeBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700', 'text-slate-300');
-            }
+            [dateFilterToday, dateFilterWeek].forEach(btn => btn.classList.remove('date-filter-active'));
+            if(filter === 'hoje') dateFilterToday.classList.add('date-filter-active');
+            else dateFilterWeek.classList.add('date-filter-active');
             
             renderResults();
         }
@@ -902,6 +953,25 @@
             renderResults(); // Re-render main results to update save icons
             showToast('Notícia removida da lista!');
         }
+
+        function toggleFollowTopic(topic) {
+            const topicIndex = followedTopics.indexOf(topic);
+            if (topicIndex > -1) {
+                followedTopics.splice(topicIndex, 1);
+                 showToast(`Deixou de seguir "${topic}"`);
+            } else {
+                followedTopics.push(topic);
+                 showToast(`Agora segue "${topic}"`);
+            }
+            localStorage.setItem('followedTopics', JSON.stringify(followedTopics));
+            
+            // Re-render components that show follow status
+            renderCategories();
+            generateTrendingTopics(currentCategorySearch);
+            if (currentView === 'paraSi') {
+                renderResults();
+            }
+        }
         
         function showToast(message) {
             toastMessage.textContent = message;
@@ -922,6 +992,8 @@
         
         dateFilterToday.addEventListener('click', () => setDateFilter('hoje'));
         dateFilterWeek.addEventListener('click', () => setDateFilter('semana'));
+        viewFilterAll.addEventListener('click', () => setViewFilter('all'));
+        viewFilterForYou.addEventListener('click', () => setViewFilter('paraSi'));
 
         refreshButton.addEventListener('click', () => {
             const icon = refreshButton.querySelector('svg');
@@ -974,6 +1046,10 @@
             if (storedNews) {
                 savedNews = JSON.parse(storedNews);
             } 
+            const storedTopics = localStorage.getItem('followedTopics');
+            if(storedTopics) {
+                followedTopics = JSON.parse(storedTopics);
+            }
             renderSavedNews();
 
             loadInitialContent();
