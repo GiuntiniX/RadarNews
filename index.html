@@ -243,6 +243,7 @@
         let currentView = 'all'; // 'all', 'paraSi'
         let currentDateFilter = 'hoje'; // 'hoje', 'semana'
         let allNewsCache = []; // Cache news to avoid re-fetching
+        let masterNewsCache = []; // Holds the complete, unfiltered list of news
         let currentPage = 1;
         const itemsPerPage = 20;
         let activeCategoryButton = null;
@@ -513,6 +514,7 @@
             setLoading(true);
             try {
                 const news = await fetchFromGoogleNewsAPI();
+                masterNewsCache = news;
                 allNewsCache = news;
                 renderResults();
                 generateTrendingTopics();
@@ -684,21 +686,23 @@
             if (!append) {
                 resultsContainer.innerHTML = '';
             }
-             if (currentView === 'paraSi' && followedTopics.length === 0) {
-                messageState.classList.remove('hidden');
-                messageTitle.textContent = 'Comece a seguir tópicos!';
-                messageText.textContent = 'Clique nas estrelas ao lado das editorias ou dos assuntos do dia para personalizar o seu feed.';
-                contentCounter.textContent = '';
-                resultsContainer.innerHTML = '';
-                return;
-            }
 
-            let filteredNews = applyDateFilter(allNewsCache, currentDateFilter);
+            const sourceData = currentView === 'paraSi' ? masterNewsCache : allNewsCache;
+            let filteredNews = applyDateFilter(sourceData, currentDateFilter);
 
-            if (currentView === 'paraSi') {
+             if (currentView === 'paraSi') {
+                if (followedTopics.length === 0) {
+                    messageState.classList.remove('hidden');
+                    messageTitle.textContent = 'Comece a seguir tópicos!';
+                    messageText.textContent = 'Clique nas estrelas ao lado das editorias ou dos assuntos do dia para personalizar o seu feed.';
+                    contentCounter.textContent = '';
+                    resultsContainer.innerHTML = '';
+                    return;
+                }
+
                  filteredNews = filteredNews.filter(news => {
                     const titleLower = news.title.toLowerCase();
-                    const categoryLower = news.category.toLowerCase();
+                    const categoryLower = news.category ? news.category.toLowerCase() : '';
                     return followedTopics.some(topic => {
                         const topicLower = topic.toLowerCase();
                         return titleLower.includes(topicLower) || categoryLower.includes(topicLower);
@@ -714,7 +718,9 @@
             if (paginatedItems.length === 0 && currentPage === 1) {
                 messageState.classList.remove('hidden');
                 messageTitle.textContent = 'Nenhuma notícia encontrada.';
-                messageText.textContent = 'Não foram encontrados resultados para os seus tópicos seguidos. Tente seguir outros assuntos ou ajustar os filtros.';
+                messageText.textContent = currentView === 'paraSi' 
+                    ? 'Não foram encontrados resultados para os seus tópicos seguidos. Tente seguir outros assuntos ou ajustar os filtros.'
+                    : 'Tente um termo diferente ou ajuste os filtros.';
                 contentCounter.textContent = '';
                 return;
             }
