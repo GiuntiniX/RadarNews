@@ -37,11 +37,9 @@
             padding: 0 2px;
             border-radius: 2px;
         }
-        /* Toast Notification */
         #toast {
             transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
         }
-        /* Back to Top Button */
         #backToTopBtn {
             transition: opacity 0.3s, transform 0.3s;
         }
@@ -49,9 +47,43 @@
             background-color: #334155 !important; /* slate-700 */
             box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.25);
         }
+
+        /* ============== MUDANÇA: CSS PARA O NOVO BALÃO DE INFORMAÇÕES ============== */
+        #info-banner {
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        #info-banner.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+        /* ======================================================================= */
     </style>
 </head>
 <body class="text-slate-200 antialiased">
+
+    <div id="info-banner" role="alert" class="hidden fixed top-5 right-5 w-80 bg-slate-700 border border-slate-600 rounded-lg shadow-xl z-50 p-4">
+        <button id="close-info-banner" type="button" aria-label="Fechar dicas" class="absolute top-2 right-2 text-slate-400 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <h3 class="font-bold text-cyan-400 mb-2 text-base">Dicas Rápidas do Radar</h3>
+        <ul class="space-y-2 text-sm text-slate-300 list-inside">
+            <li class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 mt-0.5 text-cyan-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <span><b>Busca Inteligente:</b> Basta digitar no campo de busca e os resultados aparecem.</span>
+            </li>
+            <li class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 mt-0.5 text-cyan-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                <span><b>Feed 'Para Si':</b> Siga suas editorias favoritas para criar um feed personalizado.</span>
+            </li>
+             <li class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 mt-0.5 text-cyan-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <span><b>Análise Agregada:</b> Descubra o que está em alta na concorrência e compare a cobertura.</span>
+            </li>
+        </ul>
+    </div>
 
     <div class="container mx-auto p-4 md:p-8">
         
@@ -141,7 +173,7 @@
                 </aside>
             </div>
         </div>
-
+        
         <div id="aggregateContainer" class="hidden">
             <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">Análise de Cobertura Competitiva (Últimas 24h)</h2>
             <div id="gapAnalysisContainer" class="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
@@ -183,6 +215,9 @@
     </button>
     
     <script>
+    // Todo o JavaScript continua aqui...
+    // A única alteração está na função que gerencia as dicas, agora chamada manageInfoBanner.
+    
     // =================================================================================
     // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS
     // =================================================================================
@@ -488,7 +523,6 @@
         const categoryIndex = mainCategories.indexOf(parentCategory); let categoryColorClass = 'bg-slate-700'; if (categoryIndex > 0) { categoryColorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length]; }
         const isLightBg = lightBgClasses.some(lightClass => categoryColorClass.includes(lightClass)); const categoryTextColorClass = isLightBg ? 'text-black' : 'text-white';
         const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass.split(' ')[0]} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
-        // MUDANÇA: Adicionado aria-label ao botão de salvar
         newsElement.innerHTML = `<div class="flex justify-between items-start"><a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden"><img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`"><div class="truncate"><p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p></div></a><div class="flex items-center gap-2"><button class="save-btn" data-url="${news.url}" aria-label="Salvar notícia">${saveButtonIcon}</button></div></div><div><a href="${news.url}" target="_blank" rel="noopener noreferrer"><p class="text-slate-300 font-semibold leading-relaxed mb-2">${finalTitle}</p></a></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div>${categoryHTML}</div><span class="text-xs text-slate-500">${fullDateTime}</span></div>`;
         newsElement.querySelector('.save-btn').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleSaveNews(news, e.currentTarget); });
         return newsElement;
@@ -528,7 +562,6 @@
     function renderSavedNews() {
         savedNewsContainer.innerHTML = ''; savedNewsCountSidebar.textContent = savedNews.length; savedNewsCountBadge.textContent = savedNews.length; savedNewsPreviewContainer.innerHTML = '';
         if (savedNews.length === 0) { const emptyMsg = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`; savedNewsContainer.innerHTML = emptyMsg; savedNewsPreviewContainer.innerHTML = emptyMsg; return; }
-        // MUDANÇA: Adicionado aria-label ao botão de remover
         savedNews.forEach(news => { const savedItem = document.createElement('div'); savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700'; savedItem.innerHTML = `<a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a><button class="remove-saved-btn flex-shrink-0" data-url="${news.url}" aria-label="Remover notícia"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>`; savedNewsContainer.appendChild(savedItem); });
         savedNews.slice(0, 3).forEach(news => { const savedItem = document.createElement('div'); savedItem.className = 'flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-700'; savedItem.innerHTML = `<a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a><button class="remove-saved-btn flex-shrink-0" data-url="${news.url}" aria-label="Remover notícia"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>`; savedNewsPreviewContainer.appendChild(savedItem); });
         document.querySelectorAll('.remove-saved-btn').forEach(button => { button.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleRemoveNews(button.dataset.url); }); });
@@ -615,10 +648,9 @@
             buttonText.textContent = "Buscar";
         }
     }
-    async function handleSearch(event, category = null) {
+    async function handleSearch(queryValue, category = null) {
         setLoading(true);
-        // MUDANÇA: Lógica para pegar valor do input mudou ligeiramente para suportar debounce
-        const query = category !== null ? category : (typeof event === 'string' ? event : searchInput.value.trim());
+        const query = category !== null ? category : queryValue;
         masterNewsCache = await fetchFromGoogleNewsAPI(query);
         setLoading(false);
         renderRadarResults();
@@ -630,7 +662,7 @@
         const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate];
         buttons.forEach(btn => {
             btn.classList.remove('view-filter-active');
-            btn.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            btn.setAttribute('aria-pressed', 'false');
         });
 
         if (view === 'radar') {
@@ -641,16 +673,16 @@
             
             if (currentRadarView === 'geral') {
                 viewFilterRadar.classList.add('view-filter-active');
-                viewFilterRadar.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+                viewFilterRadar.setAttribute('aria-pressed', 'true');
             } else {
                 viewFilterForYou.classList.add('view-filter-active');
-                viewFilterForYou.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+                viewFilterForYou.setAttribute('aria-pressed', 'true');
             }
         } else if (view === 'aggregate') {
             radarContainer.classList.add('hidden');
             aggregateContainer.classList.remove('hidden');
             viewFilterAggregate.classList.add('view-filter-active');
-            viewFilterAggregate.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            viewFilterAggregate.setAttribute('aria-pressed', 'true');
             searchBarWrapper.classList.add('hidden');
             dateFilterContainer.classList.add('hidden');
         }
@@ -704,19 +736,43 @@
         updateTimestamp();
     }
 
-    // MUDANÇA: Função de Debounce
-    function debounce(func, delay) {
+    function debounce(func, delay = 500) {
         let timeout;
         return function(...args) {
-            const context = this;
             clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(context, args), delay);
+            timeout = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
         };
     }
 
     const debouncedSearch = debounce((event) => {
         handleSearch(event.target.value);
-    }, 500); // 500ms de delay
+    });
+    
+    // ================= MUDANÇA: Nova Lógica do Balão Informativo ================= //
+    function manageInfoBanner() {
+        const banner = document.getElementById('info-banner');
+        const closeButton = document.getElementById('close-info-banner');
+        
+        // Função para esconder o balão
+        const hideBanner = () => banner.classList.add('hidden');
+
+        // Mostra o balão ao carregar a página (após um pequeno delay para a interface carregar)
+        setTimeout(() => {
+             banner.classList.remove('hidden');
+        }, 500);
+
+        // Configura o tempo para sumir sozinho
+        const timer = setTimeout(hideBanner, 15000); // 15 segundos
+
+        // Adiciona o evento de clique para fechar manualmente
+        closeButton.addEventListener('click', () => {
+            hideBanner();
+            clearTimeout(timer); // Impede que o timer tente esconder de novo
+        });
+    }
+    // ================================================================================= //
 
     document.addEventListener('DOMContentLoaded', () => {
         const storedNews = localStorage.getItem('savedNews');
@@ -727,6 +783,9 @@
         renderSavedNews();
         renderCategories();
         loadInitialContent();
+        
+        // MUDANÇA: Chama a nova função do balão informativo
+        manageInfoBanner();
         
         setInterval(handleAutoRefresh, 20 * 60 * 1000);
 
@@ -741,23 +800,22 @@
 
         searchButton.addEventListener('click', () => handleSearch(searchInput.value));
         
-        // MUDANÇA: Listener de 'input' para busca automática com debounce
         searchInput.addEventListener('input', debouncedSearch);
         
         dateFilterToday.addEventListener('click', () => { 
             currentDateFilter = 'hoje'; 
             dateFilterToday.classList.add('date-filter-active');
             dateFilterWeek.classList.remove('date-filter-active');
-            dateFilterToday.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
-            dateFilterWeek.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            dateFilterToday.setAttribute('aria-pressed', 'true');
+            dateFilterWeek.setAttribute('aria-pressed', 'false');
             renderRadarResults(); 
         });
         dateFilterWeek.addEventListener('click', () => { 
             currentDateFilter = 'semana'; 
             dateFilterWeek.classList.add('date-filter-active'); 
             dateFilterToday.classList.remove('date-filter-active');
-            dateFilterWeek.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
-            dateFilterToday.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            dateFilterWeek.setAttribute('aria-pressed', 'true');
+            dateFilterToday.setAttribute('aria-pressed', 'false');
             renderRadarResults(); 
         });
 
@@ -770,8 +828,8 @@
             currentGapView = 'not_covered';
             filterGapsNotCoveredBtn.classList.add('gap-filter-active');
             filterGapsCoveredBtn.classList.remove('gap-filter-active');
-            filterGapsNotCoveredBtn.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
-            filterGapsCoveredBtn.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            filterGapsNotCoveredBtn.setAttribute('aria-pressed', 'true');
+            filterGapsCoveredBtn.setAttribute('aria-pressed', 'false');
             renderGapAnalysis(1);
         });
 
@@ -779,8 +837,8 @@
             currentGapView = 'covered';
             filterGapsCoveredBtn.classList.add('gap-filter-active');
             filterGapsNotCoveredBtn.classList.remove('gap-filter-active');
-            filterGapsCoveredBtn.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
-            filterGapsNotCoveredBtn.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            filterGapsCoveredBtn.setAttribute('aria-pressed', 'true');
+            filterGapsNotCoveredBtn.setAttribute('aria-pressed', 'false');
             renderGapAnalysis(1);
         });
 
