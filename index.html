@@ -124,7 +124,6 @@
                 </div>
                 <div id="dateFilterContainer" class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
                     <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="true">Hoje</button>
-                    <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Semana</button>
                 </div>
                  <div class="flex items-center gap-2">
                     <button id="refreshButton" aria-label="Atualizar notícias" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
@@ -134,7 +133,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                         <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
                     </button>
-                 </div>
+                </div>
             </div>
             <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
         </div>
@@ -240,7 +239,6 @@
     const viewFilterAggregate = document.getElementById('viewFilterAggregate');
     const dateFilterContainer = document.getElementById('dateFilterContainer');
     const dateFilterToday = document.getElementById('dateFilterToday');
-    const dateFilterWeek = document.getElementById('dateFilterWeek');
     const resultsContainer = document.getElementById('resultsContainer');
     const messageState = document.getElementById('messageState');
     const messageTitle = document.getElementById('messageTitle');
@@ -539,7 +537,6 @@
         const applyDateFilter = (items, filter) => {
             const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
             if (filter === 'hoje') return items.filter(item => new Date(item.timestamp) >= todayStart);
-            if (filter === 'semana') { const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000); return items.filter(item => new Date(item.timestamp) >= weekStart); }
             return items;
         };
         let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
@@ -805,17 +802,7 @@
         dateFilterToday.addEventListener('click', () => { 
             currentDateFilter = 'hoje'; 
             dateFilterToday.classList.add('date-filter-active');
-            dateFilterWeek.classList.remove('date-filter-active');
             dateFilterToday.setAttribute('aria-pressed', 'true');
-            dateFilterWeek.setAttribute('aria-pressed', 'false');
-            renderRadarResults(); 
-        });
-        dateFilterWeek.addEventListener('click', () => { 
-            currentDateFilter = 'semana'; 
-            dateFilterWeek.classList.add('date-filter-active'); 
-            dateFilterToday.classList.remove('date-filter-active');
-            dateFilterWeek.setAttribute('aria-pressed', 'true');
-            dateFilterToday.setAttribute('aria-pressed', 'false');
             renderRadarResults(); 
         });
 
@@ -859,10 +846,6 @@
                 const totalItems = masterNewsCache.filter(item => {
                     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
                     if (currentDateFilter === 'hoje') return new Date(item.timestamp) >= todayStart;
-                    if (currentDateFilter === 'semana') {
-                        const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000);
-                        return new Date(item.timestamp) >= weekStart;
-                    }
                     return true;
                 }).length;
 
