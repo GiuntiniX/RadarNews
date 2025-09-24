@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radar de Notícias Completo</title>
+    <title>Radar de Notícias</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -47,8 +47,6 @@
             background-color: #334155 !important; /* slate-700 */
             box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.25);
         }
-
-        /* ============== MUDANÇA: CSS PARA O NOVO BALÃO DE INFORMAÇÕES ============== */
         #info-banner {
             transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
@@ -57,7 +55,6 @@
             transform: translateX(20px);
             pointer-events: none;
         }
-        /* ======================================================================= */
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -214,9 +211,6 @@
     </button>
     
     <script>
-    // Todo o JavaScript continua aqui...
-    // A única alteração está na função que gerencia as dicas, agora chamada manageInfoBanner.
-    
     // =================================================================================
     // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS
     // =================================================================================
@@ -278,16 +272,35 @@
     let currentGapPage = 1;
 
     // --- CONSTANTS & CONFIGS ---
-    const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
+    const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
     
     const GAPS_PER_PAGE = 20;
     const MAX_GAP_PAGES = 5;
     
-    const categoryKeywordsMap = { 'Política': ['eleições', 'campanha', 'partido', 'congresso', 'stf', 'escândalo', 'investigação', 'reforma', 'governo', 'presidente', 'deputado', 'senador', 'ministro', 'lula', 'bolsonaro'], 'Economia': ['inflação', 'juros', 'indicadores econômicos', 'mercado financeiro', 'bolsa de valores', 'emprego', 'renda', 'políticas econômicas', 'impostos', 'dólar', 'câmbio', 'pib', 'haddad'], 'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'jogos', 'resultados', 'atletas', 'clube', 'olimpíadas', 'fórmula 1', 'ufc', 'tênis'], 'Tecnologia': ['gadgets', 'apps', 'inteligência artificial', 'inovação', 'cibersegurança', 'privacidade', 'startups', 'smartphone', 'celular', 'software', 'hardware', 'ia'], 'Cultura': ['artes', 'teatro', 'literatura', 'festivais', 'exposição', 'patrimônio histórico', 'movimentos culturais', 'show'], 'Saúde': ['pandemia', 'surto', 'vacina', 'tratamento', 'sistema de saúde', 'bem-estar', 'medicina', 'anvisa', 'oms', 'hospital', 'dengue'], 'Mundo': ['conflitos internacionais', 'diplomacia', 'acordos globais', 'eleições', 'governos estrangeiros', 'crises humanitárias', 'guerra', 'onu', 'gaza', 'ucrânia', 'biden', 'trump'], 'Horóscopo': ['previsões astrológicas', 'signos', 'compatibilidade', 'mapa astral', 'astrologia'], 'Entretenimento': ['celebridades', 'bastidores', 'reality show', 'novela', 'música pop', 'cultura de massa', 'premiação', 'famosos', 'bbb'], 'Ciência': ['descobertas científicas', 'espaço', 'astronomia', 'pesquisa', 'biodiversidade', 'nasa'], 'Educação': ['enem', 'vestibular', 'concurso', 'políticas educacionais', 'escola', 'universidade', 'inclusão', 'alfabetização', 'mec'], 'Viagem': ['destinos turísticos', 'hospedagem', 'roteiro', 'passagens', 'turismo', 'viajar'], 'Gastronomia': ['receita', 'culinária', 'restaurante', 'chef', 'alimentação saudável', 'bebidas', 'harmonização'], 'Carros': ['veículos', 'mobilidade urbana', 'automotiva', 'lançamento', 'teste de carro'], 'Imóveis': ['compra', 'venda', 'aluguel', 'financiamento', 'crédito imobiliário', 'arquitetura', 'decoração'], 'Música': ['lançamento', 'clipe', 'artista', 'banda', 'gênero musical', 'festival', 'turnê', 'show'], 'Cinema': ['estreia', 'crítica', 'bastidores', 'produção', 'oscar', 'cannes', 'streaming', 'bilheteria', 'filme', 'série'], 'Moda': ['tendência', 'coleção', 'estilista', 'marca', 'spfw', 'moda sustentável', 'desfile'], 'Meio Ambiente': ['mudanças climáticas', 'sustentabilidade', 'reciclagem', 'desmatamento', 'conservação', 'políticas ambientais', 'ecologia'] };
+    const categoryKeywordsMap = {
+        'Política': ['governo', 'eleições', 'partido', 'lei', 'congresso', 'presidente', 'ministro', 'stf', 'plenário', 'senado', 'câmara', 'decreto', 'lula', 'bolsonaro'],
+        'Economia': ['finanças', 'mercado', 'ações', 'inflação', 'juros', 'empresa', 'investimento', 'pib', 'dólar', 'câmbio', 'haddad', 'selic', 'ibovespa'],
+        'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'atleta', 'time', 'olimpíadas', 'brasileirão', 'libertadores', 'fórmula 1', 'ufc', 'medalha'],
+        'Cultura': ['arte', 'exposição', 'teatro', 'livro', 'museu', 'patrimônio', 'bienal', 'concerto', 'literatura', 'peça teatral'],
+        'Saúde': ['bem-estar', 'doença', 'tratamento', 'medicina', 'hospital', 'vacina', 'nutrição', 'anvisa', 'oms', 'surto', 'epidemia', 'dengue'],
+        'Mundo': ['internacional', 'notícia global', 'conflito', 'acordo', 'guerra', 'diplomacia', 'eleição eua', 'biden', 'trump', 'gaza', 'ucrânia', 'onu'],
+        'Horóscopo': ['signo', 'astrologia', 'previsão', 'zodíaco', 'mapa astral', 'horóscopo'],
+        'Entretenimento': ['famosos', 'celebridade', 'tv', 'série', 'fofoca', 'evento', 'reality show', 'bbb', 'novela', 'premiação'],
+        'Ciência': ['pesquisa', 'descoberta', 'espaço', 'biologia', 'física', 'nasa', 'estudo científico', 'foguete', 'astrônomo'],
+        'Educação': ['escola', 'universidade', 'enem', 'vestibular', 'curso', 'professor', 'mec', 'prouni', 'fies', 'educação básica'],
+        'Viagem': ['turismo', 'destino', 'passagem', 'hotel', 'férias', 'ponto turístico', 'roteiro', 'viajar', 'milhas'],
+        'Gastronomia': ['receita', 'restaurante', 'chef', 'comida', 'bebida', 'culinária', 'gourmet', 'harmonização', 'degustação'],
+        'Carros': ['automóvel', 'veículo', 'montadora', 'lançamento', 'teste', 'mercado automotivo', 'carro elétrico', 'ipva'],
+        'Imóveis': ['casa', 'apartamento', 'aluguel', 'compra', 'venda', 'construção', 'mercado imobiliário', 'financiamento', 'condomínio'],
+        'Música': ['show', 'festival', 'artista', 'banda', 'lançamento', 'clipe', 'turnê', 'rock in rio', 'lollapalooza', 'spotify'],
+        'Cinema': ['filme', 'estreia', 'crítica', 'ator', 'diretor', 'oscar', 'streaming', 'netflix', 'bilheteria', 'série'],
+        'Moda': ['tendência', 'desfile', 'estilo', 'roupa', 'acessório', 'marca', 'spfw', 'estilista', 'coleção'],
+        'Meio Ambiente': ['sustentabilidade', 'natureza', 'ecologia', 'aquecimento global', 'desmatamento', 'reciclagem', 'mudanças climáticas', 'amazônia']
+    };
     
-    const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Tecnologia': 'border-purple-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500' };
+    const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500' };
     
-    const categoryButtonColors = [ 'bg-blue-600 hover:bg-blue-500', 'bg-emerald-600 hover:bg-emerald-500', 'bg-red-600 hover:bg-red-500', 'bg-purple-600 hover:bg-purple-500', 'bg-yellow-600 hover:bg-yellow-500', 'bg-pink-600 hover:bg-pink-500', 'bg-sky-600 hover:bg-sky-500', 'bg-orange-600 hover:bg-orange-500', 'bg-teal-600 hover:bg-teal-500', 'bg-lime-600 hover:bg-lime-500', 'bg-rose-600 hover:bg-rose-500', 'bg-indigo-600 hover:bg-indigo-500', 'bg-amber-600 hover:bg-amber-500', 'bg-slate-600 hover:bg-slate-500', 'bg-pink-400 hover:bg-pink-300', 'bg-yellow-400 hover:bg-yellow-300', 'bg-rose-400 hover:bg-rose-300', 'bg-green-600 hover:bg-green-500' ];
+    const categoryButtonColors = [ 'bg-blue-600 hover:bg-blue-500', 'bg-emerald-600 hover:bg-emerald-500', 'bg-red-600 hover:bg-red-500', 'bg-yellow-600 hover:bg-yellow-500', 'bg-pink-600 hover:bg-pink-500', 'bg-sky-600 hover:bg-sky-500', 'bg-orange-600 hover:bg-orange-500', 'bg-teal-600 hover:bg-teal-500', 'bg-lime-600 hover:bg-lime-500', 'bg-rose-600 hover:bg-rose-500', 'bg-indigo-600 hover:bg-indigo-500', 'bg-amber-600 hover:bg-amber-500', 'bg-slate-600 hover:bg-slate-500', 'bg-pink-400 hover:bg-pink-300', 'bg-yellow-400 hover:bg-yellow-300', 'bg-rose-400 hover:bg-rose-300', 'bg-green-600 hover:bg-green-500' ];
     const lightBgClasses = ['bg-lime-600', 'bg-pink-400', 'bg-yellow-400'];
 
     // --- CORE DATA FUNCTIONS (API, Mapping) ---
@@ -295,15 +308,28 @@
         const getSourceName = (sourceString) => { if (!sourceString) return 'Fonte Desconhecida'; const tempDiv = document.createElement('div'); tempDiv.innerHTML = sourceString; const text = tempDiv.textContent || tempDiv.innerText || ""; const parts = text.split(' - '); return parts[parts.length - 1].trim(); };
         let sourceDomain = 'news.google.com';
         try { if (item.sourceUrl && typeof item.sourceUrl === 'string') { sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); } } catch (e) { console.error("Could not parse source URL:", item.sourceUrl, e); }
+        
+        // =================================================================================
+        // ALTERAÇÃO: Lógica de classificação desativada para forçar "Geral" em tudo.
+        // =================================================================================
+        
+        /* --- Início do Bloco Desativado ---
         const textToAnalyze = `${item.title.toLowerCase()} ${(item.description || '').toLowerCase()}`;
         const categoryScores = {};
         mainCategories.forEach(cat => { if (cat !== 'Todas') categoryScores[cat] = 0; });
         for (const [category, keywords] of Object.entries(categoryKeywordsMap)) { for (const keyword of keywords) { if (textToAnalyze.includes(keyword)) { categoryScores[category]++; } } }
-        let bestCategory = 'Geral'; let maxScore = 0;
+        let bestCategory = 'Geral'; 
+        let maxScore = 0;
         for (const [category, score] of Object.entries(categoryScores)) { if (score > maxScore) { maxScore = score; bestCategory = category; } }
-        if (maxScore === 0) { const fetchCategoryMap = { 'Negócios': 'Economia', 'Ciência e Tecnologia': 'Tecnologia' }; const fallbackCategory = fetchCategoryMap[categoryTag] || categoryTag; if (mainCategories.includes(fallbackCategory)) { bestCategory = fallbackCategory; } }
+        if (maxScore === 0) { const fetchCategoryMap = { 'Negócios': 'Economia', 'Ciência e Tecnologia': 'Ciência' }; const fallbackCategory = fetchCategoryMap[categoryTag] || categoryTag; if (mainCategories.includes(fallbackCategory)) { bestCategory = fallbackCategory; } }
+        --- Fim do Bloco Desativado --- */
+        
+        // LÓGICA SIMPLIFICADA: Classifica tudo como "Geral"
+        const bestCategory = 'Geral';
+        
         return { source: 'googlenews', title: item.title, timestamp: new Date(item.pubDate).getTime(), url: item.link, description: item.content, sourceName: getSourceName(item.title), sourceDomain: sourceDomain, category: bestCategory };
     }
+
     async function fetchFromGoogleNewsAPI(query = null) {
         const fetchAndParse = async (searchUrl, categoryTag) => {
             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`;
@@ -319,7 +345,7 @@
         };
         if (query) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; return fetchAndParse(searchUrl, query); }
         else { 
-            const categories = ['Brasil', 'Mundo', 'Política', 'Economia', 'Negócios', 'Esportes', 'Tecnologia', 'Ciência', 'Cultura', 'Entretenimento', 'Saúde', 'Educação', 'Viagem', 'Gastronomia', 'Meio Ambiente', 'Carros', 'Música', 'Cinema']; 
+            const categories = ['Brasil', 'Mundo', 'Política', 'Economia', 'Negócios', 'Esportes', 'Ciência', 'Cultura', 'Entretenimento', 'Saúde', 'Educação', 'Viagem', 'Gastronomia', 'Meio Ambiente', 'Carros', 'Música', 'Cinema']; 
             let combinedNews = []; 
             for (const cat of categories) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; const newsForCat = await fetchAndParse(searchUrl, cat); combinedNews.push(...newsForCat); } const uniqueNews = new Map(); combinedNews.forEach(news => { if (!uniqueNews.has(news.url)) { uniqueNews.set(news.url, news); } }); return Array.from(uniqueNews.values()).sort((a, b) => b.timestamp - a.timestamp); }
     }
@@ -747,29 +773,23 @@
         handleSearch(event.target.value);
     });
     
-    // ================= MUDANÇA: Nova Lógica do Balão Informativo ================= //
     function manageInfoBanner() {
         const banner = document.getElementById('info-banner');
         const closeButton = document.getElementById('close-info-banner');
         
-        // Função para esconder o balão
         const hideBanner = () => banner.classList.add('hidden');
 
-        // Mostra o balão ao carregar a página (após um pequeno delay para a interface carregar)
         setTimeout(() => {
              banner.classList.remove('hidden');
         }, 500);
 
-        // Configura o tempo para sumir sozinho
-        const timer = setTimeout(hideBanner, 15000); // 15 segundos
+        const timer = setTimeout(hideBanner, 15000);
 
-        // Adiciona o evento de clique para fechar manualmente
         closeButton.addEventListener('click', () => {
             hideBanner();
-            clearTimeout(timer); // Impede que o timer tente esconder de novo
+            clearTimeout(timer);
         });
     }
-    // ================================================================================= //
 
     document.addEventListener('DOMContentLoaded', () => {
         const storedNews = localStorage.getItem('savedNews');
@@ -781,7 +801,6 @@
         renderCategories();
         loadInitialContent();
         
-        // MUDANÇA: Chama a nova função do balão informativo
         manageInfoBanner();
         
         setInterval(handleAutoRefresh, 20 * 60 * 1000);
