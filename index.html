@@ -22,12 +22,10 @@
             background-color: #06b6d4 !important;
             color: #ffffff !important;
         }
-        /* ======================= MUDANÇA #1: CSS para o novo filtro ========================= */
         .gap-filter-active {
             background-color: #fbbf24 !important; /* amber-400 */
             color: #1e293b !important;
         }
-        /* ==================================================================================== */
         .category-active {
             background-color: #0891b2 !important;
             color: #ffffff !important;
@@ -78,7 +76,7 @@
         <div class="sticky top-4 bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-700 shadow-lg mb-8">
             <div id="searchBarWrapper" class="flex flex-wrap items-center justify-center gap-4">
                 <div class="flex-grow flex items-center gap-4 bg-slate-900 rounded-lg p-1 border border-slate-700 w-full lg:w-auto max-w-4xl">
-                    <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
+                    <input type="text" id="searchInput" placeholder="Busque enquanto digita..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
                     <button id="searchButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:bg-slate-600 disabled:cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span id="buttonText">Buscar</span>
@@ -88,19 +86,19 @@
 
             <div class="flex justify-center items-center mt-4 flex-wrap gap-x-4 gap-y-2">
                  <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
-                    <button id="viewFilterRadar" class="view-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Radar Geral</button>
-                    <button id="viewFilterForYou" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700">Para Si</button>
-                    <button id="viewFilterAggregate" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700">Conteúdo Agregado</button>
+                    <button id="viewFilterRadar" class="view-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="true">Radar Geral</button>
+                    <button id="viewFilterForYou" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Para Si</button>
+                    <button id="viewFilterAggregate" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Conteúdo Agregado</button>
                 </div>
                 <div id="dateFilterContainer" class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
-                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Hoje</button>
-                    <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700">Semana</button>
+                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="true">Hoje</button>
+                    <button id="dateFilterWeek" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Semana</button>
                 </div>
                  <div class="flex items-center gap-2">
-                    <button id="refreshButton" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
+                    <button id="refreshButton" aria-label="Atualizar notícias" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                     </button>
-                    <button id="readingListBtn" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2 relative">
+                    <button id="readingListBtn" aria-label="Abrir lista de leitura" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                         <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
                     </button>
@@ -151,8 +149,8 @@
                 
                 <div class="flex items-center justify-center mb-6">
                     <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
-                        <button id="filterGapsNotCovered" class="gap-filter-active text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Não Produzido pelo Terra</button>
-                        <button id="filterGapsCovered" class="text-slate-300 hover:bg-slate-700 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Produzido pelo Terra</button>
+                        <button id="filterGapsNotCovered" class="gap-filter-active text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="true">Não Produzido pelo Terra</button>
+                        <button id="filterGapsCovered" class="text-slate-300 hover:bg-slate-700 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="false">Produzido pelo Terra</button>
                     </div>
                 </div>
                 <div id="gapResults"><p class="text-slate-400 text-center py-4">Clique em "Conteúdo Agregado" para iniciar a análise.</p></div>
@@ -172,7 +170,7 @@
         <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-lg w-full max-w-2xl max-h-[80vh] flex flex-col">
             <header class="flex items-center justify-between p-4 border-b border-slate-700 flex-shrink-0">
                 <h2 class="text-lg font-bold text-cyan-400">Lista de Leitura</h2>
-                <button id="closeReadingListBtn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                <button id="closeReadingListBtn" aria-label="Fechar lista de leitura"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
             </header>
             <div id="savedNewsContainer" class="flex-grow p-4 overflow-y-auto space-y-2"></div>
         </div>
@@ -180,7 +178,7 @@
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-transform duration-300">
         <p id="toastMessage"></p>
     </div>
-    <button id="backToTopBtn" class="hidden fixed bottom-5 right-5 bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-full shadow-lg opacity-0 transform translate-y-20">
+    <button id="backToTopBtn" aria-label="Voltar ao topo" class="hidden fixed bottom-5 right-5 bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-full shadow-lg opacity-0 transform translate-y-20">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg>
     </button>
     
@@ -226,10 +224,8 @@
     const savedNewsCountSidebar = document.getElementById('savedNewsCountSidebar');
     const gapResults = document.getElementById('gapResults');
     const dashboardContainer = document.getElementById('dashboardContainer');
-    // ======================= MUDANÇA #3: Elementos dos novos botões de filtro =========================
     const filterGapsNotCoveredBtn = document.getElementById('filterGapsNotCovered');
     const filterGapsCoveredBtn = document.getElementById('filterGapsCovered');
-    // ==================================================================================================
 
     
     // --- APP STATE ---
@@ -244,12 +240,9 @@
     let isLoadingMore = false;
     let activeCategoryButton = null;
     let currentCategorySearch = null;
-
-    // ======================= MUDANÇA #4: Novas variáveis de estado para o filtro =========================
     let currentGapView = 'not_covered'; // 'not_covered' ou 'covered'
     let latestAnalysisResult = { covered: [], not_covered: [] };
     let currentGapPage = 1;
-    // ===================================================================================================
 
     // --- CONSTANTS & CONFIGS ---
     const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
@@ -316,7 +309,6 @@
         return allCompetitorNews;
     }
     
-    // ======================= MUDANÇA #5: analyzeCoverage agora retorna duas listas =========================
     function analyzeCoverage(competitorNews) {
         const allArticles = Object.values(competitorNews).flat();
         const storyClusters = {};
@@ -346,7 +338,6 @@
             const cluster = storyClusters[key];
             const sourcesInCluster = [...new Set(cluster.articles.map(a => a.source))];
             
-            // Relevante se pelo menos 2 veículos cobriram (incluindo o Terra)
             const isRelevant = sourcesInCluster.length >= 2;
             
             if (isRelevant) {
@@ -365,7 +356,6 @@
         }
         return { gapsCovered, gapsNotCovered };
     }
-    // =====================================================================================================
 
     function renderGapPagination(totalPages, currentPage) {
         const paginationContainer = document.getElementById('gapPaginationControls');
@@ -385,13 +375,11 @@
         }
     }
 
-    // ======================= MUDANÇA #6: renderGapAnalysis adaptada para usar o filtro =========================
     function renderGapAnalysis(page = 1) {
         currentGapPage = page;
         gapResults.innerHTML = '';
         document.getElementById('gapPaginationControls').innerHTML = '';
 
-        // Decide qual lista de dados usar com base no filtro ativo
         const sourceData = currentGapView === 'not_covered' 
             ? latestAnalysisResult.not_covered 
             : latestAnalysisResult.covered;
@@ -417,7 +405,6 @@
             const gapElement = document.createElement('div');
             const formattedTime = new Date(gap.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             
-            // Muda a cor da borda e formata a lista de "coberto por"
             const borderColor = currentGapView === 'not_covered' ? 'border-amber-400' : 'border-green-500';
             const coveredByList = gap.coveredBy
                 .map(source => source === 'Terra' ? `<strong class="text-slate-200">${source}</strong>` : source)
@@ -437,7 +424,6 @@
         const totalPages = Math.ceil(gapsForDisplay.length / GAPS_PER_PAGE);
         renderGapPagination(totalPages, currentGapPage);
     }
-    // ==========================================================================================================
 
     function renderDashboard(competitorNews) {
         dashboardContainer.innerHTML = '';
@@ -502,7 +488,8 @@
         const categoryIndex = mainCategories.indexOf(parentCategory); let categoryColorClass = 'bg-slate-700'; if (categoryIndex > 0) { categoryColorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length]; }
         const isLightBg = lightBgClasses.some(lightClass => categoryColorClass.includes(lightClass)); const categoryTextColorClass = isLightBg ? 'text-black' : 'text-white';
         const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass.split(' ')[0]} ${categoryTextColorClass} px-2 py-1 rounded-full">${news.category}</span>`;
-        newsElement.innerHTML = `<div class="flex justify-between items-start"><a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden"><img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`"><div class="truncate"><p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p></div></a><div class="flex items-center gap-2"><button class="save-btn" data-url="${news.url}">${saveButtonIcon}</button></div></div><div><a href="${news.url}" target="_blank" rel="noopener noreferrer"><p class="text-slate-300 font-semibold leading-relaxed mb-2">${finalTitle}</p></a></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div>${categoryHTML}</div><span class="text-xs text-slate-500">${fullDateTime}</span></div>`;
+        // MUDANÇA: Adicionado aria-label ao botão de salvar
+        newsElement.innerHTML = `<div class="flex justify-between items-start"><a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden"><img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`"><div class="truncate"><p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p></div></a><div class="flex items-center gap-2"><button class="save-btn" data-url="${news.url}" aria-label="Salvar notícia">${saveButtonIcon}</button></div></div><div><a href="${news.url}" target="_blank" rel="noopener noreferrer"><p class="text-slate-300 font-semibold leading-relaxed mb-2">${finalTitle}</p></a></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div>${categoryHTML}</div><span class="text-xs text-slate-500">${fullDateTime}</span></div>`;
         newsElement.querySelector('.save-btn').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleSaveNews(news, e.currentTarget); });
         return newsElement;
     }
@@ -541,8 +528,9 @@
     function renderSavedNews() {
         savedNewsContainer.innerHTML = ''; savedNewsCountSidebar.textContent = savedNews.length; savedNewsCountBadge.textContent = savedNews.length; savedNewsPreviewContainer.innerHTML = '';
         if (savedNews.length === 0) { const emptyMsg = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`; savedNewsContainer.innerHTML = emptyMsg; savedNewsPreviewContainer.innerHTML = emptyMsg; return; }
-        savedNews.forEach(news => { const savedItem = document.createElement('div'); savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700'; savedItem.innerHTML = `<a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a><button class="remove-saved-btn flex-shrink-0" data-url="${news.url}"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>`; savedNewsContainer.appendChild(savedItem); });
-        savedNews.slice(0, 3).forEach(news => { const savedItem = document.createElement('div'); savedItem.className = 'flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-700'; savedItem.innerHTML = `<a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a><button class="remove-saved-btn flex-shrink-0" data-url="${news.url}"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>`; savedNewsPreviewContainer.appendChild(savedItem); });
+        // MUDANÇA: Adicionado aria-label ao botão de remover
+        savedNews.forEach(news => { const savedItem = document.createElement('div'); savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700'; savedItem.innerHTML = `<a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a><button class="remove-saved-btn flex-shrink-0" data-url="${news.url}" aria-label="Remover notícia"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>`; savedNewsContainer.appendChild(savedItem); });
+        savedNews.slice(0, 3).forEach(news => { const savedItem = document.createElement('div'); savedItem.className = 'flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-700'; savedItem.innerHTML = `<a href="${news.url}" target="_blank" class="text-sm text-slate-300 truncate" title="${news.title}">${news.title}</a><button class="remove-saved-btn flex-shrink-0" data-url="${news.url}" aria-label="Remover notícia"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>`; savedNewsPreviewContainer.appendChild(savedItem); });
         document.querySelectorAll('.remove-saved-btn').forEach(button => { button.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleRemoveNews(button.dataset.url); }); });
     }
     function renderCategories() {
@@ -629,7 +617,8 @@
     }
     async function handleSearch(event, category = null) {
         setLoading(true);
-        const query = category !== null ? category : searchInput.value.trim();
+        // MUDANÇA: Lógica para pegar valor do input mudou ligeiramente para suportar debounce
+        const query = category !== null ? category : (typeof event === 'string' ? event : searchInput.value.trim());
         masterNewsCache = await fetchFromGoogleNewsAPI(query);
         setLoading(false);
         renderRadarResults();
@@ -639,7 +628,10 @@
     function setView(view) {
         currentAppView = view;
         const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate];
-        buttons.forEach(btn => btn.classList.remove('view-filter-active'));
+        buttons.forEach(btn => {
+            btn.classList.remove('view-filter-active');
+            btn.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+        });
 
         if (view === 'radar') {
             radarContainer.classList.remove('hidden');
@@ -647,19 +639,24 @@
             searchBarWrapper.classList.remove('hidden');
             dateFilterContainer.classList.remove('hidden');
             
-            if (currentRadarView === 'geral') viewFilterRadar.classList.add('view-filter-active');
-            else viewFilterForYou.classList.add('view-filter-active');
+            if (currentRadarView === 'geral') {
+                viewFilterRadar.classList.add('view-filter-active');
+                viewFilterRadar.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            } else {
+                viewFilterForYou.classList.add('view-filter-active');
+                viewFilterForYou.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            }
         } else if (view === 'aggregate') {
             radarContainer.classList.add('hidden');
             aggregateContainer.classList.remove('hidden');
             viewFilterAggregate.classList.add('view-filter-active');
+            viewFilterAggregate.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
             searchBarWrapper.classList.add('hidden');
             dateFilterContainer.classList.add('hidden');
         }
     }
     
     // --- INITIALIZATION & REFRESH LOGIC ---
-    // ======================= MUDANÇA #7: Ajustar refreshAggregateView para guardar os 2 resultados =========================
     async function refreshAggregateView(isAutoRefresh = false) {
         if (!isAutoRefresh) {
             gapResults.innerHTML = `<p class="text-slate-400 text-center py-4">Analisando dados dos portais...</p>`;
@@ -670,13 +667,11 @@
             const competitorNews = await fetchCompetitorData();
             const analysis = analyzeCoverage(competitorNews);
             
-            // Armazena ambos os resultados para o filtro usar
             latestAnalysisResult = {
                 covered: analysis.gapsCovered,
                 not_covered: analysis.gapsNotCovered
             };
             
-            // Renderiza a primeira página da visão padrão ("não coberto")
             renderGapAnalysis(1);
             
             renderDashboard(competitorNews);
@@ -685,7 +680,6 @@
             dashboardContainer.innerHTML = '';
         }
     }
-    // ===================================================================================================================
     
     async function loadInitialContent(isAutoRefresh = false) {
         if (!isAutoRefresh) {
@@ -710,6 +704,20 @@
         updateTimestamp();
     }
 
+    // MUDANÇA: Função de Debounce
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+
+    const debouncedSearch = debounce((event) => {
+        handleSearch(event.target.value);
+    }, 500); // 500ms de delay
+
     document.addEventListener('DOMContentLoaded', () => {
         const storedNews = localStorage.getItem('savedNews');
         if (storedNews) { savedNews = JSON.parse(storedNews); }
@@ -731,30 +739,50 @@
             await refreshAggregateView(false);
         });
 
-        searchButton.addEventListener('click', () => handleSearch());
-        searchInput.addEventListener('keyup', (e) => e.key === 'Enter' && handleSearch());
-        dateFilterToday.addEventListener('click', () => { currentDateFilter = 'hoje'; document.getElementById('dateFilterToday').classList.add('date-filter-active'); document.getElementById('dateFilterWeek').classList.remove('date-filter-active'); renderRadarResults(); });
-        dateFilterWeek.addEventListener('click', () => { currentDateFilter = 'semana'; document.getElementById('dateFilterWeek').classList.add('date-filter-active'); document.getElementById('dateFilterToday').classList.remove('date-filter-active'); renderRadarResults(); });
+        searchButton.addEventListener('click', () => handleSearch(searchInput.value));
+        
+        // MUDANÇA: Listener de 'input' para busca automática com debounce
+        searchInput.addEventListener('input', debouncedSearch);
+        
+        dateFilterToday.addEventListener('click', () => { 
+            currentDateFilter = 'hoje'; 
+            dateFilterToday.classList.add('date-filter-active');
+            dateFilterWeek.classList.remove('date-filter-active');
+            dateFilterToday.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            dateFilterWeek.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            renderRadarResults(); 
+        });
+        dateFilterWeek.addEventListener('click', () => { 
+            currentDateFilter = 'semana'; 
+            dateFilterWeek.classList.add('date-filter-active'); 
+            dateFilterToday.classList.remove('date-filter-active');
+            dateFilterWeek.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            dateFilterToday.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            renderRadarResults(); 
+        });
+
         refreshButton.addEventListener('click', () => { searchInput.value = ''; loadInitialContent(); });
         readingListBtn.addEventListener('click', () => readingListModal.classList.remove('hidden'));
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
         readingListModal.addEventListener('click', (e) => { if(e.target === readingListModal) readingListModal.classList.add('hidden'); });
         
-        // ======================= MUDANÇA #8: Event Listeners para os novos filtros =========================
         filterGapsNotCoveredBtn.addEventListener('click', () => {
             currentGapView = 'not_covered';
             filterGapsNotCoveredBtn.classList.add('gap-filter-active');
             filterGapsCoveredBtn.classList.remove('gap-filter-active');
-            renderGapAnalysis(1); // Re-renderiza a partir da página 1
+            filterGapsNotCoveredBtn.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            filterGapsCoveredBtn.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            renderGapAnalysis(1);
         });
 
         filterGapsCoveredBtn.addEventListener('click', () => {
             currentGapView = 'covered';
             filterGapsCoveredBtn.classList.add('gap-filter-active');
             filterGapsNotCoveredBtn.classList.remove('gap-filter-active');
-            renderGapAnalysis(1); // Re-renderiza a partir da página 1
+            filterGapsCoveredBtn.setAttribute('aria-pressed', 'true'); // MUDANÇA: a11y
+            filterGapsNotCoveredBtn.setAttribute('aria-pressed', 'false'); // MUDANÇA: a11y
+            renderGapAnalysis(1);
         });
-        // =================================================================================================
 
         window.addEventListener('scroll', () => {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
