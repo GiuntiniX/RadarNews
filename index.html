@@ -96,7 +96,7 @@
                     </button>
                     <button id="readingListBtn" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                       <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                        <span id="savedNewsCountBadge" class="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
                     </button>
                  </div>
             </div>
@@ -144,7 +144,7 @@
                 <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência (Sem Cobertura no Terra)</h3>
                 <div id="gapResults"><p class="text-slate-400 text-center py-4">Clique em "Conteúdo Agregado" para iniciar a análise.</p></div>
             </div>
-            <div id="dashboardContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+            <div id="dashboardContainer" class="space-y-3"></div>
         </div>
     </div>
     
@@ -313,38 +313,50 @@
             gapResults.appendChild(gapElement);
         });
     }
+
+    // ATUALIZAÇÃO: Função reescrita para renderizar uma lista única e ordenada
     function renderDashboard(competitorNews) {
         dashboardContainer.innerHTML = '';
-        for (const name in competitorNews) {
-            const column = document.createElement('div');
-            column.className = 'bg-slate-800 p-3 rounded-lg flex flex-col';
 
-            let articlesHTML = competitorNews[name].map(article => `
-                <a href="${article.url}" target="_blank" class="text-sm text-slate-300 hover:text-cyan-400 p-2 hover:bg-slate-700 rounded-md block transition-colors">
-                    ${article.title.split(' - ')[0]}
-                </a>
-            `).join('');
+        // 1. Unifica todas as notícias de todos os portais em um único array
+        const allArticles = Object.values(competitorNews).flat();
 
-            if (competitorNews[name].length === 0) {
-                articlesHTML = '<p class="text-sm text-slate-500 text-center p-4">Nenhuma notícia encontrada.</p>';
-            }
+        // 2. Ordena o array unificado por data, do mais recente para o mais antigo
+        const sortedArticles = allArticles.sort((a, b) => b.timestamp - a.timestamp);
 
-            const faviconUrl = `https://www.google.com/s2/favicons?domain=${name.toLowerCase().replace(' ', '')}.com.br&sz=64`;
-            const defaultFallbackSvg = `<div class='flex-shrink-0 w-5 h-5 rounded-md bg-slate-700 flex items-center justify-center'><svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6' /></svg></div>`;
-            
-            const titleHTML = `
-                <div class="flex items-center justify-center border-b border-slate-700 pb-2 mb-2 flex-shrink-0">
-                    <img src="${faviconUrl}" alt="Favicon ${name}" class="h-5 w-5 mr-2 rounded-sm" onerror="this.outerHTML = \`${defaultFallbackSvg}\`">
-                    <h4 class="font-bold text-lg text-white">${name}</h4>
-                </div>
-            `;
-
-            column.innerHTML = `
-                ${titleHTML}
-                <div class="flex-grow overflow-y-auto max-h-96 pr-1">${articlesHTML}</div>
-            `;
-            dashboardContainer.appendChild(column);
+        if (sortedArticles.length === 0) {
+            dashboardContainer.innerHTML = '<p class="text-slate-500 text-center p-4">Nenhuma notícia encontrada nas últimas 24h.</p>';
+            return;
         }
+
+        // 3. Cria o HTML para cada item da lista
+        const articlesHTML = sortedArticles.map(article => {
+            const faviconUrl = `https://www.google.com/s2/favicons?domain=${article.sourceName.toLowerCase().replace(' ', '')}.com.br&sz=64`;
+            const defaultFallbackSvg = `<div class='flex-shrink-0 w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center'><svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6' /></svg></div>`;
+            const formattedDate = new Date(article.timestamp).toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(',', ' -');
+
+            return `
+                <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-3 bg-slate-800 rounded-lg hover:bg-slate-700/70 transition-colors border border-slate-700">
+                    <img src="${faviconUrl}" alt="Favicon ${article.sourceName}" class="h-8 w-8 mr-2 rounded-md flex-shrink-0" onerror="this.outerHTML = \`${defaultFallbackSvg}\`">
+                    <div class="flex-grow overflow-hidden">
+                        <p class="text-slate-200 font-medium truncate" title="${article.title.split(' - ')[0]}">
+                            ${article.title.split(' - ')[0]}
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-slate-400 mt-1">
+                            <span class="font-semibold">${article.sourceName}</span>
+                            <span>${formattedDate}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+
+        dashboardContainer.innerHTML = articlesHTML;
     }
 
 
@@ -525,12 +537,10 @@
     }
     
     // --- INITIALIZATION & REFRESH LOGIC ---
-
-    // NOVO: Função para carregar/atualizar a visão agregada
     async function refreshAggregateView(isAutoRefresh = false) {
         if (!isAutoRefresh) {
             gapResults.innerHTML = `<p class="text-slate-400 text-center py-4">Analisando dados dos portais...</p>`;
-            dashboardContainer.innerHTML = `<p class="text-slate-400 text-center py-4 col-span-full">Carregando dashboard...</p>`;
+            dashboardContainer.innerHTML = `<div class="text-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto"></div><p class="text-slate-400 mt-4">Buscando e organizando notícias...</p></div>`;
         }
         try {
             const competitorNews = await fetchCompetitorData();
@@ -555,16 +565,15 @@
         updateTimestamp();
     }
 
-    // NOVO: Função principal de auto-refresh que decide o que atualizar
     async function handleAutoRefresh() {
         if (currentAppView === 'radar') {
-            await loadInitialContent(true); // true para indicar que é um auto-refresh
+            await loadInitialContent(true);
             showToast('Notícias do radar atualizadas.');
         } else if (currentAppView === 'aggregate') {
-            await refreshAggregateView(true); // true para indicar que é um auto-refresh
+            await refreshAggregateView(true);
             showToast('Conteúdo agregado atualizado.');
         }
-        updateTimestamp(); // Garante que o timestamp seja atualizado em ambos os casos
+        updateTimestamp();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -577,14 +586,12 @@
         renderCategories();
         loadInitialContent();
         
-        // MODIFICADO: O setInterval agora chama a nova função handleAutoRefresh
         setInterval(handleAutoRefresh, 20 * 60 * 1000);
 
         // --- EVENT LISTENERS ---
         viewFilterRadar.addEventListener('click', () => { currentRadarView = 'geral'; setView('radar'); renderRadarResults(); });
         viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); renderRadarResults(); });
         
-        // MODIFICADO: O clique agora usa a nova função refreshAggregateView
         viewFilterAggregate.addEventListener('click', async () => {
             setView('aggregate');
             await refreshAggregateView(false);
@@ -612,7 +619,7 @@
                     }
                 }, 300);
             }
-            if (clientHeight + scrollTop >= scrollHeight - 500 && !isLoadingMore) {
+            if (currentAppView === 'radar' && clientHeight + scrollTop >= scrollHeight - 500 && !isLoadingMore) {
                 const totalItems = masterNewsCache.filter(item => {
                     const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
                     if (currentDateFilter === 'hoje') return new Date(item.timestamp) >= todayStart;
