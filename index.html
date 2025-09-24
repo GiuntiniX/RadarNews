@@ -143,12 +143,15 @@
             <div id="gapAnalysisContainer" class="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
                 <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência (Sem Cobertura no Terra)</h3>
                 <div id="gapResults"><p class="text-slate-400 text-center py-4">Clique em "Conteúdo Agregado" para iniciar a análise.</p></div>
-            </div>
+                
+                <div id="gapPaginationControls" class="flex justify-center items-center mt-6 gap-2"></div>
+                </div>
             
             <h3 class="text-xl font-semibold text-cyan-400 mb-4">Conteúdo por Portal | Google News</h3>
 
             <div id="dashboardContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-            </div>
+
+        </div>
     </div>
     
     <div id="readingListModal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
@@ -222,9 +225,18 @@
     let isLoadingMore = false;
     let activeCategoryButton = null;
     let currentCategorySearch = null;
+    // ======================= MUDANÇA #2: Variáveis de estado para paginação =========================
+    let latestAnalysisGaps = [];
+    let currentGapPage = 1;
+    // ============================================================================================
 
     // --- CONSTANTS & CONFIGS ---
     const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
+    
+    // ======================= MUDANÇA #3: Constantes para paginação =========================
+    const GAPS_PER_PAGE = 20;
+    const MAX_GAP_PAGES = 5;
+    // =======================================================================================
     
     const categoryKeywordsMap = { 'Política': ['eleições', 'campanha', 'partido', 'congresso', 'stf', 'escândalo', 'investigação', 'reforma', 'governo', 'presidente', 'deputado', 'senador', 'ministro', 'lula', 'bolsonaro'], 'Economia': ['inflação', 'juros', 'indicadores econômicos', 'mercado financeiro', 'bolsa de valores', 'emprego', 'renda', 'políticas econômicas', 'impostos', 'dólar', 'câmbio', 'pib', 'haddad'], 'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'jogos', 'resultados', 'atletas', 'clube', 'olimpíadas', 'fórmula 1', 'ufc', 'tênis'], 'Tecnologia': ['gadgets', 'apps', 'inteligência artificial', 'inovação', 'cibersegurança', 'privacidade', 'startups', 'smartphone', 'celular', 'software', 'hardware', 'ia'], 'Cultura': ['artes', 'teatro', 'literatura', 'festivais', 'exposição', 'patrimônio histórico', 'movimentos culturais', 'show'], 'Saúde': ['pandemia', 'surto', 'vacina', 'tratamento', 'sistema de saúde', 'bem-estar', 'medicina', 'anvisa', 'oms', 'hospital', 'dengue'], 'Mundo': ['conflitos internacionais', 'diplomacia', 'acordos globais', 'eleições', 'governos estrangeiros', 'crises humanitárias', 'guerra', 'onu', 'gaza', 'ucrânia', 'biden', 'trump'], 'Horóscopo': ['previsões astrológicas', 'signos', 'compatibilidade', 'mapa astral', 'astrologia'], 'Entretenimento': ['celebridades', 'bastidores', 'reality show', 'novela', 'música pop', 'cultura de massa', 'premiação', 'famosos', 'bbb'], 'Ciência': ['descobertas científicas', 'espaço', 'astronomia', 'pesquisa', 'biodiversidade', 'nasa'], 'Educação': ['enem', 'vestibular', 'concurso', 'políticas educacionais', 'escola', 'universidade', 'inclusão', 'alfabetização', 'mec'], 'Viagem': ['destinos turísticos', 'hospedagem', 'roteiro', 'passagens', 'turismo', 'viajar'], 'Gastronomia': ['receita', 'culinária', 'restaurante', 'chef', 'alimentação saudável', 'bebidas', 'harmonização'], 'Carros': ['veículos', 'mobilidade urbana', 'automotiva', 'lançamento', 'teste de carro'], 'Imóveis': ['compra', 'venda', 'aluguel', 'financiamento', 'crédito imobiliário', 'arquitetura', 'decoração'], 'Música': ['lançamento', 'clipe', 'artista', 'banda', 'gênero musical', 'festival', 'turnê', 'show'], 'Cinema': ['estreia', 'crítica', 'bastidores', 'produção', 'oscar', 'cannes', 'streaming', 'bilheteria', 'filme', 'série'], 'Moda': ['tendência', 'coleção', 'estilista', 'marca', 'spfw', 'moda sustentável', 'desfile'], 'Meio Ambiente': ['mudanças climáticas', 'sustentabilidade', 'reciclagem', 'desmatamento', 'conservação', 'políticas ambientais', 'ecologia'] };
     
@@ -284,6 +296,8 @@
         await Promise.all(promises);
         return allCompetitorNews;
     }
+    
+    // ======================= MUDANÇA #4: Atualizar analyzeCoverage para incluir timestamp =========================
     function analyzeCoverage(competitorNews) {
         const allArticles = Object.values(competitorNews).flat();
         const storyClusters = {};
@@ -293,8 +307,18 @@
             const significantWords = titleWords.filter(word => word.length > 3 && !stopwords.includes(word));
             if (significantWords.length < 2) return;
             const key = significantWords.slice(0, 2).sort().join(' '); 
-            if (!storyClusters[key]) { storyClusters[key] = { topic: article.title.split(' - ')[0], articles: [] }; }
+            if (!storyClusters[key]) {
+                storyClusters[key] = {
+                    topic: article.title.split(' - ')[0],
+                    articles: [],
+                    latestTimestamp: 0 // Inicia o timestamp
+                };
+            }
             storyClusters[key].articles.push({ title: article.title, url: article.url, source: article.sourceName });
+            // Atualiza com o timestamp mais recente do cluster
+            if (article.timestamp > storyClusters[key].latestTimestamp) {
+                storyClusters[key].latestTimestamp = article.timestamp;
+            }
         });
         const coverageGaps = [];
         for (const key in storyClusters) {
@@ -302,23 +326,84 @@
             const sourcesInCluster = [...new Set(cluster.articles.map(a => a.source))];
             const isRelevant = sourcesInCluster.filter(s => s !== 'Terra').length >= 2;
             const terraDidNotCover = !sourcesInCluster.includes('Terra');
-            if (isRelevant && terraDidNotCover) { coverageGaps.push({ topic: cluster.topic, coveredBy: sourcesInCluster.filter(s => s !== 'Terra') }); }
+            if (isRelevant && terraDidNotCover) {
+                coverageGaps.push({
+                    topic: cluster.topic,
+                    coveredBy: sourcesInCluster.filter(s => s !== 'Terra'),
+                    timestamp: cluster.latestTimestamp // Adiciona o timestamp ao objeto do "gap"
+                });
+            }
         }
         return { coverageGaps };
     }
-    function renderGapAnalysis(gaps) {
-        gapResults.innerHTML = '';
-        if (gaps.length === 0) { gapResults.innerHTML = `<p class="text-slate-400 text-center">Nenhuma lacuna de cobertura significativa encontrada hoje.</p>`; return; }
-        gaps.forEach(gap => {
-            const gapElement = document.createElement('div');
-            gapElement.className = 'bg-slate-800 p-4 rounded-lg mb-3 border-l-4 border-amber-400';
-            gapElement.innerHTML = `<p class="font-semibold text-slate-200">${gap.topic}</p><p class="text-xs text-slate-500 mt-1">Coberto por: <span class="font-medium text-slate-400">${gap.coveredBy.join(', ')}</span></p>`;
-            gapResults.appendChild(gapElement);
-        });
+    // ==========================================================================================================
+
+    // ======================= MUDANÇA #5: Novas funções renderGapAnalysis e renderGapPagination =========================
+    function renderGapPagination(totalPages, currentPage) {
+        const paginationContainer = document.getElementById('gapPaginationControls');
+        paginationContainer.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            pageButton.className = `w-8 h-8 rounded-md text-sm font-semibold transition-colors duration-200 ${
+                i === currentPage 
+                ? 'bg-cyan-500 text-white cursor-default' 
+                : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+            }`;
+            pageButton.onclick = () => renderGapAnalysis(i);
+            paginationContainer.appendChild(pageButton);
+        }
     }
 
-    // ================== MUDANÇA #2: Função JavaScript renderDashboard =================
-    // Função reescrita para criar "cards" em vez de itens de lista
+    function renderGapAnalysis(page = 1) {
+        currentGapPage = page;
+        gapResults.innerHTML = '';
+        document.getElementById('gapPaginationControls').innerHTML = '';
+
+        // 1. Filtra para pegar apenas os gaps de hoje
+        const todayStart = new Date().setHours(0, 0, 0, 0);
+        const todaysGaps = latestAnalysisGaps.filter(gap => gap.timestamp >= todayStart);
+
+        // 2. Ordena por timestamp, dos mais novos para os mais antigos
+        todaysGaps.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // 3. Limita o número total de itens a serem paginados (máx 100)
+        const totalItemsToPaginate = Math.min(todaysGaps.length, GAPS_PER_PAGE * MAX_GAP_PAGES);
+        const gapsForDisplay = todaysGaps.slice(0, totalItemsToPaginate);
+
+        if (gapsForDisplay.length === 0) {
+            gapResults.innerHTML = `<p class="text-slate-400 text-center">Nenhuma nova lacuna de cobertura significativa encontrada hoje.</p>`;
+            return;
+        }
+
+        // 4. fatia o array para a página atual
+        const startIndex = (currentGapPage - 1) * GAPS_PER_PAGE;
+        const endIndex = startIndex + GAPS_PER_PAGE;
+        const paginatedGaps = gapsForDisplay.slice(startIndex, endIndex);
+
+        paginatedGaps.forEach(gap => {
+            const gapElement = document.createElement('div');
+            const formattedTime = new Date(gap.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            gapElement.className = 'bg-slate-800 p-4 rounded-lg mb-3 border-l-4 border-amber-400';
+            gapElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <p class="font-semibold text-slate-200 pr-4">${gap.topic}</p>
+                    <span class="text-xs text-slate-500 bg-slate-700/50 px-2 py-1 rounded-md flex-shrink-0">${formattedTime}</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Coberto por: <span class="font-medium text-slate-400">${gap.coveredBy.join(', ')}</span></p>
+            `;
+            gapResults.appendChild(gapElement);
+        });
+
+        // 5. Renderiza os controles da paginação
+        const totalPages = Math.ceil(gapsForDisplay.length / GAPS_PER_PAGE);
+        renderGapPagination(totalPages, currentGapPage);
+    }
+    // ===================================================================================================================
+
+
     function renderDashboard(competitorNews) {
         dashboardContainer.innerHTML = '';
 
@@ -340,7 +425,6 @@
                 minute: '2-digit'
             }).replace(',', ' -');
             
-            // Nova estrutura do card
             return `
                 <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="flex flex-col h-full bg-slate-800 rounded-lg hover:bg-slate-700/70 transition-transform hover:-translate-y-1 duration-300 border border-slate-700 shadow-md overflow-hidden">
                     <header class="flex items-center gap-3 p-3 border-b border-slate-700/50 bg-slate-800/50">
@@ -361,7 +445,6 @@
 
         dashboardContainer.innerHTML = articlesHTML;
     }
-    // =================================================================================
 
 
     // --- RADAR VIEW FUNCTIONS ---
@@ -541,21 +624,30 @@
     }
     
     // --- INITIALIZATION & REFRESH LOGIC ---
+    // ======================= MUDANÇA #6: Ajustar refreshAggregateView =========================
     async function refreshAggregateView(isAutoRefresh = false) {
         if (!isAutoRefresh) {
             gapResults.innerHTML = `<p class="text-slate-400 text-center py-4">Analisando dados dos portais...</p>`;
+            document.getElementById('gapPaginationControls').innerHTML = '';
             dashboardContainer.innerHTML = `<div class="text-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto"></div><p class="text-slate-400 mt-4">Buscando e organizando notícias...</p></div>`;
         }
         try {
             const competitorNews = await fetchCompetitorData();
             const analysis = analyzeCoverage(competitorNews);
-            renderGapAnalysis(analysis.coverageGaps);
+            
+            // Armazena os resultados para a paginação usar
+            latestAnalysisGaps = analysis.coverageGaps;
+            
+            // Renderiza a primeira página da análise de Gaps
+            renderGapAnalysis(1);
+            
             renderDashboard(competitorNews);
         } catch (e) {
             gapResults.innerHTML = `<p class="text-red-500 text-center py-4">Erro ao buscar dados. Verifique a conexão ou o proxy.</p>`;
             dashboardContainer.innerHTML = '';
         }
     }
+    // ==============================================================================================
     
     async function loadInitialContent(isAutoRefresh = false) {
         if (!isAutoRefresh) {
