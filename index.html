@@ -22,6 +22,12 @@
             background-color: #06b6d4 !important;
             color: #ffffff !important;
         }
+        /* ======================= MUDANÇA #1: CSS para o novo filtro ========================= */
+        .gap-filter-active {
+            background-color: #fbbf24 !important; /* amber-400 */
+            color: #1e293b !important;
+        }
+        /* ==================================================================================== */
         .category-active {
             background-color: #0891b2 !important;
             color: #ffffff !important;
@@ -141,11 +147,19 @@
         <div id="aggregateContainer" class="hidden">
             <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">Análise de Cobertura Competitiva (Últimas 24h)</h2>
             <div id="gapAnalysisContainer" class="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
-                <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência (Sem Cobertura no Terra)</h3>
+                <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência</h3>
+                
+                <div class="flex items-center justify-center mb-6">
+                    <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
+                        <button id="filterGapsNotCovered" class="gap-filter-active text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Não Produzido pelo Terra</button>
+                        <button id="filterGapsCovered" class="text-slate-300 hover:bg-slate-700 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200">Produzido pelo Terra</button>
+                    </div>
+                </div>
                 <div id="gapResults"><p class="text-slate-400 text-center py-4">Clique em "Conteúdo Agregado" para iniciar a análise.</p></div>
                 
                 <div id="gapPaginationControls" class="flex justify-center items-center mt-6 gap-2"></div>
-                </div>
+
+            </div>
             
             <h3 class="text-xl font-semibold text-cyan-400 mb-4">Conteúdo por Portal | Google News</h3>
 
@@ -212,6 +226,11 @@
     const savedNewsCountSidebar = document.getElementById('savedNewsCountSidebar');
     const gapResults = document.getElementById('gapResults');
     const dashboardContainer = document.getElementById('dashboardContainer');
+    // ======================= MUDANÇA #3: Elementos dos novos botões de filtro =========================
+    const filterGapsNotCoveredBtn = document.getElementById('filterGapsNotCovered');
+    const filterGapsCoveredBtn = document.getElementById('filterGapsCovered');
+    // ==================================================================================================
+
     
     // --- APP STATE ---
     let currentAppView = 'radar';
@@ -225,18 +244,18 @@
     let isLoadingMore = false;
     let activeCategoryButton = null;
     let currentCategorySearch = null;
-    // ======================= MUDANÇA #2: Variáveis de estado para paginação =========================
-    let latestAnalysisGaps = [];
+
+    // ======================= MUDANÇA #4: Novas variáveis de estado para o filtro =========================
+    let currentGapView = 'not_covered'; // 'not_covered' ou 'covered'
+    let latestAnalysisResult = { covered: [], not_covered: [] };
     let currentGapPage = 1;
-    // ============================================================================================
+    // ===================================================================================================
 
     // --- CONSTANTS & CONFIGS ---
     const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
     
-    // ======================= MUDANÇA #3: Constantes para paginação =========================
     const GAPS_PER_PAGE = 20;
     const MAX_GAP_PAGES = 5;
-    // =======================================================================================
     
     const categoryKeywordsMap = { 'Política': ['eleições', 'campanha', 'partido', 'congresso', 'stf', 'escândalo', 'investigação', 'reforma', 'governo', 'presidente', 'deputado', 'senador', 'ministro', 'lula', 'bolsonaro'], 'Economia': ['inflação', 'juros', 'indicadores econômicos', 'mercado financeiro', 'bolsa de valores', 'emprego', 'renda', 'políticas econômicas', 'impostos', 'dólar', 'câmbio', 'pib', 'haddad'], 'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'jogos', 'resultados', 'atletas', 'clube', 'olimpíadas', 'fórmula 1', 'ufc', 'tênis'], 'Tecnologia': ['gadgets', 'apps', 'inteligência artificial', 'inovação', 'cibersegurança', 'privacidade', 'startups', 'smartphone', 'celular', 'software', 'hardware', 'ia'], 'Cultura': ['artes', 'teatro', 'literatura', 'festivais', 'exposição', 'patrimônio histórico', 'movimentos culturais', 'show'], 'Saúde': ['pandemia', 'surto', 'vacina', 'tratamento', 'sistema de saúde', 'bem-estar', 'medicina', 'anvisa', 'oms', 'hospital', 'dengue'], 'Mundo': ['conflitos internacionais', 'diplomacia', 'acordos globais', 'eleições', 'governos estrangeiros', 'crises humanitárias', 'guerra', 'onu', 'gaza', 'ucrânia', 'biden', 'trump'], 'Horóscopo': ['previsões astrológicas', 'signos', 'compatibilidade', 'mapa astral', 'astrologia'], 'Entretenimento': ['celebridades', 'bastidores', 'reality show', 'novela', 'música pop', 'cultura de massa', 'premiação', 'famosos', 'bbb'], 'Ciência': ['descobertas científicas', 'espaço', 'astronomia', 'pesquisa', 'biodiversidade', 'nasa'], 'Educação': ['enem', 'vestibular', 'concurso', 'políticas educacionais', 'escola', 'universidade', 'inclusão', 'alfabetização', 'mec'], 'Viagem': ['destinos turísticos', 'hospedagem', 'roteiro', 'passagens', 'turismo', 'viajar'], 'Gastronomia': ['receita', 'culinária', 'restaurante', 'chef', 'alimentação saudável', 'bebidas', 'harmonização'], 'Carros': ['veículos', 'mobilidade urbana', 'automotiva', 'lançamento', 'teste de carro'], 'Imóveis': ['compra', 'venda', 'aluguel', 'financiamento', 'crédito imobiliário', 'arquitetura', 'decoração'], 'Música': ['lançamento', 'clipe', 'artista', 'banda', 'gênero musical', 'festival', 'turnê', 'show'], 'Cinema': ['estreia', 'crítica', 'bastidores', 'produção', 'oscar', 'cannes', 'streaming', 'bilheteria', 'filme', 'série'], 'Moda': ['tendência', 'coleção', 'estilista', 'marca', 'spfw', 'moda sustentável', 'desfile'], 'Meio Ambiente': ['mudanças climáticas', 'sustentabilidade', 'reciclagem', 'desmatamento', 'conservação', 'políticas ambientais', 'ecologia'] };
     
@@ -297,7 +316,7 @@
         return allCompetitorNews;
     }
     
-    // ======================= MUDANÇA #4: Atualizar analyzeCoverage para incluir timestamp =========================
+    // ======================= MUDANÇA #5: analyzeCoverage agora retorna duas listas =========================
     function analyzeCoverage(competitorNews) {
         const allArticles = Object.values(competitorNews).flat();
         const storyClusters = {};
@@ -311,34 +330,43 @@
                 storyClusters[key] = {
                     topic: article.title.split(' - ')[0],
                     articles: [],
-                    latestTimestamp: 0 // Inicia o timestamp
+                    latestTimestamp: 0
                 };
             }
             storyClusters[key].articles.push({ title: article.title, url: article.url, source: article.sourceName });
-            // Atualiza com o timestamp mais recente do cluster
             if (article.timestamp > storyClusters[key].latestTimestamp) {
                 storyClusters[key].latestTimestamp = article.timestamp;
             }
         });
-        const coverageGaps = [];
+        
+        const gapsNotCovered = [];
+        const gapsCovered = [];
+
         for (const key in storyClusters) {
             const cluster = storyClusters[key];
             const sourcesInCluster = [...new Set(cluster.articles.map(a => a.source))];
-            const isRelevant = sourcesInCluster.filter(s => s !== 'Terra').length >= 2;
-            const terraDidNotCover = !sourcesInCluster.includes('Terra');
-            if (isRelevant && terraDidNotCover) {
-                coverageGaps.push({
+            
+            // Relevante se pelo menos 2 veículos cobriram (incluindo o Terra)
+            const isRelevant = sourcesInCluster.length >= 2;
+            
+            if (isRelevant) {
+                const item = {
                     topic: cluster.topic,
-                    coveredBy: sourcesInCluster.filter(s => s !== 'Terra'),
-                    timestamp: cluster.latestTimestamp // Adiciona o timestamp ao objeto do "gap"
-                });
+                    coveredBy: sourcesInCluster,
+                    timestamp: cluster.latestTimestamp
+                };
+
+                if (sourcesInCluster.includes('Terra')) {
+                    gapsCovered.push(item);
+                } else {
+                    gapsNotCovered.push(item);
+                }
             }
         }
-        return { coverageGaps };
+        return { gapsCovered, gapsNotCovered };
     }
-    // ==========================================================================================================
+    // =====================================================================================================
 
-    // ======================= MUDANÇA #5: Novas funções renderGapAnalysis e renderGapPagination =========================
     function renderGapPagination(totalPages, currentPage) {
         const paginationContainer = document.getElementById('gapPaginationControls');
         paginationContainer.innerHTML = '';
@@ -357,28 +385,30 @@
         }
     }
 
+    // ======================= MUDANÇA #6: renderGapAnalysis adaptada para usar o filtro =========================
     function renderGapAnalysis(page = 1) {
         currentGapPage = page;
         gapResults.innerHTML = '';
         document.getElementById('gapPaginationControls').innerHTML = '';
 
-        // 1. Filtra para pegar apenas os gaps de hoje
-        const todayStart = new Date().setHours(0, 0, 0, 0);
-        const todaysGaps = latestAnalysisGaps.filter(gap => gap.timestamp >= todayStart);
+        // Decide qual lista de dados usar com base no filtro ativo
+        const sourceData = currentGapView === 'not_covered' 
+            ? latestAnalysisResult.not_covered 
+            : latestAnalysisResult.covered;
 
-        // 2. Ordena por timestamp, dos mais novos para os mais antigos
+        const todayStart = new Date().setHours(0, 0, 0, 0);
+        const todaysGaps = sourceData.filter(gap => gap.timestamp >= todayStart);
+
         todaysGaps.sort((a, b) => b.timestamp - a.timestamp);
         
-        // 3. Limita o número total de itens a serem paginados (máx 100)
         const totalItemsToPaginate = Math.min(todaysGaps.length, GAPS_PER_PAGE * MAX_GAP_PAGES);
         const gapsForDisplay = todaysGaps.slice(0, totalItemsToPaginate);
 
         if (gapsForDisplay.length === 0) {
-            gapResults.innerHTML = `<p class="text-slate-400 text-center">Nenhuma nova lacuna de cobertura significativa encontrada hoje.</p>`;
+            gapResults.innerHTML = `<p class="text-slate-400 text-center py-4">Nenhum assunto encontrado para este filtro hoje.</p>`;
             return;
         }
 
-        // 4. fatia o array para a página atual
         const startIndex = (currentGapPage - 1) * GAPS_PER_PAGE;
         const endIndex = startIndex + GAPS_PER_PAGE;
         const paginatedGaps = gapsForDisplay.slice(startIndex, endIndex);
@@ -386,23 +416,28 @@
         paginatedGaps.forEach(gap => {
             const gapElement = document.createElement('div');
             const formattedTime = new Date(gap.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            gapElement.className = 'bg-slate-800 p-4 rounded-lg mb-3 border-l-4 border-amber-400';
+            
+            // Muda a cor da borda e formata a lista de "coberto por"
+            const borderColor = currentGapView === 'not_covered' ? 'border-amber-400' : 'border-green-500';
+            const coveredByList = gap.coveredBy
+                .map(source => source === 'Terra' ? `<strong class="text-slate-200">${source}</strong>` : source)
+                .join(', ');
+            
+            gapElement.className = `bg-slate-800 p-4 rounded-lg mb-3 border-l-4 ${borderColor}`;
             gapElement.innerHTML = `
                 <div class="flex justify-between items-start">
                     <p class="font-semibold text-slate-200 pr-4">${gap.topic}</p>
                     <span class="text-xs text-slate-500 bg-slate-700/50 px-2 py-1 rounded-md flex-shrink-0">${formattedTime}</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-2">Coberto por: <span class="font-medium text-slate-400">${gap.coveredBy.join(', ')}</span></p>
+                <p class="text-xs text-slate-500 mt-2">Coberto por: <span class="font-medium text-slate-400">${coveredByList}</span></p>
             `;
             gapResults.appendChild(gapElement);
         });
 
-        // 5. Renderiza os controles da paginação
         const totalPages = Math.ceil(gapsForDisplay.length / GAPS_PER_PAGE);
         renderGapPagination(totalPages, currentGapPage);
     }
-    // ===================================================================================================================
-
+    // ==========================================================================================================
 
     function renderDashboard(competitorNews) {
         dashboardContainer.innerHTML = '';
@@ -624,7 +659,7 @@
     }
     
     // --- INITIALIZATION & REFRESH LOGIC ---
-    // ======================= MUDANÇA #6: Ajustar refreshAggregateView =========================
+    // ======================= MUDANÇA #7: Ajustar refreshAggregateView para guardar os 2 resultados =========================
     async function refreshAggregateView(isAutoRefresh = false) {
         if (!isAutoRefresh) {
             gapResults.innerHTML = `<p class="text-slate-400 text-center py-4">Analisando dados dos portais...</p>`;
@@ -635,10 +670,13 @@
             const competitorNews = await fetchCompetitorData();
             const analysis = analyzeCoverage(competitorNews);
             
-            // Armazena os resultados para a paginação usar
-            latestAnalysisGaps = analysis.coverageGaps;
+            // Armazena ambos os resultados para o filtro usar
+            latestAnalysisResult = {
+                covered: analysis.gapsCovered,
+                not_covered: analysis.gapsNotCovered
+            };
             
-            // Renderiza a primeira página da análise de Gaps
+            // Renderiza a primeira página da visão padrão ("não coberto")
             renderGapAnalysis(1);
             
             renderDashboard(competitorNews);
@@ -647,7 +685,7 @@
             dashboardContainer.innerHTML = '';
         }
     }
-    // ==============================================================================================
+    // ===================================================================================================================
     
     async function loadInitialContent(isAutoRefresh = false) {
         if (!isAutoRefresh) {
@@ -702,6 +740,22 @@
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
         readingListModal.addEventListener('click', (e) => { if(e.target === readingListModal) readingListModal.classList.add('hidden'); });
         
+        // ======================= MUDANÇA #8: Event Listeners para os novos filtros =========================
+        filterGapsNotCoveredBtn.addEventListener('click', () => {
+            currentGapView = 'not_covered';
+            filterGapsNotCoveredBtn.classList.add('gap-filter-active');
+            filterGapsCoveredBtn.classList.remove('gap-filter-active');
+            renderGapAnalysis(1); // Re-renderiza a partir da página 1
+        });
+
+        filterGapsCoveredBtn.addEventListener('click', () => {
+            currentGapView = 'covered';
+            filterGapsCoveredBtn.classList.add('gap-filter-active');
+            filterGapsNotCoveredBtn.classList.remove('gap-filter-active');
+            renderGapAnalysis(1); // Re-renderiza a partir da página 1
+        });
+        // =================================================================================================
+
         window.addEventListener('scroll', () => {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             if (scrollTop > 300) {
