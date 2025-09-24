@@ -73,18 +73,6 @@
             <div id="searchBarWrapper" class="flex flex-wrap items-center justify-center gap-4">
                 <div class="flex-grow flex items-center gap-4 bg-slate-900 rounded-lg p-1 border border-slate-700 w-full lg:w-auto max-w-4xl">
                     <input type="text" id="searchInput" placeholder="Busque por um assunto..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
-                    <select id="portalFilter" class="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
-                        <option selected value="">Todos os Portais</option>
-                        <option value="g1.globo.com">G1</option>
-                        <option value="uol.com.br">UOL</option>
-                        <option value="folha.uol.com.br">Folha de S.Paulo</option>
-                        <option value="estadao.com.br">Estadão</option>
-                        <option value="r7.com">R7</option>
-                        <option value="cnnbrasil.com.br">CNN Brasil</option>
-                        <option value="terra.com.br">Terra</option>
-                        <option value="valor.globo.com">Valor Econômico</option>
-                        <option value="metropoles.com">Metrópoles</option>
-                    </select>
                     <button id="searchButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-5 py-2 transition-colors duration-300 flex items-center gap-2 disabled:bg-slate-600 disabled:cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span id="buttonText">Buscar</span>
@@ -145,10 +133,6 @@
                             </div>
                             <div id="savedNewsPreviewContainer" class="space-y-2"></div>
                         </div>
-                        <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                            <h2 class="text-lg font-bold text-cyan-400 mb-4">Assuntos do Dia</h2>
-                            <div id="trendingTopicsContainer" class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-2 min-h-[10rem]"></div>
-                        </div>
                     </div>
                 </aside>
             </div>
@@ -176,7 +160,7 @@
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-transform duration-300">
         <p id="toastMessage"></p>
     </div>
-    <button id="backToTopBtn" class="hidden fixed bottom-5 right-5 bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-full shadow-lg transform translate-y-20 opacity-0">
+    <button id="backToTopBtn" class="hidden fixed bottom-5 right-5 bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-full shadow-lg opacity-0 transform translate-y-20">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg>
     </button>
     
@@ -188,7 +172,6 @@
     // --- DOM ELEMENTS ---
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
-    const portalFilter = document.getElementById('portalFilter');
     const buttonText = document.getElementById('buttonText');
     const apiError = document.getElementById('apiError');
     const lastUpdatedElement = document.getElementById('lastUpdated');
@@ -209,7 +192,6 @@
     const messageState = document.getElementById('messageState');
     const messageTitle = document.getElementById('messageTitle');
     const messageText = document.getElementById('messageText');
-    const trendingTopicsContainer = document.getElementById('trendingTopicsContainer');
     const categoriesContainer = document.getElementById('categoriesContainer');
     const subCategoriesWrapper = document.getElementById('subCategoriesWrapper');
     const subCategoriesContainer = document.getElementById('subCategoriesContainer');
@@ -239,16 +221,11 @@
     let currentCategorySearch = null;
 
     // --- CONSTANTS & CONFIGS ---
-    // AJUSTE 1: Removida a editoria "Games" da lista principal.
     const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Tecnologia', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
     
-    const categoryKeywordsMap = { 'Política': ['eleições', 'campanha', 'partido', 'congresso', 'stf', 'escândalo', 'investigação', 'reforma', 'governo', 'presidente', 'deputado', 'senador', 'ministro', 'lula', 'bolsonaro'], 'Economia': ['inflação', 'juros', 'indicadores econômicos', 'mercado financeiro', 'bolsa de valores', 'emprego', 'renda', 'políticas econômicas', 'impostos', 'dólar', 'câmbio', 'pib', 'haddad'], 'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'jogos', 'resultados', 'atletas', 'clube', 'olimpíadas', 'fórmula 1', 'ufc', 'tênis'], 'Tecnologia': ['gadgets', 'apps', 'inteligência artificial', 'inovação', 'cibersegurança', 'privacidade', 'startups', 'smartphone', 'celular', 'software', 'hardware', 'ia'], 'Cultura': ['artes', 'teatro', 'literatura', 'festivais', 'exposição', 'patrimônio histórico', 'movimentos culturais', 'show'], 'Saúde': ['pandemia', 'surto', 'vacina', 'tratamento', 'sistema de saúde', 'bem-estar', 'medicina', 'anvisa', 'oms', 'hospital', 'dengue'], 'Mundo': ['conflitos internacionais', 'diplomacia', 'acordos globais', 'eleições', 'governos estrangeiros', 'crises humanitárias', 'guerra', 'onu', 'gaza', 'ucrânia', 'biden', 'trump'], 'Horóscopo': ['previsões astrológicas', 'signos', 'compatibilidade', 'mapa astral', 'astrologia'], 'Entretenimento': ['celebridades', 'bastidores', 'reality show', 'novela', 'música pop', 'cultura de massa', 'premiação', 'famosos', 'bbb'], 'Ciência': ['descobertas científicas', 'espaço', 'astronomia', 'pesquisa', 'biodiversidade', 'nasa'], 'Educação': ['enem', 'vestibular', 'concurso', 'políticas educacionais', 'escola', 'universidade', 'inclusão', 'alfabetização', 'mec'], 'Viagem': ['destinos turísticos', 'hospedagem', 'roteiro', 'passagens', 'turismo', 'viajar'], 'Gastronomia': ['receita', 'culinária', 'restaurante', 'chef', 'alimentação saudável', 'bebidas', 'harmonização'], 'Carros': ['veículos', 'mobilidade urbana', 'automotiva', 'lançamento', 'teste de carro'], 'Imóveis': ['compra', 'venda', 'aluguel', 'financiamento', 'crédito imobiliário', 'arquitetura', 'decoração'], 'Música': ['lançamento', 'clipe', 'artista', 'banda', 'gênero musical', 'festival', 'turnê', 'show'], 'Cinema': ['estreia', 'crítica', 'bastidores', 'produção', 'oscar', 'cannes', 'streaming', 'bilheteria', 'filme', 'série'], 
-    // AJUSTE 1: Removida a editoria "Games" do mapa de palavras-chave.
-    'Moda': ['tendência', 'coleção', 'estilista', 'marca', 'spfw', 'moda sustentável', 'desfile'], 'Meio Ambiente': ['mudanças climáticas', 'sustentabilidade', 'reciclagem', 'desmatamento', 'conservação', 'políticas ambientais', 'ecologia'] };
+    const categoryKeywordsMap = { 'Política': ['eleições', 'campanha', 'partido', 'congresso', 'stf', 'escândalo', 'investigação', 'reforma', 'governo', 'presidente', 'deputado', 'senador', 'ministro', 'lula', 'bolsonaro'], 'Economia': ['inflação', 'juros', 'indicadores econômicos', 'mercado financeiro', 'bolsa de valores', 'emprego', 'renda', 'políticas econômicas', 'impostos', 'dólar', 'câmbio', 'pib', 'haddad'], 'Esportes': ['futebol', 'vôlei', 'basquete', 'campeonato', 'jogos', 'resultados', 'atletas', 'clube', 'olimpíadas', 'fórmula 1', 'ufc', 'tênis'], 'Tecnologia': ['gadgets', 'apps', 'inteligência artificial', 'inovação', 'cibersegurança', 'privacidade', 'startups', 'smartphone', 'celular', 'software', 'hardware', 'ia'], 'Cultura': ['artes', 'teatro', 'literatura', 'festivais', 'exposição', 'patrimônio histórico', 'movimentos culturais', 'show'], 'Saúde': ['pandemia', 'surto', 'vacina', 'tratamento', 'sistema de saúde', 'bem-estar', 'medicina', 'anvisa', 'oms', 'hospital', 'dengue'], 'Mundo': ['conflitos internacionais', 'diplomacia', 'acordos globais', 'eleições', 'governos estrangeiros', 'crises humanitárias', 'guerra', 'onu', 'gaza', 'ucrânia', 'biden', 'trump'], 'Horóscopo': ['previsões astrológicas', 'signos', 'compatibilidade', 'mapa astral', 'astrologia'], 'Entretenimento': ['celebridades', 'bastidores', 'reality show', 'novela', 'música pop', 'cultura de massa', 'premiação', 'famosos', 'bbb'], 'Ciência': ['descobertas científicas', 'espaço', 'astronomia', 'pesquisa', 'biodiversidade', 'nasa'], 'Educação': ['enem', 'vestibular', 'concurso', 'políticas educacionais', 'escola', 'universidade', 'inclusão', 'alfabetização', 'mec'], 'Viagem': ['destinos turísticos', 'hospedagem', 'roteiro', 'passagens', 'turismo', 'viajar'], 'Gastronomia': ['receita', 'culinária', 'restaurante', 'chef', 'alimentação saudável', 'bebidas', 'harmonização'], 'Carros': ['veículos', 'mobilidade urbana', 'automotiva', 'lançamento', 'teste de carro'], 'Imóveis': ['compra', 'venda', 'aluguel', 'financiamento', 'crédito imobiliário', 'arquitetura', 'decoração'], 'Música': ['lançamento', 'clipe', 'artista', 'banda', 'gênero musical', 'festival', 'turnê', 'show'], 'Cinema': ['estreia', 'crítica', 'bastidores', 'produção', 'oscar', 'cannes', 'streaming', 'bilheteria', 'filme', 'série'], 'Moda': ['tendência', 'coleção', 'estilista', 'marca', 'spfw', 'moda sustentável', 'desfile'], 'Meio Ambiente': ['mudanças climáticas', 'sustentabilidade', 'reciclagem', 'desmatamento', 'conservação', 'políticas ambientais', 'ecologia'] };
     
-    const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Tecnologia': 'border-purple-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 
-    // AJUSTE 1: Removida a editoria "Games" do mapa de cores.
-    'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500' };
+    const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Tecnologia': 'border-purple-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500' };
     
     const categoryButtonColors = [ 'bg-blue-600 hover:bg-blue-500', 'bg-emerald-600 hover:bg-emerald-500', 'bg-red-600 hover:bg-red-500', 'bg-purple-600 hover:bg-purple-500', 'bg-yellow-600 hover:bg-yellow-500', 'bg-pink-600 hover:bg-pink-500', 'bg-sky-600 hover:bg-sky-500', 'bg-orange-600 hover:bg-orange-500', 'bg-teal-600 hover:bg-teal-500', 'bg-lime-600 hover:bg-lime-500', 'bg-rose-600 hover:bg-rose-500', 'bg-indigo-600 hover:bg-indigo-500', 'bg-amber-600 hover:bg-amber-500', 'bg-slate-600 hover:bg-slate-500', 'bg-pink-400 hover:bg-pink-300', 'bg-yellow-400 hover:bg-yellow-300', 'bg-rose-400 hover:bg-rose-300', 'bg-green-600 hover:bg-green-500' ];
     const lightBgClasses = ['bg-lime-600', 'bg-pink-400', 'bg-yellow-400'];
@@ -258,7 +235,7 @@
         const getSourceName = (sourceString) => { if (!sourceString) return 'Fonte Desconhecida'; const tempDiv = document.createElement('div'); tempDiv.innerHTML = sourceString; const text = tempDiv.textContent || tempDiv.innerText || ""; const parts = text.split(' - '); return parts[parts.length - 1].trim(); };
         let sourceDomain = 'news.google.com';
         try { if (item.sourceUrl && typeof item.sourceUrl === 'string') { sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); } } catch (e) { console.error("Could not parse source URL:", item.sourceUrl, e); }
-        const textToAnalyze = `${item.title.toLowerCase()} ${item.description.toLowerCase()}`;
+        const textToAnalyze = `${item.title.toLowerCase()} ${(item.description || '').toLowerCase()}`;
         const categoryScores = {};
         mainCategories.forEach(cat => { if (cat !== 'Todas') categoryScores[cat] = 0; });
         for (const [category, keywords] of Object.entries(categoryKeywordsMap)) { for (const keyword of keywords) { if (textToAnalyze.includes(keyword)) { categoryScores[category]++; } } }
@@ -276,13 +253,12 @@
                 const textData = await response.text(); if (!textData) return [];
                 const parser = new DOMParser(); const xmlDoc = parser.parseFromString(textData, "application/xml");
                 const items = xmlDoc.querySelectorAll("item"); const newsResults = [];
-                items.forEach(item => { const sourceElement = item.querySelector("source"); newsResults.push({ title: item.querySelector("title").textContent, link: item.querySelector("link").textContent, sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent, pubDate: item.querySelector("pubDate").textContent, description: item.querySelector("description").textContent }); });
+                items.forEach(item => { const sourceElement = item.querySelector("source"); newsResults.push({ title: item.querySelector("title").textContent, link: item.querySelector("link").textContent, sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent, pubDate: item.querySelector("pubDate").textContent, description: item.querySelector("description")?.textContent }); });
                 return newsResults.map(item => mapGoogleNewsData(item, categoryTag));
             } catch (error) { console.error(`Erro no fetch para ${searchUrl}:`, error); return []; }
         };
         if (query) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; return fetchAndParse(searchUrl, query); }
         else { 
-            // AJUSTE 2: Ampliada a lista de categorias para buscar o máximo de notícias na carga inicial.
             const categories = ['Brasil', 'Mundo', 'Política', 'Economia', 'Negócios', 'Esportes', 'Tecnologia', 'Ciência', 'Cultura', 'Entretenimento', 'Saúde', 'Educação', 'Viagem', 'Gastronomia', 'Meio Ambiente', 'Carros', 'Música', 'Cinema']; 
             let combinedNews = []; 
             for (const cat of categories) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; const newsForCat = await fetchAndParse(searchUrl, cat); combinedNews.push(...newsForCat); } const uniqueNews = new Map(); combinedNews.forEach(news => { if (!uniqueNews.has(news.url)) { uniqueNews.set(news.url, news); } }); return Array.from(uniqueNews.values()).sort((a, b) => b.timestamp - a.timestamp); }
@@ -374,7 +350,10 @@
         return newsElement;
     }
     function renderRadarResults(append = false) {
-        if (!append) { resultsContainer.innerHTML = ''; }
+        if (!append) { 
+            resultsContainer.innerHTML = ''; 
+            currentPage = 1;
+        }
         if (currentRadarView === 'paraSi' && followedTopics.length === 0) {
             messageState.classList.remove('hidden'); messageTitle.textContent = 'Comece a seguir tópicos!'; messageText.textContent = 'Clique nas editorias para personalizar o seu feed.';
             contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return;
@@ -389,7 +368,11 @@
         if (currentRadarView === 'paraSi') {
             filteredNews = filteredNews.filter(news => { const titleLower = news.title.toLowerCase(); const categoryLower = news.category ? news.category.toLowerCase() : ''; return followedTopics.some(topic => { const topicLower = topic.toLowerCase(); return titleLower.includes(topicLower) || categoryLower.includes(topicLower); }); });
         }
-        const totalItems = filteredNews.length; const startIndex = (currentPage - 1) * itemsPerPage; const endIndex = startIndex + itemsPerPage; const paginatedItems = filteredNews.slice(startIndex, endIndex);
+        const totalItems = filteredNews.length; 
+        const startIndex = (currentPage - 1) * itemsPerPage; 
+        const endIndex = startIndex + itemsPerPage; 
+        const paginatedItems = filteredNews.slice(startIndex, endIndex);
+        
         if (paginatedItems.length === 0 && currentPage === 1) {
             messageState.classList.remove('hidden'); messageTitle.textContent = 'Nenhuma notícia encontrada.'; messageText.textContent = currentRadarView === 'paraSi' ? 'Não foram encontrados resultados para os seus tópicos seguidos.' : 'Tente um termo diferente ou ajuste os filtros.';
             contentCounter.textContent = ''; return;
@@ -417,15 +400,12 @@
                     handleSearch(null, category === 'Todas' ? null : category); window.scrollTo({ top: 0, behavior: 'smooth' });
                     if (activeCategoryButton) { activeCategoryButton.classList.remove('category-active'); }
                     categoryButton.classList.add('category-active'); activeCategoryButton = categoryButton;
-                    // renderSubCategories(category); generateTrendingTopics(category === 'Todas' ? null : category);
                 }
             };
             if (index === 0) { categoryButton.classList.add('category-active'); activeCategoryButton = categoryButton; }
             categoriesContainer.appendChild(categoryButton);
         });
     }
-    function generateTrendingTopics() { /* ... implementação completa ... */ }
-    function renderSubCategories() { /* ... implementação completa ... */ }
 
     // --- SHARED UI/EVENT HANDLERS ---
     function handleSaveNews(newsItem, buttonElement) {
@@ -476,25 +456,23 @@
         const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         lastUpdatedElement.innerHTML = `<span>Atualizado às ${timeString}</span> <span class="text-slate-500/70">(auto-refresh a cada 20 min)</span>`;
     }
-    function setLoading(isLoading) {
+    function setLoading(isLoading, isInitialLoad = true) {
         if(isLoading) {
-            searchButton.disabled = true; buttonText.textContent = "Buscando..."; messageState.classList.add('hidden'); resultsContainer.innerHTML = '';
-            for(let i = 0; i < 6; i++) { resultsContainer.innerHTML += `<div class="bg-slate-800 border-l-4 border-slate-700 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 animate-pulse"><div class="flex justify-between items-start"><div class="flex items-center gap-3 w-1/2"><div class="w-6 h-6 rounded-md bg-slate-700"></div><div class="h-4 bg-slate-700 rounded w-full"></div></div><div class="h-6 w-12 bg-slate-700 rounded-full"></div></div><div><div class="h-5 bg-slate-700 rounded w-full mb-2"></div><div class="h-5 bg-slate-700 rounded w-3/4"></div></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div class="h-5 w-20 bg-slate-700 rounded-full"></div><div class="h-4 w-24 bg-slate-700 rounded"></div></div></div>`; }
+            searchButton.disabled = true; 
+            buttonText.textContent = "Buscando..."; 
+            if (isInitialLoad) {
+                messageState.classList.add('hidden'); 
+                resultsContainer.innerHTML = '';
+                for(let i = 0; i < 6; i++) { resultsContainer.innerHTML += `<div class="bg-slate-800 border-l-4 border-slate-700 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 animate-pulse"><div class="flex justify-between items-start"><div class="flex items-center gap-3 w-1/2"><div class="w-6 h-6 rounded-md bg-slate-700"></div><div class="h-4 bg-slate-700 rounded w-full"></div></div><div class="h-6 w-12 bg-slate-700 rounded-full"></div></div><div><div class="h-5 bg-slate-700 rounded w-full mb-2"></div><div class="h-5 bg-slate-700 rounded w-3/4"></div></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div class="h-5 w-20 bg-slate-700 rounded-full"></div><div class="h-4 w-24 bg-slate-700 rounded"></div></div></div>`; }
+            }
         } else {
-            searchButton.disabled = false; buttonText.textContent = "Buscar";
+            searchButton.disabled = false; 
+            buttonText.textContent = "Buscar";
         }
     }
     async function handleSearch(event, category = null) {
         setLoading(true);
-        currentPage = 1;
-        const searchTerm = category !== null ? category : searchInput.value.trim();
-        const portal = portalFilter.value;
-        let query = searchTerm;
-        if (portal && searchTerm) {
-            query = `${searchTerm} site:${portal}`;
-        } else if (portal) {
-            query = `site:${portal}`;
-        }
+        const query = category !== null ? category : searchInput.value.trim();
         masterNewsCache = await fetchFromGoogleNewsAPI(query);
         setLoading(false);
         renderRadarResults();
@@ -525,11 +503,10 @@
     
     // --- INITIALIZATION ---
     async function loadInitialContent() {
-        setLoading(true);
+        setLoading(true, true);
         masterNewsCache = await fetchFromGoogleNewsAPI();
-        setLoading(false);
+        setLoading(false, true);
         renderRadarResults();
-        // generateTrendingTopics(); 
         updateTimestamp();
     }
 
@@ -562,13 +539,52 @@
         });
         searchButton.addEventListener('click', () => handleSearch());
         searchInput.addEventListener('keyup', (e) => e.key === 'Enter' && handleSearch());
-        portalFilter.addEventListener('change', () => handleSearch());
-        dateFilterToday.addEventListener('click', () => { currentDateFilter = 'hoje'; currentPage = 1; renderRadarResults(); });
-        dateFilterWeek.addEventListener('click', () => { currentDateFilter = 'semana'; currentPage = 1; renderRadarResults(); });
-        refreshButton.addEventListener('click', () => loadInitialContent());
+        dateFilterToday.addEventListener('click', () => { currentDateFilter = 'hoje'; renderRadarResults(); });
+        dateFilterWeek.addEventListener('click', () => { currentDateFilter = 'semana'; renderRadarResults(); });
+        refreshButton.addEventListener('click', () => { searchInput.value = ''; loadInitialContent(); });
         readingListBtn.addEventListener('click', () => readingListModal.classList.remove('hidden'));
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
         readingListModal.addEventListener('click', (e) => { if(e.target === readingListModal) readingListModal.classList.add('hidden'); });
+        
+        window.addEventListener('scroll', () => {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            if (scrollTop > 300) {
+                backToTopBtn.classList.remove('hidden', 'opacity-0', 'translate-y-20');
+                backToTopBtn.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'translate-y-20');
+                setTimeout(() => {
+                    if (scrollTop <= 300) {
+                        backToTopBtn.classList.add('hidden');
+                    }
+                }, 300);
+            }
+            if (clientHeight + scrollTop >= scrollHeight - 500 && !isLoadingMore) {
+                const totalItems = masterNewsCache.filter(item => {
+                    const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+                    if (currentDateFilter === 'hoje') return new Date(item.timestamp) >= todayStart;
+                    if (currentDateFilter === 'semana') {
+                        const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        return new Date(item.timestamp) >= weekStart;
+                    }
+                    return true;
+                }).length;
+
+                if (resultsContainer.children.length < totalItems) {
+                    isLoadingMore = true;
+                    currentPage++;
+                    renderRadarResults(true);
+                    isLoadingMore = false;
+                }
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     });
     </script>
 </body>
