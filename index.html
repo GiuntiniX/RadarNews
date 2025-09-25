@@ -436,8 +436,11 @@ const categoryKeywordsMap = {
                 return newsResults.map(item => mapGoogleNewsData(item, categoryTag));
             } catch (error) { console.error(`Erro no fetch para ${searchUrl}:`, error); return []; }
         };
-        if (query) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; return fetchAndParse(searchUrl, query); }
-        else { 
+        if (query) {
+            const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+            const results = await fetchAndParse(searchUrl, query);
+            return results.sort((a, b) => b.timestamp - a.timestamp); // CORREÇÃO: Adicionada a organização por data
+        } else { 
             const categories = ['Brasil', 'Mundo', 'Política', 'Economia', 'Negócios', 'Esportes', 'Ciência', 'Cultura', 'Entretenimento', 'Saúde', 'Educação', 'Viagem', 'Gastronomia', 'Meio Ambiente', 'Carros', 'Música', 'Cinema']; 
             let combinedNews = []; 
             for (const cat of categories) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; const newsForCat = await fetchAndParse(searchUrl, cat); combinedNews.push(...newsForCat); } const uniqueNews = new Map(); combinedNews.forEach(news => { if (!uniqueNews.has(news.url)) { uniqueNews.set(news.url, news); } }); return Array.from(uniqueNews.values()).sort((a, b) => b.timestamp - a.timestamp); }
