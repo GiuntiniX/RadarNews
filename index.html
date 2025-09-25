@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radar de Notícias</title>
+    <title>Radar de Notícias Completo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -141,7 +141,7 @@
                     <div id="contentCounter" class="text-sm text-slate-400 mb-4 h-5"></div>
                     <div class="mb-8">
                         <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                            <h2 class="text-lg font-bold text-cyan-400 mb-4">Navegue por Editoria</h2>
+                            <h2 class="text-lg font-bold text-cyan-400 mb-4">Navegue por Editorial</h2>
                             <div id="categoriesContainer" class="flex flex-wrap gap-2"></div>
                         </div>
                         <div id="subCategoriesWrapper" class="bg-slate-800 rounded-xl p-4 border border-slate-700 hidden mt-4">
@@ -309,10 +309,7 @@
         let sourceDomain = 'news.google.com';
         try { if (item.sourceUrl && typeof item.sourceUrl === 'string') { sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); } } catch (e) { console.error("Could not parse source URL:", item.sourceUrl, e); }
         
-        // =================================================================================
-        // ALTERAÇÃO: Lógica de classificação desativada para forçar "Geral" em tudo.
-        // =================================================================================
-        
+        // Lógica de classificação desativada para forçar "Geral" em tudo.
         /* --- Início do Bloco Desativado ---
         const textToAnalyze = `${item.title.toLowerCase()} ${(item.description || '').toLowerCase()}`;
         const categoryScores = {};
