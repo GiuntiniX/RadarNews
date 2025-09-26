@@ -274,7 +274,7 @@
     
     <script>
     // =================================================================================
-    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS (COM FILTRO DE MÍDIA CASCATA)
+    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS (COM FILTRO DE MÍDIA CASCATA OTIMIZADO)
     // =================================================================================
 
     // --- DOM ELEMENTS ---
@@ -331,7 +331,7 @@
     let currentAppView = 'radar';
     let currentRadarView = 'geral';
     let currentDateFilter = 'hoje'; 
-    let currentMediaFilter = 'todos'; // NOVO: Estado inicial do filtro de mídia
+    let currentMediaFilter = 'todos'; 
     let masterNewsCache = [];
     let savedNews = [];
     let followedTopics = [];
@@ -352,10 +352,10 @@
     
     // Mapeamento de cor e formato para o Dropdown e Cards
     const MEDIA_FORMATS = {
-        'todos': { label: 'Todos', emoji: '', color: 'bg-slate-700' },
-        'texto': { label: 'Notícias', emoji: '📝', color: 'bg-slate-600' },
-        'video': { label: 'Vídeo', emoji: '▶️', color: 'bg-red-600' },
-        'podcast': { label: 'Podcast', emoji: '🎙️', color: 'bg-purple-600' }
+        'todos': { label: 'Todos', emoji: '' },
+        'texto': { label: 'Notícias', emoji: '📝' },
+        'video': { label: 'Vídeo', emoji: '▶️' },
+        'podcast': { label: 'Podcast', emoji: '🎙️' }
     };
     
     const categoryColorMap = {
@@ -369,7 +369,7 @@
     
     // --- CORE DATA FUNCTIONS (API, Mapping) ---
     
-    // NOVO: Função para determinar o formato da mídia
+    // Função para determinar o formato da mídia
     function determineMediaType(title, url) {
         const titleLower = title.toLowerCase();
         const urlLower = url.toLowerCase();
@@ -401,7 +401,6 @@
         
         const bestCategory = categoryTag && categoryTag !== 'Todas' ? categoryTag : 'Geral'; 
         
-        // NOVO: Determina o formato e adiciona ao objeto da notícia
         const mediaType = determineMediaType(item.title, item.link); 
         
         return { source: 'googlenews', title: item.title, timestamp: new Date(item.pubDate).getTime(), url: item.link, description: item.content, sourceName: getSourceName(item.title), sourceDomain: sourceDomain, category: bestCategory, mediaType: mediaType };
@@ -420,24 +419,45 @@
                 return newsResults.map(item => mapGoogleNewsData(item, categoryTag));
             } catch (error) { console.error(`Erro no fetch para ${searchUrl}:`, error); return []; }
         };
+
+        let combinedNews = [];
+
         if (query) {
             const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
-            const results = await fetchAndParse(searchUrl, query);
-            return results.sort((a, b) => b.timestamp - a.timestamp); 
+            combinedNews = await fetchAndParse(searchUrl, query);
         } else { 
             const categories = ['Brasil', 'Mundo', 'Política', 'Economia', 'Esportes', 'Ciência', 'Cultura', 'Entretenimento', 'Saúde', 'Tecnologia']; 
-            let combinedNews = []; 
-            for (const cat of categories) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; const newsForCat = await fetchAndParse(searchUrl, cat); combinedNews.push(...newsForCat); } const uniqueNews = new Map(); combinedNews.forEach(news => { if (!uniqueNews.has(news.url)) { uniqueNews.set(news.url, news); } }); return Array.from(uniqueNews.values()).sort((a, b) => b.timestamp - a.timestamp); }
+            
+            // 1. Busca de notícias por categoria padrão
+            const categoryPromises = categories.map(cat => {
+                const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+                return fetchAndParse(searchUrl, cat);
+            });
+
+            // 2. NOVO: Busca extra e direcionada para conteúdo de vídeo do Metrópoles (otimização)
+            const videoQuery = `site:metropoles.com vídeo OR site:metropoles.com youtube OR site:metropoles.com live`;
+            const videoSearchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(videoQuery)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+            const metropolesVideoPromise = fetchAndParse(videoSearchUrl, 'Metrópoles Vídeo');
+
+            const allResults = await Promise.all([...categoryPromises, metropolesVideoPromise]);
+            combinedNews = allResults.flat();
+        }
+
+        const uniqueNews = new Map();
+        combinedNews.forEach(news => { 
+            if (!uniqueNews.has(news.url)) { 
+                uniqueNews.set(news.url, news); 
+            } 
+        }); 
+        return Array.from(uniqueNews.values()).sort((a, b) => b.timestamp - a.timestamp);
     }
 
     // --- RADAR VIEW FUNCTIONS ---
 
-    // NOVO: Função para obter ícone e cor do formato de mídia
     function getMediaIconAndColor(mediaType) {
         return MEDIA_FORMATS[mediaType] || MEDIA_FORMATS['texto'];
     }
 
-    // NOVO: Função para atualizar o botão principal do dropdown
     function updateMediaDropdown(filterKey) {
         const mediaInfo = getMediaIconAndColor(filterKey);
         currentMediaLabel.textContent = `Mídia: ${mediaInfo.label} ${mediaInfo.emoji}`;
@@ -445,10 +465,10 @@
         mediaDropdownMenu.querySelectorAll('button').forEach(btn => {
             btn.classList.remove('media-dropdown-active');
         });
-        mediaDropdownMenu.querySelector(`[data-media-key="${filterKey}"]`).classList.add('media-dropdown-active');
+        const activeBtn = mediaDropdownMenu.querySelector(`[data-media-key="${filterKey}"]`);
+        if(activeBtn) activeBtn.classList.add('media-dropdown-active');
     }
 
-    // NOVO: Função para manipular a mudança de filtro de Mídia
     function handleMediaFilterChange(filterKey) {
         currentMediaFilter = filterKey;
         updateMediaDropdown(filterKey);
@@ -460,7 +480,6 @@
         renderRadarResults();
     }
     
-    // NOVO: Função para aplicar o filtro de Mídia
     const applyMediaFilter = (items, filterKey) => {
         if (filterKey === 'todos') {
             return items;
@@ -479,7 +498,7 @@
         }
         
         let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
-        filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); // Aplica o filtro de mídia
+        filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); 
 
         if (currentRadarView === 'paraSi') {
             filteredNews = filteredNews.filter(news => { 
@@ -505,6 +524,7 @@
         contentCounter.textContent = `Exibindo ${resultsContainer.children.length} de ${totalItems} notícias.`;
         isLoadingMore = false; 
     }
+    
     
     function createGoogleNewsCard(news) {
         const newsElement = document.createElement('div');
@@ -574,8 +594,8 @@
         return newsElement;
     }
     
-    // --- FUNÇÕES DE FILTRO DE DATA/ESTADO (Mantidas as anteriores para funcionalidade) ---
-    
+    // --- FUNÇÕES DE AUXÍLIO ---
+
     function handleDateFilterChange(filterKey, buttonElement) {
         currentDateFilter = filterKey;
         dateFilterContainer.querySelectorAll('button').forEach(btn => {
@@ -783,8 +803,6 @@
     
     // --- INITIALIZATION & REFRESH LOGIC ---
     
-    // As funções de refresh aggregate, debounce e manageInfoBanner foram omitidas aqui para brevidade do código final, mas estão no seu projeto.
-    
     async function loadInitialContent(isAutoRefresh = false) {
         if (!isAutoRefresh) {
               setLoading(true, true);
@@ -796,6 +814,8 @@
         renderRadarResults();
         updateTimestamp();
     }
+    
+    // ... (funções de utilidade e eventos omitidas para brevidade) ...
 
     document.addEventListener('DOMContentLoaded', () => {
         const storedNews = localStorage.getItem('savedNews');
@@ -814,7 +834,8 @@
         // --- EVENT LISTENERS ---
         
         // Lógica do Dropdown de Mídia (Cascata)
-        mediaFilterButton.addEventListener('click', () => {
+        mediaFilterButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Impede que o evento chegue ao document e feche imediatamente
             const isExpanded = mediaFilterButton.getAttribute('aria-expanded') === 'true';
             mediaFilterButton.setAttribute('aria-expanded', !isExpanded);
             mediaDropdownMenu.classList.toggle('hidden', isExpanded);
@@ -830,7 +851,7 @@
 
         // Fecha o dropdown se clicar fora
         document.addEventListener('click', (e) => {
-            if (!mediaFilterDropdown.contains(e.target)) {
+            if (mediaFilterDropdown && !mediaFilterDropdown.contains(e.target)) {
                 mediaDropdownMenu.classList.add('hidden');
                 mediaFilterButton.setAttribute('aria-expanded', 'false');
                 mediaDropdownIcon.classList.remove('rotate-180');
@@ -864,10 +885,22 @@
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
 
         // Scroll e Debounce
-        searchInput.addEventListener('input', () => { updateClearSearchButton(); debounce(() => handleSearch(searchInput.value, null), 500)(); });
+        searchInput.addEventListener('input', () => { 
+            updateClearSearchButton(); 
+            const debounce = (func, delay = 500) => {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(this, args);
+                    }, delay);
+                };
+            };
+            debounce(() => handleSearch(searchInput.value, null), 500)();
+        });
         clearSearchBtn.addEventListener('click', () => { searchInput.value = ''; updateClearSearchButton(); handleSearch('', null); });
         
-        // Funções de scroll/toasts omitidas para brevidade
+        // Outros Listeners... (mantidos do código original)
         // ...
     });
     </script>
