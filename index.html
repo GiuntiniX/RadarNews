@@ -239,7 +239,6 @@
     const viewFilterAggregate = document.getElementById('viewFilterAggregate');
     const dateFilterContainer = document.getElementById('dateFilterContainer');
     const dateFilterToday = document.getElementById('dateFilterToday');
-    // NOVO/ATUALIZADO: Obtendo o novo botão da última semana
     const dateFilterLastWeek = document.getElementById('dateFilterLastWeek');
     const resultsContainer = document.getElementById('resultsContainer');
     const messageState = document.getElementById('messageState');
@@ -265,7 +264,6 @@
 
     
     // --- APP STATE ---
-    // ATUALIZADO: currentDateFilter agora pode ser 'hoje' ou 'ultima_semana'
     let currentAppView = 'radar';
     let currentRadarView = 'geral';
     let currentDateFilter = 'hoje'; 
@@ -290,7 +288,7 @@
     const categoryKeywordsMap = {
         Política: [
             'governo','eleições','partido','lei','congresso','presidente','ministro','stf','plenário','senado','câmara','decreto','lula','bolsonaro',
-            'reforma ministerial','articulação partidária','coalizão governamental','lobby político','pauta legislativa',
+            'reforma ministerial','articulação partidativa','coalizão governamental','lobby político','pauta legislativa',
             'comissão especial','plano de governo','discurso parlamentar','emenda constitucional','base aliada',
             'oposição estratégica','governabilidade','promulgação de lei','agenda política','consulta pública'
         ],
@@ -301,10 +299,17 @@
             'orçamento público','arrecadação tributária','risco país','planejamento financeiro','análise setorial'
         ],
         Esportes: [
-            'futebol','vôlei','basquete','campeonato','atleta','time','olimpíadas','brasileirão','sul-americana','libertadores','f1','atleta','neymar','ronaldo','fórmula 1','ufc','medalha',
+            'futebol','vôlei','basquete','campeonato','atleta','time','olimpíadas','brasileirão','sul-americana','libertadores','f1','neymar','ronaldo','fórmula 1','ufc','medalha',
             'preparação física','comissão técnica','desempenho esportivo','rivalidade histórica','torcida organizada',
             'calendário esportivo','convocação oficial','treino intensivo','fair play','ranking mundial',
-            'doping esportivo','estreia competitiva','título inédito','superação atlética','legado olímpico'
+            'doping esportivo','estreia competitiva','título inédito','superação atlética','legado olímpico',
+            'esporte olímpico','jogador destaque','transferência esportiva','arena esportiva','patrocínio esportivo',
+            'desempenho técnico','preparação psicológica','jogo decisivo','competição internacional','recorde mundial',
+            'classificação final','torneio regional','estrela do esporte','base esportiva','categoria de base',
+            'desafio físico','resistência atlética','habilidade técnica','formação esportiva',
+            'futebol feminino','seleção feminina','liga feminina','copa do mundo feminina','desempenho feminino','desigualdade esportiva','visibilidade feminina','investimento no feminino','desenvolvimento feminino','atleta feminina','técnica feminina','convocação feminina',
+            'marta','cristiane','debinha','formiga','andressa alves','luana','tamires','bia zaneratto','gabi nunes','letícia isidoro','bruna benites','rafaelle','kerolin','laís araújo',
+            'vinícius jr','rodrygo','gabriel jesus','casemiro','alisson','marquinhos','militão','richarlison','raphael veiga','endrick','joão felix','kylian mbappé','lionel messi','cristiano ronaldo','erling haaland','kevin de bruyne','modric','griezmann','lewandowski','harry kane'
         ],
         Cultura: [
             'arte','exposição','teatro','livro','museu','patrimônio','bienal','concerto','literatura','peça teatral',
@@ -340,67 +345,112 @@
             'transformação estética','desabafo nas redes','vídeo viral','comentário polêmico','stories bombásticos',
             'capa de revista','ensaio fotográfico','estrela teen','influenciador digital','celebridade internacional',
             'perfil verificado','nova parceria artística','making of exclusivo','briga pública','reconciliação amorosa',
-            'cancelamento digital','entrevista reveladora','homenagem especial','presença vip','curiosidade dos bastidores'
+            'cancelamento digital','entrevista reveladora','homenagem especial','presença vip','curiosidade dos bastidores',
+            'estreia cinematográfica','reality musical','drama televisivo','comédia romântica','trama envolvente',
+            'celebridade nacional','viral nas redes','repercussão online','estreia internacional','programa de auditório',
+            'cultura pop','ícone da música','fenômeno televisivo','estrela mirim','figura pública','tendência viral'
         ],
         Ciência: [
             'pesquisa','descoberta','espaço','biologia','física','nasa','estudo científico','foguete','astrônomo',
             'inovação tecnológica','experimento controlado','avanço científico','hipótese testada','teoria comprovada',
             'simulação computacional','descoberta genética','publicação acadêmica','impacto ambiental','estudo interdisciplinar',
-            'observação astronômica','método empírico','análise laboratorial','pesquisa aplicada','desenvolvimento sustentável'
+            'observação astronômica','método empírico','análise laboratorial','pesquisa aplicada','desenvolvimento sustentável',
+            'engenharia genética','inteligência artificial','astrofísica','neurociência','ciência de dados',
+            'bioquímica','ciência ambiental','engenharia de materiais','ciência computacional','ciência social',
+            'tecnologia quântica','ciência marinha','pesquisa de campo','ciência planetária','ciência forense'
         ],
         Educação: [
             'escola','universidade','enem','vestibular','curso','professor','mec','prouni','fies','educação básica',
             'metodologia ativa','avaliação pedagógica','formação docente','currículo escolar','inclusão educacional',
             'ambiente de aprendizagem','ensino híbrido','plataforma educacional','alfabetização digital','política educacional',
-            'jornada acadêmica','capacitação profissional','gestão escolar','acesso ao conhecimento','inovação didática'
+            'jornada acadêmica','capacitação profissional','gestão escolar','acesso ao conhecimento','inovação didática',
+            'educação inclusiva','ensino remoto','educação infantil','educação profissional','educação continuada',
+            'educação tecnológica','educação pública','educação privada','educação bilíngue','educação socioemocional',
+            'educação empreendedora','educação ambiental','educação financeira','educação digital','educação superior',
+            'educação técnica','educação rural','educação urbana','educação comunitária','educação intercultural'
         ],
         Viagem: [
             'turismo','destino','passagem','hotel','férias','ponto turístico','roteiro','viajar','milhas',
             'experiência turística','roteiro personalizado','dica de hospedagem','aventura internacional','destino exótico',
             'viagem cultural','pacote promocional','planejamento de férias','guia local','atração imperdível',
-            'transporte alternativo','turismo sustentável','descoberta regional','escapada urbana','conexão aérea'
+            'transporte alternativo','turismo sustentável','descoberta regional','escapada urbana','conexão aérea',
+            'viagem de aventura','viagem romântica','viagem corporativa','viagem gastronômica','viagem ecológica',
+            'viagem de luxo','viagem econômica','viagem em família','viagem solo','viagem de cruzeiro',
+            'viagem de negócios','viagem espiritual','viagem de intercâmbio','viagem de mochilão','viagem nacional',
+            'viagem internacional','viagem personalizada','viagem temática','viagem fotográfica'
         ],
         Gastronomia: [
             'receita','restaurante','chef','comida','bebida','culinária','gourmet','harmonização','degustação',
             'sabor autêntico','prato típico','técnica culinária','harmonização perfeita','ingrediente secreto',
             'experiência gourmet','cardápio exclusivo','tendência alimentar','cozinha autoral','preparo artesanal',
-            'toque regional','apresentação criativa','textura surpreendente','aroma marcante','receita inovadora'
+            'toque regional','apresentação criativa','textura surpreendente','aroma marcante','receita inovadora',
+            'culinária regional','culinária internacional','gastronomia molecular','gastronomia vegana','gastronomia funcional',
+            'gastronomia saudável','gastronomia de rua','gastronomia contemporânea','gastronomia tradicional','gastronomia orgânica',
+            'gastronomia sustentável','gastronomia afetiva','gastronomia autoral','gastronomia criativa','gastronomia gourmet',
+            'gastronomia brasileira','gastronomia italiana','gastronomia japonesa','gastronomia francesa','gastronomia mediterrânea'
         ],
         Carros: [
             'automóvel','veículo','montadora','lançamento','teste','mercado automotivo','carro elétrico','ipva',
             'desempenho automotivo','tecnologia embarcada','design arrojado','consumo eficiente','segurança veicular',
             'conectividade inteligente','avaliação técnica','manutenção preventiva','inovação elétrica','mobilidade urbana',
-            'modelo híbrido','conforto interno','autonomia energética','direção assistida','lançamento premium'
+            'modelo híbrido','conforto interno','autonomia energética','direção assistida','lançamento premium',
+            'carro autônomo','carro popular','carro esportivo','carro de luxo','carro compacto','carro SUV',
+            'carro seminovo','carro zero','carro turbo','carro automático','carro manual','carro conectado',
+            'carro inteligente','carro sustentável','carro blindado','carro off-road','carro urbano',
+            'carro familiar','carro conversível','carro flex','carro importado','carro nacional'
         ],
         Imóveis: [
             'casa','apartamento','aluguel','compra','venda','construção','mercado imobiliário','financiamento','condomínio',
             'valorização imobiliária','planta arquitetônica','projeto residencial','localização estratégica','infraestrutura urbana',
             'padrão construtivo','condomínio fechado','mercado de luxo','imóvel decorado','financiamento acessível',
-            'reforma planejada','investimento patrimonial','tendência habitacional','espaço funcional','moradia sustentável'
+            'reforma planejada','investimento patrimonial','tendência habitacional','espaço funcional','moradia sustentável',
+            'imóvel comercial','imóvel rural','imóvel urbano','imóvel novo','imóvel usado','imóvel mobiliado',
+            'imóvel financiado','imóvel alugado','imóvel à venda','imóvel em construção','imóvel reformado',
+            'imóvel planejado','imóvel inteligente','imóvel compacto','imóvel de alto padrão','imóvel acessível',
+            'imóvel compartilhado','imóvel térreo','imóvel duplex','imóvel triplex','imóvel com varanda'
         ],
         Música: [
             'show','festival','artista','banda','lançamento','clipe','turnê','rock in rio','lollapalooza','spotify',
             'sonoridade única','composição autoral','performance acústica','produção independente','estilo musical',
             'influência sonora','trilha envolvente','remix criativo','colaboração artística','lançamento exclusivo',
-            'voz marcante','clipe visual','repertório variado','sucesso nas paradas','turnê internacional'
-        ],
-        Cinema: [
-            'filme','estreia','crítica','ator','diretor','oscar','streaming','netflix','bilheteria','série',
-            'narrativa envolvente','direção premiada','roteiro original','produção cinematográfica','atuação memorável',
-            'trilha sonora','adaptação literária','crítica especializada','cena impactante','estética visual',
-            'festival internacional','bilheteria recorde','bastidores revelados','estreia aguardada','elenco estelar'
+            'voz marcante','clipe visual','repertório variado','sucesso nas paradas','turnê internacional',
+            'música pop','música eletrônica','música clássica','música sertaneja','música gospel','música indie',
+            'música alternativa','música experimental','música regional','música internacional','música brasileira',
+            'música acústica','música ao vivo','música de estúdio','música colaborativa','música viral',
+            'música de festival','música de trilha','música de protesto','música autoral','música romântica'
         ],
         Moda: [
             'tendência','desfile','estilo','roupa','acessório','marca','spfw','estilista','coleção',
             'conceito estilístico','paleta de cores','corte moderno','textura sofisticada','tendência global',
             'inspiração vintage','look do dia','coleção cápsula','design autoral','moda consciente',
-            'styling criativo','peça-chave','desfile conceitual','identidade visual','inovação têxtil'
+            'styling criativo','peça-chave','desfile conceitual','identidade visual','inovação têxtil',
+            'moda feminina','moda masculina','moda infantil','moda praia','moda fitness','moda urbana',
+            'moda sustentável','moda minimalista','moda retrô','moda futurista','moda casual','moda elegante',
+            'moda alternativa','moda de luxo','moda acessível','moda autoral','moda inclusiva',
+            'moda digital','moda artesanal','moda conceitual','moda streetwear','moda plus size'
+        ],
+        Cinema: [
+            'filme','estreia','crítica','ator','diretor','oscar','streaming','netflix','bilheteria','série',
+            'narrativa envolvente','direção premiada','roteiro original','produção cinematográfica','atuação memorável',
+            'trilha sonora','adaptação literária','crítica especializada','cena impactante','estética visual',
+            'festival internacional','bilheteria recorde','bastidores revelados','estreia aguardada','elenco estelar',
+            'cinema nacional','cinema internacional','cinema independente','cinema comercial','cinema de arte',
+            'cinema documental','cinema de animação','cinema de ação','cinema de comédia','cinema de drama',
+            'cinema de terror','cinema de suspense','cinema de romance','cinema de ficção','cinema histórico',
+            'cinema biográfico','cinema experimental','cinema premiado','cinema cult','cinema infantil',
+            'roteiro adaptado','direção de fotografia','edição de som','figurino','cenografia',
+            'curadoria de festival','estrela de cinema','trilha premiada','roteirista renomado','produção internacional'
         ],
         'Meio Ambiente': [
             'sustentabilidade','natureza','ecologia','aquecimento global','desmatamento','reciclagem','mudanças climáticas','amazônia',
             'impacto ecológico','preservação natural','biodiversidade ameaçada','ação sustentável','responsabilidade ambiental',
             'educação ecológica','iniciativa verde','recuperação florestal','gestão climática','proteção da fauna',
-            'equilíbrio ambiental','recurso renovável','consciência planetária','adaptação climática','ativismo ambiental'
+            'equilíbrio ambiental','recurso renovável','consciência planetária','adaptação climática','ativismo ambiental',
+            'poluição ambiental','energia renovável','energia solar','energia eólica','conservação ambiental',
+            'gestão de resíduos','crise hídrica','recursos naturais','pegada ecológica','preservação da biodiversidade',
+            'desenvolvimento sustentável','responsabilidade ecológica','ativismo climático','mudança ambiental',
+            'proteção ambiental','recuperação ecológica','gestão sustentável','fauna silvestre','flora nativa',
+            'licenciamento ambiental','zona de conservação','reserva ecológica','impacto climático','consumo consciente'
         ]
     };
     
@@ -647,7 +697,7 @@
     }
     
     /**
-     * NOVO: Função para manipular a mudança de filtro de data
+     * Função para manipular a mudança de filtro de data
      */
     function handleDateFilterChange(filterKey, buttonElement) {
         currentDateFilter = filterKey;
@@ -666,7 +716,7 @@
     }
     
     /**
-     * MODIFICADO: Lógica de filtragem de data atualizada para 'hoje' e 'ultima_semana'
+     * Lógica de filtragem de data atualizada para 'hoje' e 'ultima_semana'
      */
     const applyDateFilter = (items, filterKey) => {
         const today = new Date();
@@ -913,7 +963,7 @@
             
             latestAnalysisResult = {
                 covered: analysis.gapsCovered,
-                not_covered: analysis.not_covered
+                not_covered: analysis.gapsNotCovered
             };
             
             renderGapAnalysis(1);
