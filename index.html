@@ -58,6 +58,12 @@
         #backToTopBtn {
             transition: opacity 0.3s, transform 0.3s;
         }
+        /* Estilo para a Categoria Seguida (Para Si) - Reforço visual */
+        .category-followed {
+            background-color: #334155 !important; /* slate-700 */
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.25);
+            color: #94a3b8 !important; /* slate-400 */
+        }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -161,7 +167,7 @@
                         <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-lg font-bold text-cyan-400">Navegue por Editorial</h2>
-                                <button id="clearFollowedBtn" class="hidden text-xs text-red-400 hover:text-red-300 font-semibold transition-colors duration-200">Limpar</button>
+                                <button id="clearFollowedBtn" class="hidden text-xs text-red-400 hover:text-red-300 font-semibold transition-colors duration-200">Limpar Tópicos</button>
                             </div>
                             <div id="categoriesContainer" class="flex flex-wrap gap-2"></div>
                         </div>
@@ -188,11 +194,18 @@
         </div>
         
         <div id="aggregateContainer" class="hidden">
-            <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">Análise de Cobertura Competitiva</h2>
+            <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">Análise de Cobertura (Simulação)</h2>
             <div id="gapAnalysisContainer" class="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
-                <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência</h3>
-                <div id="gapResults"><p class="text-slate-400 text-center py-4">Funcionalidade Agregada não implementada nesta versão demo.</p></div>
+                <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência (Top 10)</h3>
+                <div id="gapResults">
+                    <p class="text-slate-400 text-center py-4">Carregando dados de simulação...</p>
+                </div>
             </div>
+
+             <h3 class="text-xl font-semibold text-cyan-400 mb-4">Conteúdo por Portal e Mídia</h3>
+
+            <div id="dashboardContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                </div>
         </div>
     </div>
     
@@ -216,7 +229,7 @@
     
     <script>
     // =================================================================================
-    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS (COM SCROLL INFINITO E FILTRO DE MÍDIA REFORÇADO)
+    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS (COM SCROLL INFINITO E LÓGICA 'PARA SI' E 'AGREGADO' CORRIGIDAS)
     // =================================================================================
 
     // --- DOM ELEMENTS (Inicialização de Variáveis) ---
@@ -257,6 +270,9 @@
     const copyListBtn = document.getElementById('copyListBtn');
     const savedNewsCountSidebar = document.getElementById('savedNewsCountSidebar');
     const clearFollowedBtn = document.getElementById('clearFollowedBtn');
+    const gapResults = document.getElementById('gapResults');
+    const dashboardContainer = document.getElementById('dashboardContainer');
+
 
     // --- APP STATE (Estado Global) ---
     let currentAppView = 'radar';
@@ -267,7 +283,7 @@
     let savedNews = [];
     let followedTopics = [];
     let currentPage = 1;
-    const itemsPerPage = 20; // Itens carregados por página/scroll
+    const itemsPerPage = 20; 
     let isLoadingMore = false;
     let currentCategorySearch = null;
 
@@ -308,7 +324,7 @@
         }
         
         // 2. Domínios e padrões de URL (reforço para vídeos e áudio)
-        if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/') || urlLower.includes('recordtv.r7.com') || urlLower.includes('band.com.br/videos')) {
+        if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/') || urlLower.includes('recordtv.r7.com') || urlLower.includes('band.com.br/videos') || urlLower.includes('uol.com.br/videos')) {
             return 'video';
         }
         if (urlLower.includes('soundcloud.com') || urlLower.includes('/podcasts/') || urlLower.includes('g1.globo.com/podcast') || urlLower.includes('anchor.fm')) {
@@ -355,7 +371,7 @@
     }
 
     /**
-     * Busca notícias do Google News via RSS com reforço para conteúdos de vídeo.
+     * Busca notícias do Google News via RSS com reforço para conteúdos de vídeo e podcasts.
      */
     async function fetchFromGoogleNewsAPI(query = null) {
         const fetchAndParse = async (searchUrl, categoryTag) => {
@@ -463,9 +479,10 @@
         let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
         filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); 
 
+        // Filtro "Para Si"
         if (currentRadarView === 'paraSi') {
             if (followedTopics.length === 0) {
-                 messageState.classList.remove('hidden'); messageTitle.textContent = 'Comece a seguir tópicos!'; messageText.textContent = 'Clique nas editorias para personalizar o seu feed.';
+                 messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Para Si", selecione seus temas de interesse nas categorias abaixo.';
                  contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return;
             }
             filteredNews = filteredNews.filter(news => { 
@@ -498,7 +515,7 @@
     }
     
     /**
-     * Cria o elemento HTML (card) de uma notícia. (mantido como está)
+     * Cria o elemento HTML (card) de uma notícia.
      */
     function createGoogleNewsCard(news) {
         const newsElement = document.createElement('div');
@@ -570,7 +587,7 @@
         return newsElement;
     }
     
-    // --- FUNÇÕES DE LÓGICA DE INTERFACE (mantido como está) ---
+    // --- LÓGICA DE INTERFACE E UTILITÁRIOS (mantido como está) ---
     
     function handleDateFilterChange(filterKey, buttonElement) {
         currentDateFilter = filterKey;
@@ -714,6 +731,88 @@
         }
     }
     
+    // --- LÓGICA AGREGADA (SIMULAÇÃO) ---
+
+    // Dados simulados para o dashboard de agregação
+    const simulatedAggregateData = {
+        topTopics: [
+            { topic: "Crise na Petrobras", mentions: 45, mainSource: "Folha de S.Paulo" },
+            { topic: "Novas Regras do Pix", mentions: 32, mainSource: "G1" },
+            { topic: "Clima Extremo no Sul", mentions: 28, mainSource: "CNN Brasil" },
+            { topic: "Aumento da Selic", mentions: 25, mainSource: "Valor Econômico" },
+            { topic: "Reforma Tributária", mentions: 22, mainSource: "Estadão" },
+            { topic: "Lançamento de IA do Google", mentions: 18, mainSource: "Tecnoblog" },
+            { topic: "Novidade na Liga de Futebol", mentions: 15, mainSource: "Globo Esporte" },
+        ],
+        portalBreakdown: [
+            { name: "G1", texto: 85, video: 35, podcast: 15 },
+            { name: "CNN Brasil", texto: 60, video: 55, podcast: 20 },
+            { name: "UOL", texto: 120, video: 25, podcast: 10 },
+            { name: "Jovem Pan", texto: 45, video: 40, podcast: 5 },
+            { name: "Folha de S.Paulo", texto: 70, video: 5, podcast: 8 },
+            { name: "R7", texto: 50, video: 30, podcast: 5 },
+        ]
+    };
+
+    function renderAggregateView() {
+        // 1. Renderiza Top Tópicos
+        gapResults.innerHTML = '';
+        simulatedAggregateData.topTopics.forEach((item, index) => {
+            const topicElement = document.createElement('div');
+            topicElement.className = 'flex justify-between items-center py-2 border-b border-slate-700/50 last:border-b-0';
+            topicElement.innerHTML = `
+                <span class="text-sm text-slate-300 font-medium">
+                    ${index + 1}. ${item.topic} 
+                    <span class="text-xs text-slate-500 ml-2">(${item.mainSource})</span>
+                </span>
+                <span class="text-amber-400 font-bold">${item.mentions} menções</span>
+            `;
+            gapResults.appendChild(topicElement);
+        });
+
+        // 2. Renderiza Dashboard de Portais
+        dashboardContainer.innerHTML = '';
+        simulatedAggregateData.portalBreakdown.forEach(portal => {
+            const total = portal.texto + portal.video + portal.podcast;
+            const textPct = ((portal.texto / total) * 100).toFixed(0);
+            const videoPct = ((portal.video / total) * 100).toFixed(0);
+            const podcastPct = ((portal.podcast / total) * 100).toFixed(0);
+
+            const card = document.createElement('div');
+            card.className = 'bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-xl';
+            card.innerHTML = `
+                <h4 class="text-lg font-bold text-cyan-400 mb-4">${portal.name} (${total} Itens)</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-slate-400">Notícias 📝 (${portal.texto})</span>
+                        <span class="text-sm font-semibold text-slate-300">${textPct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5">
+                        <div class="bg-cyan-500 h-2.5 rounded-full" style="width: ${textPct}%"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-3">
+                        <span class="text-sm text-slate-400">Vídeo ▶️ (${portal.video})</span>
+                        <span class="text-sm font-semibold text-slate-300">${videoPct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5">
+                        <div class="bg-red-500 h-2.5 rounded-full" style="width: ${videoPct}%"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-3">
+                        <span class="text-sm text-slate-400">Podcast 🎙️ (${portal.podcast})</span>
+                        <span class="text-sm font-semibold text-slate-300">${podcastPct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5">
+                        <div class="bg-green-500 h-2.5 rounded-full" style="width: ${podcastPct}%"></div>
+                    </div>
+                </div>
+            `;
+            dashboardContainer.appendChild(card);
+        });
+    }
+
+    
     // --- LÓGICA DE APLICAÇÃO (LOAD E EVENTOS) ---
     
     async function loadInitialContent(isAutoRefresh = false) {
@@ -774,7 +873,6 @@
         }
     }
     
-    // --- SCROLL INFINITO REATIVADO ---
     function handleScroll() {
         // Lógica de Paginação (Carregar Mais)
         if (currentAppView === 'radar' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) {
@@ -792,6 +890,46 @@
         } else {
             backToTopBtn.classList.add('opacity-0', 'translate-y-20');
             setTimeout(() => backToTopBtn.classList.add('hidden'), 300);
+        }
+    }
+    
+    function setView(view) {
+        currentAppView = view;
+        const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate];
+        buttons.forEach(btn => {
+            btn.classList.remove('view-filter-active', 'text-white');
+            btn.classList.add('text-slate-300', 'hover:bg-slate-700');
+            btn.setAttribute('aria-pressed', 'false');
+        });
+
+        if (view === 'radar') {
+            radarContainer.classList.remove('hidden');
+            aggregateContainer.classList.add('hidden');
+            searchBarWrapper.classList.remove('hidden');
+            dateFilterContainer.classList.remove('hidden');
+            mediaFilterDropdown.classList.remove('hidden'); 
+            
+            if (currentRadarView === 'geral') {
+                viewFilterRadar.classList.add('view-filter-active');
+                viewFilterRadar.classList.remove('text-slate-300', 'hover:bg-slate-700');
+                viewFilterRadar.setAttribute('aria-pressed', 'true');
+            } else { // Para Si
+                viewFilterForYou.classList.add('view-filter-active');
+                viewFilterForYou.classList.remove('text-slate-300', 'hover:bg-slate-700');
+                viewFilterForYou.setAttribute('aria-pressed', 'true');
+            }
+            renderCategories(); 
+            renderRadarResults();
+        } else if (view === 'aggregate') {
+            radarContainer.classList.add('hidden');
+            aggregateContainer.classList.remove('hidden');
+            viewFilterAggregate.classList.add('view-filter-active');
+            viewFilterAggregate.classList.remove('text-slate-300', 'hover:bg-slate-700');
+            viewFilterAggregate.setAttribute('aria-pressed', 'true');
+            searchBarWrapper.classList.add('hidden');
+            dateFilterContainer.classList.add('hidden');
+            mediaFilterDropdown.classList.add('hidden'); 
+            renderAggregateView(); // Chama a função de simulação
         }
     }
 
@@ -835,7 +973,6 @@
             });
         });
 
-        // Fecha o dropdown se clicar fora
         document.addEventListener('click', (e) => {
             if (mediaFilterDropdown && !mediaFilterDropdown.contains(e.target)) {
                 mediaDropdownMenu.classList.add('hidden');
@@ -844,11 +981,12 @@
             }
         });
 
-        // Eventos de Visão e Busca
+        // Eventos de Visão (Radar, Para Si, Agregado)
         viewFilterRadar.addEventListener('click', () => { currentRadarView = 'geral'; setView('radar'); handleSearch(searchInput.value, null); });
-        viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); renderRadarResults(); });
+        viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); }); // setView chama renderResults
         viewFilterAggregate.addEventListener('click', () => { setView('aggregate'); }); 
 
+        // Eventos de Busca
         searchButton.addEventListener('click', () => handleSearch(searchInput.value, null));
         
         // Debounce para a busca em tempo real
@@ -875,8 +1013,16 @@
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
         backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         
-        // Outros Listeners
-        document.getElementById('clearFollowedBtn').addEventListener('click', () => { followedTopics = []; localStorage.removeItem('followedTopics'); renderCategories(); renderRadarResults(); showToast('Tópicos seguidos limpos.'); });
+        // Botão "Limpar Tópicos" do Para Si
+        document.getElementById('clearFollowedBtn').addEventListener('click', () => { 
+            followedTopics = []; 
+            localStorage.removeItem('followedTopics'); 
+            renderCategories(); 
+            renderRadarResults(); 
+            showToast('Tópicos seguidos limpos.'); 
+        });
+
+        // Copiar Lista
         document.getElementById('copyListBtn').addEventListener('click', () => {
             const listText = savedNews.map((n, i) => `${i + 1}. [${n.title}](${n.url}) - ${n.sourceName}`).join('\n');
             navigator.clipboard.writeText(listText).then(() => showToast('Lista copiada para a área de transferência!'));
