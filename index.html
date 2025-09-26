@@ -120,7 +120,8 @@
                     <button id="viewFilterAggregate" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Conteúdo Agregado</button>
                 </div>
                 <div id="dateFilterContainer" class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg">
-                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="true">Hoje</button>
+                    <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" data-date-key="hoje" aria-pressed="true">Hoje</button>
+                    <button id="dateFilterLastWeek" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" data-date-key="ultima_semana" aria-pressed="false">Última Semana</button>
                 </div>
                  <div class="flex items-center gap-2">
                     <button id="refreshButton" aria-label="Atualizar notícias" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
@@ -238,6 +239,8 @@
     const viewFilterAggregate = document.getElementById('viewFilterAggregate');
     const dateFilterContainer = document.getElementById('dateFilterContainer');
     const dateFilterToday = document.getElementById('dateFilterToday');
+    // NOVO/ATUALIZADO: Obtendo o novo botão da última semana
+    const dateFilterLastWeek = document.getElementById('dateFilterLastWeek');
     const resultsContainer = document.getElementById('resultsContainer');
     const messageState = document.getElementById('messageState');
     const messageTitle = document.getElementById('messageTitle');
@@ -262,9 +265,10 @@
 
     
     // --- APP STATE ---
+    // ATUALIZADO: currentDateFilter agora pode ser 'hoje' ou 'ultima_semana'
     let currentAppView = 'radar';
     let currentRadarView = 'geral';
-    let currentDateFilter = 'hoje';
+    let currentDateFilter = 'hoje'; 
     let masterNewsCache = [];
     let savedNews = [];
     let followedTopics = [];
@@ -283,122 +287,122 @@
     const GAPS_PER_PAGE = 20;
     const MAX_GAP_PAGES = 5;
     
-const categoryKeywordsMap = {
-    Política: [
-        'governo','eleições','partido','lei','congresso','presidente','ministro','stf','plenário','senado','câmara','decreto','lula','bolsonaro',
-        'reforma ministerial','articulação partidária','coalizão governamental','lobby político','pauta legislativa',
-        'comissão especial','plano de governo','discurso parlamentar','emenda constitucional','base aliada',
-        'oposição estratégica','governabilidade','promulgação de lei','agenda política','consulta pública'
-    ],
-    Economia: [
-        'finanças','mercado','ações','inflação','juros','empresa','investimento','pib','dólar','câmbio','haddad','selic','ibovespa',
-        'pacote fiscal','projeção econômica','índice de consumo','balança comercial','cenário macroeconômico',
-        'política monetária','crescimento sustentável','taxa de inadimplência','crédito privado','fluxo cambial',
-        'orçamento público','arrecadação tributária','risco país','planejamento financeiro','análise setorial'
-    ],
-    Esportes: [
-        'futebol','vôlei','basquete','campeonato','atleta','time','olimpíadas','brasileirão','sul-americana','libertadores','f1','atleta','neymar','ronaldo','fórmula 1','ufc','medalha',
-        'preparação física','comissão técnica','desempenho esportivo','rivalidade histórica','torcida organizada',
-        'calendário esportivo','convocação oficial','treino intensivo','fair play','ranking mundial',
-        'doping esportivo','estreia competitiva','título inédito','superação atlética','legado olímpico'
-    ],
-    Cultura: [
-        'arte','exposição','teatro','livro','museu','patrimônio','bienal','concerto','literatura','peça teatral',
-        'identidade cultural','expressão artística','movimento literário','tradição popular','influência estética',
-        'produção autoral','crítica especializada','linguagem simbólica','manifestação folclórica','diversidade criativa',
-        'curadoria temática','circuito cultural','memória coletiva','valorização regional','intercâmbio cultural'
-    ],
-    Saúde: [
-        'bem-estar','doença','tratamento','medicina','hospital','vacina','nutrição','anvisa','oms','surto','epidemia','dengue',
-        'protocolo médico','prevenção sanitária','diagnóstico precoce','campanha de vacinação','sistema de saúde',
-        'alerta epidemiológico','cobertura hospitalar','plano terapêutico','vigilância sanitária','atendimento emergencial',
-        'triagem clínica','saúde pública','impacto imunológico','bem-estar mental','acesso universal'
-    ],
-    Mundo: [
-        'internacional','notícia global','conflito','acordo','guerra','diplomacia','eleição eua','biden','trump','gaza','ucrânia','onu',
-        'tensão diplomática','sanção internacional','tratado bilateral','missão humanitária','crise migratória',
-        'intervenção militar','panorama geopolítico','coalizão global','liderança mundial','posicionamento estratégico',
-        'reunião multilateral','impacto global','ajuda externa','estabilidade regional','conflito armado'
-    ],
-    Horóscopo: [
-        'signo','signos','astrologia','previsão','zodíaco','mapa astral','horóscopo','áries','touro','gêmeos','câncer','leão','virgem','libra','escorpião','sagitário','capricórnio','aquário','peixes','ascendente','mercúrio retrógrado','tarô','numerologia',
-        'influência astral','trânsito planetário','energia cósmica','ciclo lunar','alinhamento celeste',
-        'leitura espiritual','jornada zodiacal','vibração energética','conexão esotérica','revelação intuitiva',
-        'mapa kármico','destino astral','orientação mística','fase planetária','despertar espiritual'
-    ],
-    Entretenimento: [
-        'famosos','celebridade','tv','série','fofoca','evento','reality show','bbb','a fazenda','novela','premiação',
-        'bastidores exclusivos','estreia bombástica','escândalo midiático','performance ao vivo','audiência recorde',
-        'produção audiovisual','cobertura especial','reação dos fãs','spoiler inesperado','cena viral',
-        'elenco confirmado','roteiro adaptado','evento memorável','crítica popular','participação surpresa',
-        'casal do momento','flagra dos paparazzi','look do dia','red carpet','treta de famosos',
-        'declaração polêmica','romance secreto','divórcio midiático','confirmação de namoro','amizade famosa',
-        'transformação estética','desabafo nas redes','vídeo viral','comentário polêmico','stories bombásticos',
-        'capa de revista','ensaio fotográfico','estrela teen','influenciador digital','celebridade internacional',
-        'perfil verificado','nova parceria artística','making of exclusivo','briga pública','reconciliação amorosa',
-        'cancelamento digital','entrevista reveladora','homenagem especial','presença vip','curiosidade dos bastidores'
-    ],
-    Ciência: [
-        'pesquisa','descoberta','espaço','biologia','física','nasa','estudo científico','foguete','astrônomo',
-        'inovação tecnológica','experimento controlado','avanço científico','hipótese testada','teoria comprovada',
-        'simulação computacional','descoberta genética','publicação acadêmica','impacto ambiental','estudo interdisciplinar',
-        'observação astronômica','método empírico','análise laboratorial','pesquisa aplicada','desenvolvimento sustentável'
-    ],
-    Educação: [
-        'escola','universidade','enem','vestibular','curso','professor','mec','prouni','fies','educação básica',
-        'metodologia ativa','avaliação pedagógica','formação docente','currículo escolar','inclusão educacional',
-        'ambiente de aprendizagem','ensino híbrido','plataforma educacional','alfabetização digital','política educacional',
-        'jornada acadêmica','capacitação profissional','gestão escolar','acesso ao conhecimento','inovação didática'
-    ],
-    Viagem: [
-        'turismo','destino','passagem','hotel','férias','ponto turístico','roteiro','viajar','milhas',
-        'experiência turística','roteiro personalizado','dica de hospedagem','aventura internacional','destino exótico',
-        'viagem cultural','pacote promocional','planejamento de férias','guia local','atração imperdível',
-        'transporte alternativo','turismo sustentável','descoberta regional','escapada urbana','conexão aérea'
-    ],
-    Gastronomia: [
-        'receita','restaurante','chef','comida','bebida','culinária','gourmet','harmonização','degustação',
-        'sabor autêntico','prato típico','técnica culinária','harmonização perfeita','ingrediente secreto',
-        'experiência gourmet','cardápio exclusivo','tendência alimentar','cozinha autoral','preparo artesanal',
-        'toque regional','apresentação criativa','textura surpreendente','aroma marcante','receita inovadora'
-    ],
-    Carros: [
-        'automóvel','veículo','montadora','lançamento','teste','mercado automotivo','carro elétrico','ipva',
-        'desempenho automotivo','tecnologia embarcada','design arrojado','consumo eficiente','segurança veicular',
-        'conectividade inteligente','avaliação técnica','manutenção preventiva','inovação elétrica','mobilidade urbana',
-        'modelo híbrido','conforto interno','autonomia energética','direção assistida','lançamento premium'
-    ],
-    Imóveis: [
-        'casa','apartamento','aluguel','compra','venda','construção','mercado imobiliário','financiamento','condomínio',
-        'valorização imobiliária','planta arquitetônica','projeto residencial','localização estratégica','infraestrutura urbana',
-        'padrão construtivo','condomínio fechado','mercado de luxo','imóvel decorado','financiamento acessível',
-        'reforma planejada','investimento patrimonial','tendência habitacional','espaço funcional','moradia sustentável'
-    ],
-    Música: [
-        'show','festival','artista','banda','lançamento','clipe','turnê','rock in rio','lollapalooza','spotify',
-        'sonoridade única','composição autoral','performance acústica','produção independente','estilo musical',
-        'influência sonora','trilha envolvente','remix criativo','colaboração artística','lançamento exclusivo',
-        'voz marcante','clipe visual','repertório variado','sucesso nas paradas','turnê internacional'
-    ],
-    Cinema: [
-        'filme','estreia','crítica','ator','diretor','oscar','streaming','netflix','bilheteria','série',
-        'narrativa envolvente','direção premiada','roteiro original','produção cinematográfica','atuação memorável',
-        'trilha sonora','adaptação literária','crítica especializada','cena impactante','estética visual',
-        'festival internacional','bilheteria recorde','bastidores revelados','estreia aguardada','elenco estelar'
-    ],
-    Moda: [
-        'tendência','desfile','estilo','roupa','acessório','marca','spfw','estilista','coleção',
-        'conceito estilístico','paleta de cores','corte moderno','textura sofisticada','tendência global',
-        'inspiração vintage','look do dia','coleção cápsula','design autoral','moda consciente',
-        'styling criativo','peça-chave','desfile conceitual','identidade visual','inovação têxtil'
-    ],
-    'Meio Ambiente': [
-        'sustentabilidade','natureza','ecologia','aquecimento global','desmatamento','reciclagem','mudanças climáticas','amazônia',
-        'impacto ecológico','preservação natural','biodiversidade ameaçada','ação sustentável','responsabilidade ambiental',
-        'educação ecológica','iniciativa verde','recuperação florestal','gestão climática','proteção da fauna',
-        'equilíbrio ambiental','recurso renovável','consciência planetária','adaptação climática','ativismo ambiental'
-    ]
-};
+    const categoryKeywordsMap = {
+        Política: [
+            'governo','eleições','partido','lei','congresso','presidente','ministro','stf','plenário','senado','câmara','decreto','lula','bolsonaro',
+            'reforma ministerial','articulação partidária','coalizão governamental','lobby político','pauta legislativa',
+            'comissão especial','plano de governo','discurso parlamentar','emenda constitucional','base aliada',
+            'oposição estratégica','governabilidade','promulgação de lei','agenda política','consulta pública'
+        ],
+        Economia: [
+            'finanças','mercado','ações','inflação','juros','empresa','investimento','pib','dólar','câmbio','haddad','selic','ibovespa',
+            'pacote fiscal','projeção econômica','índice de consumo','balança comercial','cenário macroeconômico',
+            'política monetária','crescimento sustentável','taxa de inadimplência','crédito privado','fluxo cambial',
+            'orçamento público','arrecadação tributária','risco país','planejamento financeiro','análise setorial'
+        ],
+        Esportes: [
+            'futebol','vôlei','basquete','campeonato','atleta','time','olimpíadas','brasileirão','sul-americana','libertadores','f1','atleta','neymar','ronaldo','fórmula 1','ufc','medalha',
+            'preparação física','comissão técnica','desempenho esportivo','rivalidade histórica','torcida organizada',
+            'calendário esportivo','convocação oficial','treino intensivo','fair play','ranking mundial',
+            'doping esportivo','estreia competitiva','título inédito','superação atlética','legado olímpico'
+        ],
+        Cultura: [
+            'arte','exposição','teatro','livro','museu','patrimônio','bienal','concerto','literatura','peça teatral',
+            'identidade cultural','expressão artística','movimento literário','tradição popular','influência estética',
+            'produção autoral','crítica especializada','linguagem simbólica','manifestação folclórica','diversidade criativa',
+            'curadoria temática','circuito cultural','memória coletiva','valorização regional','intercâmbio cultural'
+        ],
+        Saúde: [
+            'bem-estar','doença','tratamento','medicina','hospital','vacina','nutrição','anvisa','oms','surto','epidemia','dengue',
+            'protocolo médico','prevenção sanitária','diagnóstico precoce','campanha de vacinação','sistema de saúde',
+            'alerta epidemiológico','cobertura hospitalar','plano terapêutico','vigilância sanitária','atendimento emergencial',
+            'triagem clínica','saúde pública','impacto imunológico','bem-estar mental','acesso universal'
+        ],
+        Mundo: [
+            'internacional','notícia global','conflito','acordo','guerra','diplomacia','eleição eua','biden','trump','gaza','ucrânia','onu',
+            'tensão diplomática','sanção internacional','tratado bilateral','missão humanitária','crise migratória',
+            'intervenção militar','panorama geopolítico','coalizão global','liderança mundial','posicionamento estratégico',
+            'reunião multilateral','impacto global','ajuda externa','estabilidade regional','conflito armado'
+        ],
+        Horóscopo: [
+            'signo','signos','astrologia','previsão','zodíaco','mapa astral','horóscopo','áries','touro','gêmeos','câncer','leão','virgem','libra','escorpião','sagitário','capricórnio','aquário','peixes','ascendente','mercúrio retrógrado','tarô','numerologia',
+            'influência astral','trânsito planetário','energia cósmica','ciclo lunar','alinhamento celeste',
+            'leitura espiritual','jornada zodiacal','vibração energética','conexão esotérica','revelação intuitiva',
+            'mapa kármico','destino astral','orientação mística','fase planetária','despertar espiritual'
+        ],
+        Entretenimento: [
+            'famosos','celebridade','tv','série','fofoca','evento','reality show','bbb','a fazenda','novela','premiação',
+            'bastidores exclusivos','estreia bombástica','escândalo midiático','performance ao vivo','audiência recorde',
+            'produção audiovisual','cobertura especial','reação dos fãs','spoiler inesperado','cena viral',
+            'elenco confirmado','roteiro adaptado','evento memorável','crítica popular','participação surpresa',
+            'casal do momento','flagra dos paparazzi','look do dia','red carpet','treta de famosos',
+            'declaração polêmica','romance secreto','divórcio midiático','confirmação de namoro','amizade famosa',
+            'transformação estética','desabafo nas redes','vídeo viral','comentário polêmico','stories bombásticos',
+            'capa de revista','ensaio fotográfico','estrela teen','influenciador digital','celebridade internacional',
+            'perfil verificado','nova parceria artística','making of exclusivo','briga pública','reconciliação amorosa',
+            'cancelamento digital','entrevista reveladora','homenagem especial','presença vip','curiosidade dos bastidores'
+        ],
+        Ciência: [
+            'pesquisa','descoberta','espaço','biologia','física','nasa','estudo científico','foguete','astrônomo',
+            'inovação tecnológica','experimento controlado','avanço científico','hipótese testada','teoria comprovada',
+            'simulação computacional','descoberta genética','publicação acadêmica','impacto ambiental','estudo interdisciplinar',
+            'observação astronômica','método empírico','análise laboratorial','pesquisa aplicada','desenvolvimento sustentável'
+        ],
+        Educação: [
+            'escola','universidade','enem','vestibular','curso','professor','mec','prouni','fies','educação básica',
+            'metodologia ativa','avaliação pedagógica','formação docente','currículo escolar','inclusão educacional',
+            'ambiente de aprendizagem','ensino híbrido','plataforma educacional','alfabetização digital','política educacional',
+            'jornada acadêmica','capacitação profissional','gestão escolar','acesso ao conhecimento','inovação didática'
+        ],
+        Viagem: [
+            'turismo','destino','passagem','hotel','férias','ponto turístico','roteiro','viajar','milhas',
+            'experiência turística','roteiro personalizado','dica de hospedagem','aventura internacional','destino exótico',
+            'viagem cultural','pacote promocional','planejamento de férias','guia local','atração imperdível',
+            'transporte alternativo','turismo sustentável','descoberta regional','escapada urbana','conexão aérea'
+        ],
+        Gastronomia: [
+            'receita','restaurante','chef','comida','bebida','culinária','gourmet','harmonização','degustação',
+            'sabor autêntico','prato típico','técnica culinária','harmonização perfeita','ingrediente secreto',
+            'experiência gourmet','cardápio exclusivo','tendência alimentar','cozinha autoral','preparo artesanal',
+            'toque regional','apresentação criativa','textura surpreendente','aroma marcante','receita inovadora'
+        ],
+        Carros: [
+            'automóvel','veículo','montadora','lançamento','teste','mercado automotivo','carro elétrico','ipva',
+            'desempenho automotivo','tecnologia embarcada','design arrojado','consumo eficiente','segurança veicular',
+            'conectividade inteligente','avaliação técnica','manutenção preventiva','inovação elétrica','mobilidade urbana',
+            'modelo híbrido','conforto interno','autonomia energética','direção assistida','lançamento premium'
+        ],
+        Imóveis: [
+            'casa','apartamento','aluguel','compra','venda','construção','mercado imobiliário','financiamento','condomínio',
+            'valorização imobiliária','planta arquitetônica','projeto residencial','localização estratégica','infraestrutura urbana',
+            'padrão construtivo','condomínio fechado','mercado de luxo','imóvel decorado','financiamento acessível',
+            'reforma planejada','investimento patrimonial','tendência habitacional','espaço funcional','moradia sustentável'
+        ],
+        Música: [
+            'show','festival','artista','banda','lançamento','clipe','turnê','rock in rio','lollapalooza','spotify',
+            'sonoridade única','composição autoral','performance acústica','produção independente','estilo musical',
+            'influência sonora','trilha envolvente','remix criativo','colaboração artística','lançamento exclusivo',
+            'voz marcante','clipe visual','repertório variado','sucesso nas paradas','turnê internacional'
+        ],
+        Cinema: [
+            'filme','estreia','crítica','ator','diretor','oscar','streaming','netflix','bilheteria','série',
+            'narrativa envolvente','direção premiada','roteiro original','produção cinematográfica','atuação memorável',
+            'trilha sonora','adaptação literária','crítica especializada','cena impactante','estética visual',
+            'festival internacional','bilheteria recorde','bastidores revelados','estreia aguardada','elenco estelar'
+        ],
+        Moda: [
+            'tendência','desfile','estilo','roupa','acessório','marca','spfw','estilista','coleção',
+            'conceito estilístico','paleta de cores','corte moderno','textura sofisticada','tendência global',
+            'inspiração vintage','look do dia','coleção cápsula','design autoral','moda consciente',
+            'styling criativo','peça-chave','desfile conceitual','identidade visual','inovação têxtil'
+        ],
+        'Meio Ambiente': [
+            'sustentabilidade','natureza','ecologia','aquecimento global','desmatamento','reciclagem','mudanças climáticas','amazônia',
+            'impacto ecológico','preservação natural','biodiversidade ameaçada','ação sustentável','responsabilidade ambiental',
+            'educação ecológica','iniciativa verde','recuperação florestal','gestão climática','proteção da fauna',
+            'equilíbrio ambiental','recurso renovável','consciência planetária','adaptação climática','ativismo ambiental'
+        ]
+    };
     
     const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500' };
     
@@ -410,18 +414,6 @@ const categoryKeywordsMap = {
         const getSourceName = (sourceString) => { if (!sourceString) return 'Fonte Desconhecida'; const tempDiv = document.createElement('div'); tempDiv.innerHTML = sourceString; const text = tempDiv.textContent || tempDiv.innerText || ""; const parts = text.split(' - '); return parts[parts.length - 1].trim(); };
         let sourceDomain = 'news.google.com';
         try { if (item.sourceUrl && typeof item.sourceUrl === 'string') { sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); } } catch (e) { console.error("Could not parse source URL:", item.sourceUrl, e); }
-        
-        // Lógica de classificação desativada para forçar "Geral" em tudo.
-        /* --- Início do Bloco Desativado ---
-        const textToAnalyze = `${item.title.toLowerCase()} ${(item.description || '').toLowerCase()}`;
-        const categoryScores = {};
-        mainCategories.forEach(cat => { if (cat !== 'Todas') categoryScores[cat] = 0; });
-        for (const [category, keywords] of Object.entries(categoryKeywordsMap)) { for (const keyword of keywords) { if (textToAnalyze.includes(keyword)) { categoryScores[category]++; } } }
-        let bestCategory = 'Geral'; 
-        let maxScore = 0;
-        for (const [category, score] of Object.entries(categoryScores)) { if (score > maxScore) { maxScore = score; bestCategory = category; } }
-        if (maxScore === 0) { const fetchCategoryMap = { 'Negócios': 'Economia', 'Ciência e Tecnologia': 'Ciência' }; const fallbackCategory = fetchCategoryMap[categoryTag] || categoryTag; if (mainCategories.includes(fallbackCategory)) { bestCategory = fallbackCategory; } }
-        --- Fim do Bloco Desativado --- */
         
         // LÓGICA SIMPLIFICADA: Classifica tudo como "Geral"
         const bestCategory = 'Geral';
@@ -653,6 +645,55 @@ const categoryKeywordsMap = {
         newsElement.querySelector('.save-btn').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleSaveNews(news, e.currentTarget); });
         return newsElement;
     }
+    
+    /**
+     * NOVO: Função para manipular a mudança de filtro de data
+     */
+    function handleDateFilterChange(filterKey, buttonElement) {
+        currentDateFilter = filterKey;
+        
+        // Atualiza a classe ativa (remove de todos e adiciona ao clicado)
+        dateFilterContainer.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('date-filter-active');
+            btn.setAttribute('aria-pressed', 'false');
+            btn.classList.add('text-slate-300', 'hover:bg-slate-700');
+        });
+        buttonElement.classList.add('date-filter-active');
+        buttonElement.classList.remove('text-slate-300', 'hover:bg-slate-700');
+        buttonElement.setAttribute('aria-pressed', 'true');
+        
+        renderRadarResults();
+    }
+    
+    /**
+     * MODIFICADO: Lógica de filtragem de data atualizada para 'hoje' e 'ultima_semana'
+     */
+    const applyDateFilter = (items, filterKey) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Começo de hoje
+
+        if (filterKey === 'hoje') {
+            return items.filter(item => new Date(item.timestamp) >= today);
+        }
+
+        if (filterKey === 'ultima_semana') {
+            // Começo de Ontem (24h atrás)
+            const yesterdayStart = new Date(today);
+            yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+            
+            // Início do período (7 dias atrás, excluindo hoje)
+            const weekAgoStart = new Date(yesterdayStart);
+            weekAgoStart.setDate(weekAgoStart.getDate() - 5); // 1 (Ontem) + 5 dias = 6 dias atrás no total
+
+            return items.filter(item => {
+                const itemDate = new Date(item.timestamp);
+                return itemDate >= weekAgoStart && itemDate < today;
+            });
+        }
+        
+        return items; // Retorna todos se o filtro for desconhecido (fallback)
+    };
+
     function renderRadarResults(append = false) {
         if (!append) { 
             resultsContainer.innerHTML = ''; 
@@ -662,12 +703,10 @@ const categoryKeywordsMap = {
             messageState.classList.remove('hidden'); messageTitle.textContent = 'Comece a seguir tópicos!'; messageText.textContent = 'Clique nas editorias para personalizar o seu feed.';
             contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return;
         }
-        const applyDateFilter = (items, filter) => {
-            const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
-            if (filter === 'hoje') return items.filter(item => new Date(item.timestamp) >= todayStart);
-            return items;
-        };
+        
+        // Aplica o filtro de data atualizado
         let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
+
         if (currentRadarView === 'paraSi') {
             filteredNews = filteredNews.filter(news => { const titleLower = news.title.toLowerCase(); const categoryLower = news.category ? news.category.toLowerCase() : ''; return followedTopics.some(topic => { const topicLower = topic.toLowerCase(); return titleLower.includes(topicLower) || categoryLower.includes(topicLower); }); });
         }
@@ -683,7 +722,9 @@ const categoryKeywordsMap = {
         messageState.classList.add('hidden');
         paginatedItems.forEach(item => { resultsContainer.appendChild(createGoogleNewsCard(item)); });
         contentCounter.textContent = `Exibindo ${resultsContainer.children.length} de ${totalItems} notícias.`;
+        isLoadingMore = false; 
     }
+    
     function renderSavedNews() {
         savedNewsContainer.innerHTML = ''; savedNewsCountSidebar.textContent = savedNews.length; savedNewsCountBadge.textContent = savedNews.length; savedNewsPreviewContainer.innerHTML = '';
         if (savedNews.length === 0) { const emptyMsg = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`; savedNewsContainer.innerHTML = emptyMsg; savedNewsPreviewContainer.innerHTML = emptyMsg; return; }
@@ -872,7 +913,7 @@ const categoryKeywordsMap = {
             
             latestAnalysisResult = {
                 covered: analysis.gapsCovered,
-                not_covered: analysis.gapsNotCovered
+                not_covered: analysis.not_covered
             };
             
             renderGapAnalysis(1);
@@ -886,7 +927,7 @@ const categoryKeywordsMap = {
     
     async function loadInitialContent(isAutoRefresh = false) {
         if (!isAutoRefresh) {
-              setLoading(true, true);
+             setLoading(true, true);
         }
         masterNewsCache = await fetchFromGoogleNewsAPI();
         if (!isAutoRefresh) {
@@ -928,7 +969,7 @@ const categoryKeywordsMap = {
         const hideBanner = () => banner.classList.add('hidden');
 
         setTimeout(() => {
-              banner.classList.remove('hidden');
+             banner.classList.remove('hidden');
         }, 500);
 
         const timer = setTimeout(hideBanner, 15000);
@@ -947,6 +988,7 @@ const categoryKeywordsMap = {
         
         renderSavedNews();
         renderCategories();
+        
         loadInitialContent();
         
         manageInfoBanner();
@@ -977,11 +1019,14 @@ const categoryKeywordsMap = {
         
         searchInput.addEventListener('input', debouncedSearch);
         
+        // EVENT LISTENER: Filtro 'Hoje'
         dateFilterToday.addEventListener('click', () => { 
-            currentDateFilter = 'hoje'; 
-            dateFilterToday.classList.add('date-filter-active');
-            dateFilterToday.setAttribute('aria-pressed', 'true');
-            renderRadarResults(); 
+            handleDateFilterChange('hoje', dateFilterToday);
+        });
+        
+        // NOVO EVENT LISTENER: Filtro 'Última Semana'
+        dateFilterLastWeek.addEventListener('click', () => { 
+            handleDateFilterChange('ultima_semana', dateFilterLastWeek);
         });
 
         refreshButton.addEventListener('click', () => { searchInput.value = ''; loadInitialContent(); });
@@ -1029,17 +1074,11 @@ const categoryKeywordsMap = {
                 }, 300);
             }
             if (currentAppView === 'radar' && clientHeight + scrollTop >= scrollHeight - 500 && !isLoadingMore) {
-                const totalItems = masterNewsCache.filter(item => {
-                    const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
-                    if (currentDateFilter === 'hoje') return new Date(item.timestamp) >= todayStart;
-                    return true;
-                }).length;
-
+                const totalItems = applyDateFilter(masterNewsCache, currentDateFilter).length; 
                 if (resultsContainer.children.length < totalItems) {
                     isLoadingMore = true;
                     currentPage++;
                     renderRadarResults(true);
-                    isLoadingMore = false;
                 }
             }
         });
