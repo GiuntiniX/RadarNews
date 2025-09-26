@@ -51,6 +51,13 @@
             transform: translateY(10px);
             pointer-events: none;
         }
+        /* Transições */
+        #toast {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        #backToTopBtn {
+            transition: opacity 0.3s, transform 0.3s;
+        }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -209,7 +216,7 @@
     
     <script>
     // =================================================================================
-    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS
+    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS (COM SCROLL INFINITO E FILTRO DE MÍDIA REFORÇADO)
     // =================================================================================
 
     // --- DOM ELEMENTS (Inicialização de Variáveis) ---
@@ -260,14 +267,13 @@
     let savedNews = [];
     let followedTopics = [];
     let currentPage = 1;
-    const itemsPerPage = 20;
+    const itemsPerPage = 20; // Itens carregados por página/scroll
     let isLoadingMore = false;
     let currentCategorySearch = null;
 
     // --- CONSTANTS & CONFIGS ---
     const mainCategories = ['Todas', 'Política', 'Economia', 'Esportes', 'Cultura', 'Saúde', 'Mundo', 'Horóscopo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Imóveis', 'Música', 'Cinema', 'Moda', 'Meio Ambiente'];
     
-    // Mapeamento de cor e formato para o Dropdown e Cards
     const MEDIA_FORMATS = {
         'todos': { label: 'Todos', emoji: '' },
         'texto': { label: 'Notícias', emoji: '📝' },
@@ -288,39 +294,32 @@
     
     /**
      * Tenta determinar o tipo de mídia (texto, vídeo, podcast) baseado no título e URL.
-     * @param {string} title 
-     * @param {string} url 
-     * @returns {('texto'|'video'|'podcast')}
      */
     function determineMediaType(title, url) {
         const titleLower = title.toLowerCase();
         const urlLower = url.toLowerCase();
 
         // 1. Palavras-chave no título (indicadores fortes)
-        if (titleLower.includes('vídeo') || titleLower.includes('assista') || titleLower.includes('galeria') || titleLower.includes('imagens') || titleLower.includes('live')) {
+        if (titleLower.includes('vídeo') || titleLower.includes('assista') || titleLower.includes('galeria') || titleLower.includes('imagens') || titleLower.includes('live') || titleLower.includes('ao vivo') || titleLower.includes('tv')) {
             return 'video';
         }
-        if (titleLower.includes('podcast') || titleLower.includes('áudio') || titleLower.includes('ouça')) {
+        if (titleLower.includes('podcast') || titleLower.includes('áudio') || titleLower.includes('ouça') || titleLower.includes('spotify') || titleLower.includes('cast')) {
             return 'podcast';
         }
         
-        // 2. Domínios e padrões de URL
-        if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/')) {
+        // 2. Domínios e padrões de URL (reforço para vídeos e áudio)
+        if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/') || urlLower.includes('recordtv.r7.com') || urlLower.includes('band.com.br/videos')) {
             return 'video';
         }
-        if (urlLower.includes('spotify.com') || urlLower.includes('soundcloud.com') || urlLower.includes('podcasts')) {
+        if (urlLower.includes('soundcloud.com') || urlLower.includes('/podcasts/') || urlLower.includes('g1.globo.com/podcast') || urlLower.includes('anchor.fm')) {
             return 'podcast';
         }
 
-        // 3. Padrão: Notícia de texto
         return 'texto';
     }
 
     // --- FUNÇÕES DE FETCH E MAPEAMENTO DE DADOS ---
 
-    /**
-     * Mapeia um item RSS do Google News para o formato de dado interno do Radar.
-     */
     function mapGoogleNewsData(item, categoryTag = null) {
         const getSourceName = (sourceString) => { 
             if (!sourceString) return 'Fonte Desconhecida'; 
@@ -340,7 +339,6 @@
         }
         
         const bestCategory = categoryTag && categoryTag !== 'Todas' ? categoryTag : 'Geral'; 
-        
         const mediaType = determineMediaType(item.title, item.link); 
         
         return { 
@@ -357,8 +355,7 @@
     }
 
     /**
-     * Busca notícias do Google News via RSS e retorna dados mapeados.
-     * Implementa um proxy CORS (corsproxy.io) para evitar restrições de mesma origem.
+     * Busca notícias do Google News via RSS com reforço para conteúdos de vídeo.
      */
     async function fetchFromGoogleNewsAPI(query = null) {
         const fetchAndParse = async (searchUrl, categoryTag) => {
@@ -394,24 +391,21 @@
         let combinedNews = [];
 
         if (query) {
-            // Se houver uma busca específica
             const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
             combinedNews = await fetchAndParse(searchUrl, query);
         } else { 
-            // Busca padrão por categorias principais
             const categories = ['Brasil', 'Mundo', 'Política', 'Economia', 'Esportes', 'Ciência', 'Cultura', 'Entretenimento', 'Saúde', 'Tecnologia']; 
             
-            // Busca de notícias por categoria padrão
             const categoryPromises = categories.map(cat => {
                 const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
                 return fetchAndParse(searchUrl, cat);
             });
             
-            // Busca Otimizada para Vídeos/Podcasts (Exemplo de reforço de busca)
+            // BUSCA REFORÇADA PARA VÍDEOS E PODCASTS DE TODOS OS PORTAIS
             const mediaQueries = [
-                'podcast OR audio',
-                'youtube OR video OR live',
-                'spotify OR soundcloud'
+                'site:youtube.com "ao vivo" OR site:youtube.com "live"',
+                'vídeo de notícia Brasil OR site:g1.globo.com/videos OR site:r7.com/videos OR site:band.com.br/videos OR site:uol.com.br/videos',
+                'podcast OR audio OR "programa de rádio"'
             ];
 
             const mediaPromises = mediaQueries.map(mq => {
@@ -424,7 +418,6 @@
             combinedNews = allResults.flat();
         }
 
-        // Filtra duplicatas e ordena por data
         const uniqueNews = new Map();
         combinedNews.forEach(news => { 
             if (!uniqueNews.has(news.url)) { 
@@ -451,9 +444,6 @@
         if(activeBtn) activeBtn.classList.add('media-dropdown-active');
     }
 
-    /**
-     * Aplica o filtro de tipo de mídia (texto, video, podcast).
-     */
     const applyMediaFilter = (items, filterKey) => {
         if (filterKey === 'todos') {
             return items;
@@ -462,7 +452,7 @@
     };
 
     /**
-     * Renderiza os cards de notícia na tela, aplicando todos os filtros (data, mídia, visão).
+     * Renderiza os cards de notícia na tela, aplicando todos os filtros e a paginação/scroll infinito.
      */
     function renderRadarResults(append = false) {
         if (!append) { 
@@ -473,7 +463,6 @@
         let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
         filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); 
 
-        // Filtro "Para Si"
         if (currentRadarView === 'paraSi') {
             if (followedTopics.length === 0) {
                  messageState.classList.remove('hidden'); messageTitle.textContent = 'Comece a seguir tópicos!'; messageText.textContent = 'Clique nas editorias para personalizar o seu feed.';
@@ -509,7 +498,7 @@
     }
     
     /**
-     * Cria o elemento HTML (card) de uma notícia.
+     * Cria o elemento HTML (card) de uma notícia. (mantido como está)
      */
     function createGoogleNewsCard(news) {
         const newsElement = document.createElement('div');
@@ -542,7 +531,6 @@
         const searchTerm = searchInput.value.trim();
         let finalTitle = news.title;
         
-        // Aplica destaque ao termo de busca no título
         if (searchTerm) { 
             const regex = new RegExp(`(${searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'); 
             finalTitle = finalTitle.replace(regex, `<span class="highlight">$1</span>`); 
@@ -550,7 +538,7 @@
         
         const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${primaryCategory}</span>`;
         const mediaInfo = getMediaIconAndColor(news.mediaType);
-        const mediaTag = `<span class="text-lg text-slate-300 ml-1" title="${mediaInfo.label}">${mediaInfo.emoji}</span>`; // Apenas o emoji/ícone
+        const mediaTag = `<span class="text-lg text-slate-300 ml-1" title="${mediaInfo.label}">${mediaInfo.emoji}</span>`; 
         
         newsElement.className = `bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-[1.01] transition-transform duration-300`; 
         
@@ -582,7 +570,7 @@
         return newsElement;
     }
     
-    // --- FUNÇÕES DE LÓGICA DE INTERFACE ---
+    // --- FUNÇÕES DE LÓGICA DE INTERFACE (mantido como está) ---
     
     function handleDateFilterChange(filterKey, buttonElement) {
         currentDateFilter = filterKey;
@@ -673,8 +661,20 @@
             
             categoryButton.onclick = () => {
                 if (currentRadarView === 'paraSi') {
-                    toggleFollowTopic(category);
+                    // Lógica de seguir/deixar de seguir
+                    const topicIndex = followedTopics.indexOf(category);
+                    if (topicIndex > -1) {
+                        followedTopics.splice(topicIndex, 1);
+                        showToast(`Deixou de seguir "${category}"`);
+                    } else {
+                        followedTopics.push(category);
+                        showToast(`Agora segue "${category}"`);
+                    }
+                    localStorage.setItem('followedTopics', JSON.stringify(followedTopics));
+                    renderCategories();
+                    if (currentRadarView === 'paraSi') { renderRadarResults(); }
                 } else if (currentRadarView === 'geral') {
+                    // Lógica de filtro por categoria
                     handleSearch(searchInput.value, category === 'Todas' ? null : category);
                     document.querySelectorAll('#categoriesContainer button').forEach(btn => btn.classList.remove('category-active'));
                     categoryButton.classList.add('category-active');
@@ -765,65 +765,6 @@
         localStorage.setItem('savedNews', JSON.stringify(savedNews));
         renderSavedNews();
     }
-    function handleRemoveNews(newsUrl) {
-        savedNews = savedNews.filter(item => item.url !== newsUrl);
-        localStorage.setItem('savedNews', JSON.stringify(savedNews));
-        renderSavedNews();
-        if(currentAppView === 'radar') renderRadarResults();
-        showToast('Notícia removida da lista!');
-    }
-    
-    function toggleFollowTopic(topic) {
-        const topicIndex = followedTopics.indexOf(topic);
-        if (topicIndex > -1) {
-            followedTopics.splice(topicIndex, 1);
-            showToast(`Deixou de seguir "${topic}"`);
-        } else {
-            followedTopics.push(topic);
-            showToast(`Agora segue "${topic}"`);
-        }
-        localStorage.setItem('followedTopics', JSON.stringify(followedTopics));
-        renderCategories();
-        if (currentRadarView === 'paraSi') { renderRadarResults(); }
-    }
-    
-    function setView(view) {
-        currentAppView = view;
-        const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate];
-        buttons.forEach(btn => {
-            btn.classList.remove('view-filter-active', 'text-white');
-            btn.classList.add('text-slate-300', 'hover:bg-slate-700');
-            btn.setAttribute('aria-pressed', 'false');
-        });
-
-        if (view === 'radar') {
-            radarContainer.classList.remove('hidden');
-            aggregateContainer.classList.add('hidden');
-            searchBarWrapper.classList.remove('hidden');
-            dateFilterContainer.classList.remove('hidden');
-            mediaFilterDropdown.classList.remove('hidden'); 
-            
-            if (currentRadarView === 'geral') {
-                viewFilterRadar.classList.add('view-filter-active');
-                viewFilterRadar.classList.remove('text-slate-300', 'hover:bg-slate-700');
-                viewFilterRadar.setAttribute('aria-pressed', 'true');
-            } else {
-                viewFilterForYou.classList.add('view-filter-active');
-                viewFilterForYou.classList.remove('text-slate-300', 'hover:bg-slate-700');
-                viewFilterForYou.setAttribute('aria-pressed', 'true');
-            }
-            renderCategories(); 
-        } else if (view === 'aggregate') {
-            radarContainer.classList.add('hidden');
-            aggregateContainer.classList.remove('hidden');
-            viewFilterAggregate.classList.add('view-filter-active');
-            viewFilterAggregate.classList.remove('text-slate-300', 'hover:bg-slate-700');
-            viewFilterAggregate.setAttribute('aria-pressed', 'true');
-            searchBarWrapper.classList.add('hidden');
-            dateFilterContainer.classList.add('hidden');
-            mediaFilterDropdown.classList.add('hidden'); 
-        }
-    }
     
     function updateClearSearchButton() {
         if (searchInput.value.trim().length > 0) {
@@ -833,6 +774,7 @@
         }
     }
     
+    // --- SCROLL INFINITO REATIVADO ---
     function handleScroll() {
         // Lógica de Paginação (Carregar Mais)
         if (currentAppView === 'radar' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) {
@@ -902,12 +844,11 @@
             }
         });
 
-        // Eventos de Filtro de Visão (Radar, Para Si, Agregado)
+        // Eventos de Visão e Busca
         viewFilterRadar.addEventListener('click', () => { currentRadarView = 'geral'; setView('radar'); handleSearch(searchInput.value, null); });
         viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); renderRadarResults(); });
-        viewFilterAggregate.addEventListener('click', () => { setView('aggregate'); }); // Funcionalidade demo
+        viewFilterAggregate.addEventListener('click', () => { setView('aggregate'); }); 
 
-        // Eventos de Busca
         searchButton.addEventListener('click', () => handleSearch(searchInput.value, null));
         
         // Debounce para a busca em tempo real
@@ -933,8 +874,10 @@
         readingListBtn.addEventListener('click', () => readingListModal.classList.remove('hidden'));
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
         backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        clearFollowedBtn.addEventListener('click', () => { followedTopics = []; localStorage.removeItem('followedTopics'); renderCategories(); renderRadarResults(); showToast('Tópicos seguidos limpos.'); });
-        copyListBtn.addEventListener('click', () => {
+        
+        // Outros Listeners
+        document.getElementById('clearFollowedBtn').addEventListener('click', () => { followedTopics = []; localStorage.removeItem('followedTopics'); renderCategories(); renderRadarResults(); showToast('Tópicos seguidos limpos.'); });
+        document.getElementById('copyListBtn').addEventListener('click', () => {
             const listText = savedNews.map((n, i) => `${i + 1}. [${n.title}](${n.url}) - ${n.sourceName}`).join('\n');
             navigator.clipboard.writeText(listText).then(() => showToast('Lista copiada para a área de transferência!'));
         });
