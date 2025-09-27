@@ -379,8 +379,9 @@
     // --- LÓGICA DE CLASSIFICAÇÃO DE MÍDIA ---
     
     function determineMediaType(title, url) {
-        const titleLower = title.toLowerCase();
         const urlLower = url.toLowerCase();
+        
+        const titleLower = title.toLowerCase();
         if (titleLower.includes('vídeo') || titleLower.includes('assista') || titleLower.includes('galeria') || titleLower.includes('imagens') || titleLower.includes('live') || titleLower.includes('ao vivo') || titleLower.includes('tv')) return 'video';
         if (titleLower.includes('podcast') || titleLower.includes('áudio') || titleLower.includes('ouça') || titleLower.includes('spotify') || titleLower.includes('cast')) return 'podcast';
         if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/') || urlLower.includes('recordtv.r7.com') || urlLower.includes('band.com.br/videos') || urlLower.includes('uol.com.br/videos')) return 'video';
@@ -406,6 +407,8 @@
             } 
         } catch (e) {}
         
+        let finalSourceName = getSourceName(item.title);
+
         const bestCategory = categoryTag && categoryTag !== 'Todas' ? categoryTag : 'Geral'; 
         const mediaType = determineMediaType(item.title, item.link); 
         
@@ -415,7 +418,7 @@
             timestamp: new Date(item.pubDate).getTime(), 
             url: item.link, 
             description: item.content, 
-            sourceName: getSourceName(item.title), 
+            sourceName: finalSourceName, 
             sourceDomain: sourceDomain, 
             category: bestCategory, 
             mediaType: mediaType 
@@ -554,12 +557,14 @@
             currentPage = 1;
         }
         
-        let filteredNews = masterNewsCache;
+        let filteredNews;
 
         if (currentAppView === 'perspectives') {
             filteredNews = masterNewsCache.filter(news => news.category === 'Perspectiva');
+            filteredNews = applyDateFilter(filteredNews, currentDateFilter);
         } else if (currentAppView === 'radar') {
-             filteredNews = applyDateFilter(filteredNews, currentDateFilter);
+            let baseRadarNews = masterNewsCache.filter(news => news.category !== 'Perspectiva');
+            filteredNews = applyDateFilter(baseRadarNews, currentDateFilter);
         }
         
         filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); 
@@ -908,14 +913,15 @@
     function handleScroll() {
         if ((currentAppView === 'radar' || currentAppView === 'perspectives') && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) {
             
-            let currentList;
+            let listForCounting;
             if (currentAppView === 'perspectives') {
-                currentList = masterNewsCache.filter(news => news.category === 'Perspectiva');
+                listForCounting = masterNewsCache.filter(news => news.category === 'Perspectiva');
+                listForCounting = applyDateFilter(listForCounting, currentDateFilter);
             } else { // radar
                 let radarList = masterNewsCache.filter(n => n.category !== 'Perspectiva');
-                currentList = applyDateFilter(radarList, currentDateFilter);
+                listForCounting = applyDateFilter(radarList, currentDateFilter);
             }
-            const totalItems = applyMediaFilter(currentList, currentMediaFilter).length;
+            const totalItems = applyMediaFilter(listForCounting, currentMediaFilter).length;
             
             if (resultsContainer.children.length < totalItems) {
                 isLoadingMore = true;
@@ -977,7 +983,7 @@
             viewFilterPerspectives.classList.add('view-filter-active');
             viewFilterPerspectives.setAttribute('aria-pressed', 'true');
             categoriesSection.classList.add('hidden');
-            dateFilterContainer.style.display = 'none';
+            handleDateFilterChange('hoje', dateFilterToday);
         }
         
         renderCategories(); 
