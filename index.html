@@ -501,13 +501,20 @@
                 return fetchAndParse(searchUrl, 'Entretenimento');
             });
 
+            // ▼▼▼ LISTA DE FONTES DE PERSPECTIVAS EXPANDIDA ▼▼▼
             const perspectiveSourcesQueries = [
                 'site:apublica.org',
+                'site:theintercept.com/brasil',
+                'site:nexojornal.com.br',
                 'site:agenciatruco.com.br',
                 'site:outraspalavras.net',
                 'site:ponte.org',
                 'site:piaui.folha.uol.com.br',
-                'site:congressoemfoco.uol.com.br'
+                'site:congressoemfoco.uol.com.br',
+                'site:reporterbrasil.org.br',
+                'site:agencialupa.com',
+                'site:amazoniareal.com.br',
+                'site:jota.info'
             ];
 
             const perspectivePromises = perspectiveSourcesQueries.map(psq => {
@@ -919,9 +926,9 @@
             let currentList;
             if (currentAppView === 'perspectives') {
                 currentList = masterNewsCache.filter(news => news.category === 'Perspectiva');
-            } else { // radar
-                currentList = applyDateFilter(masterNewsCache, currentDateFilter);
-                // aqui poderia ter a lógica de filtro do 'paraSi', mas para simplificar, vamos assumir que o scroll recarrega a lista geral
+            } else { 
+                let radarList = masterNewsCache.filter(n => n.category !== 'Perspectiva');
+                currentList = applyDateFilter(radarList, currentDateFilter);
             }
             const totalItems = applyMediaFilter(currentList, currentMediaFilter).length;
             
@@ -952,7 +959,6 @@
         const secondaryFilters = document.getElementById('secondaryFilters');
         const categoriesSection = document.querySelector('#radarContainer .mb-8');
         
-        // Reset defaults
         categoriesSection.classList.remove('hidden');
         searchBarWrapper.style.display = 'flex';
         secondaryFilters.style.display = 'flex';
