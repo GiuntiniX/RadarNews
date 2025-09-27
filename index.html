@@ -267,16 +267,23 @@
         
         <div id="aggregateContainer" class="hidden">
             <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Cobertura da Mídia</h2>
-            <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Visualize os 50 principais assuntos e a cobertura dos portais. Use o filtro para analisar a presença de cada fonte.</p>
+            <p class="text-center text-slate-400 mb-6 max-w-3xl mx-auto">Visualize os principais assuntos e a cobertura dos portais. Use os filtros para analisar a presença de cada fonte.</p>
             
-            <div class="mb-6">
-                <p class="text-sm font-semibold text-slate-400 mb-3 text-center">Filtrar por Fonte:</p>
-                <div id="gap-source-filter-container" class="flex flex-wrap justify-center gap-2">
-                    </div>
+            <div class="flex flex-col items-center gap-6 mb-8">
+                <div id="gap-date-filter-container" class="flex items-center gap-2 bg-slate-700/50 p-1 rounded-lg">
+                    <button class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" data-date-key="hoje" aria-pressed="true">Hoje</button>
+                    <button class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" data-date-key="ultima_semana" aria-pressed="false">Última Semana</button>
+                </div>
+                <div class="w-full">
+                  <p class="text-sm font-semibold text-slate-400 mb-3 text-center">Filtrar por Fonte:</p>
+                  <div id="gap-source-filter-container" class="flex flex-wrap justify-center gap-2">
+                      </div>
+                </div>
             </div>
 
             <div id="gap-grid-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 </div>
+            <p id="gap-no-results" class="text-center text-slate-500 mt-8 hidden">Nenhum resultado encontrado para os filtros selecionados.</p>
         </div>
         </div>
     
@@ -976,6 +983,8 @@
             searchBarWrapper.style.display = 'none';
             secondaryFilters.style.display = 'none';
             categoriesSection.classList.add('hidden');
+            // Chama a renderização inicial da view agregada
+            document.querySelector('#gap-date-filter-container [data-date-key="hoje"]').click();
 
         } else if (view === 'perspectives') {
             radarContainer.classList.remove('hidden');
@@ -990,77 +999,142 @@
         renderRadarResults();
     }
 
-    // #################### SCRIPT PARA CONTEÚDO AGREGADO E FILTRO ####################
+    // #################### SCRIPT PARA CONTEÚDO AGREGADO E FILTRO (ATUALIZADO) ####################
     function setupAggregateView() {
         const portalColors = {
             "G1": "bg-red-800", "UOL": "bg-orange-600", "Folha": "bg-blue-800", "Estadão": "bg-sky-800",
             "CNN": "bg-red-600", "R7": "bg-blue-600", "Terra": "bg-orange-800", "GE": "bg-green-700",
             "Valor": "bg-emerald-800", "Metrópoles": "bg-yellow-700", "Poder360": "bg-indigo-800", "TecMundo": "bg-purple-800"
         };
+        // DADOS ATUALIZADOS COM CAMPO "date"
         const gapData = [
-             { time: "23:05", title: "Fim de jogo no Maracanã: Flamengo vence o Bahia por 2 a 1", portals: ["GE", "UOL", "Terra"] }, { time: "22:40", title: "Governo adia mais uma vez anúncio sobre taxação de importados", portals: ["G1", "Poder360", "Folha"] }, { time: "22:15", title: "Bolsa de NY fecha em leve alta após dados de emprego nos EUA", portals: ["Valor", "CNN", "G1"] }, { time: "21:50", title: "Série de sucesso da HBO é renovada para 3ª temporada", portals: ["UOL", "Metrópoles", "R7"] }, { time: "21:20", title: "STF forma maioria para manter demarcação de terras indígenas", portals: ["G1", "Folha", "Estadão", "Poder360"] }, { time: "20:45", title: "Anvisa aprova novo medicamento para tratamento de Alzheimer no Brasil", portals: ["G1", "UOL", "R7", "Terra"] }, { time: "20:10", title: "Exclusivo: Delator detalha esquema de corrupção em ministério", portals: ["Metrópoles"] }, { time: "19:30", title: "Crise na Argentina: Dólar blue atinge novo recorde histórico", portals: ["Valor", "G1", "Folha", "CNN"] }, { time: "19:05", title: "Relatório aponta aumento de 15% no desmatamento na Amazônia", portals: ["G1", "Estadão", "Terra"] }, { time: "18:40", title: "Vazam especificações do novo Samsung Galaxy S26", portals: ["TecMundo", "UOL"] }, { time: "18:15", title: "Petrobras anuncia redução no preço da gasolina", portals: ["G1", "UOL", "Valor", "Folha", "CNN", "R7", "Estadão", "Terra"] }, { time: "17:50", title: "Técnico da Seleção convoca time para amistosos de outubro", portals: ["GE", "UOL", "Terra", "G1"] }, { time: "17:20", title: "PF mira desvio de verbas em obras no Nordeste", portals: ["G1", "Poder360", "Folha"] }, { time: "16:55", title: "INSS: Sai 2ª parcela do 13º salário para aposentados", portals: ["G1", "UOL", "R7", "Folha"] }, { time: "16:30", title: "Análise: Como a IA pode impactar as eleições de 2026", portals: ["Poder360", "Estadão"] }, { time: "16:00", title: "Rock in Rio confirma nova atração internacional", portals: ["G1", "UOL", "Metrópoles", "R7"] }, { time: "15:40", title: "Câmara inicia discussão sobre regulamentação de apostas esportivas", portals: ["G1", "Poder360", "GE", "Folha"] }, { time: "15:15", title: "Inflação oficial (IPCA) desacelera para 0,25% em agosto", portals: ["G1", "Valor", "UOL", "Folha", "Estadão"] }, { time: "14:50", title: "Presidente da França faz duro discurso sobre clima na ONU", portals: ["G1", "Folha", "CNN", "UOL"] }, { time: "14:20", title: "Polícia de SP prende suspeito de liderar quadrilha de roubo de cargas", portals: ["G1", "R7", "Metrópoles", "Terra"] }, { time: "14:00", title: "Mercado Livre anuncia novo centro de distribuição em MG", portals: ["Valor", "G1", "Folha"] }, { time: "13:45", title: "WhatsApp libera função de editar mensagens para todos", portals: ["TecMundo", "UOL", "G1", "R7", "Terra"] }, { time: "13:20", title: "Ministro da Fazenda se reúne com presidentes de bancos", portals: ["G1", "Valor", "Poder360", "Folha"] }, { time: "13:00", title: "Técnico do Palmeiras, Abel Ferreira, recebe proposta da Arábia Saudita", portals: ["GE", "UOL", "Terra"] }, { time: "12:40", title: "Morre aos 88 anos o ator brasileiro Antônio Fagundes", portals: ["G1", "UOL", "Folha", "Estadão", "R7", "Metrópoles", "Terra"] }, { time: "12:15", title: "Previsão: Frente fria derruba temperaturas no Sudeste", portals: ["G1", "UOL", "Terra", "CNN"] }, { time: "11:50", title: "Tesla anuncia recall de 500 mil veículos por falha nos freios", portals: ["Valor", "G1", "TecMundo", "UOL"] }, { time: "11:30", title: "Debate sobre reforma tributária avança no Senado", portals: ["Poder360", "G1", "Folha", "Estadão"] }, { time: "11:10", title: "Cantora Anitta lança novo clipe gravado na Colômbia", portals: ["UOL", "Metrópoles", "G1", "R7"] }, { time: "10:45", title: "Estudo da Fiocruz aponta queda nos casos de dengue no país", portals: ["G1", "UOL", "Folha", "Terra"] }, { time: "10:20", title: "Exclusivo: Documentos revelam lobby de empresas de energia", portals: ["Estadão", "Poder360"] }, { time: "10:00", title: "Dólar abre em queda, cotado a R$ 5,15", portals: ["Valor", "G1", "UOL", "CNN"] }, { time: "09:40", title: "Mega-Sena acumula e prêmio vai a R$ 80 milhões", portals: ["G1", "UOL", "R7", "Terra"] }, { time: "09:15", title: "Guerra na Ucrânia: Rússia intensifica ataques em Kharkiv", portals: ["G1", "CNN", "Folha", "Estadão"] }, { time: "08:50", title: "Greve de metrô em São Paulo é suspensa após acordo", portals: ["G1", "R7", "Folha", "Metrópoles"] }, { time: "08:20", title: "Opinião: A bolha das startups de IA está prestes a estourar?", portals: ["Folha", "TecMundo", "Estadão"] }, { time: "07:55", title: "Receita libera consulta ao 4º lote de restituição do IR", portals: ["G1", "UOL", "Valor", "R7", "Terra"] }, { time: "07:30", title: "Acidente entre caminhões interdita trecho da Rodovia Dutra", portals: ["G1", "R7", "CNN"] }, { time: "07:00", title: "CPI do 8/1: Depoimento de ex-ministro é marcado por bate-boca", portals: ["Poder360", "G1", "UOL", "Folha"] }, { time: "06:30", title: "Bolsas da Ásia fecham mistas com preocupações sobre China", portals: ["Valor", "G1", "CNN"] }, { time: "06:00", title: "Novo filme da Marvel estreia com alta aprovação da crítica", portals: ["UOL", "Metrópoles", "G1", "Terra"] }, { time: "05:30", title: "Japão emite alerta de tsunami após terremoto de 7.1", portals: ["G1", "CNN", "UOL", "Folha"] }, { time: "05:00", title: "Análise: A fragmentação da base do governo no Congresso", portals: ["Poder360", "Estadão", "Folha"] }, { time: "04:30", title: "Estudo brasileiro desenvolve método para diagnóstico precoce de câncer", portals: ["G1", "Folha", "UOL"] }, { time: "04:00", title: "F1: Verstappen lidera treinos livres para o GP do Japão", portals: ["GE", "UOL", "Terra"] }, { time: "03:30", title: "PF deporta hacker turco procurado pela Interpol", portals: ["G1", "Metrópoles", "Poder360"] }, { time: "03:00", title: "China lança com sucesso nova missão tripulada à sua estação espacial", portals: ["G1", "TecMundo", "CNN"] }, { time: "02:30", title: "Ex-CEO da Americanas presta depoimento à CVM", portals: ["Valor", "G1", "Estadão"] }, { time: "02:00", title: "Festival de Veneza premia filme iraniano com o Leão de Ouro", portals: ["UOL", "Folha", "G1"] }, { time: "01:30", title: "Incêndio de grandes proporções atinge parque na Califórnia", portals: ["G1", "CNN", "Terra"] },
+            // Notícias de Hoje (27/09/2025)
+            { date: "2025-09-27", time: "18:30", title: "Governo Federal lança novo pacote de estímulo à indústria e anuncia R$ 50 bi em crédito.", portals: ["G1", "Valor", "UOL", "Folha", "Estadão", "Poder360"] },
+            { date: "2025-09-27", time: "17:55", title: "STF forma maioria para validar a nova lei de saneamento básico em todo o país.", portals: ["G1", "Folha", "Estadão", "Poder360", "CNN"] },
+            { date: "2025-09-27", time: "16:40", title: "Seleção Brasileira é convocada para as Eliminatórias com novidades no ataque.", portals: ["GE", "UOL", "Terra", "G1"] },
+            { date: "2025-09-27", time: "15:20", title: "Anatel aprova novas regras para combater ligações de telemarketing abusivas.", portals: ["G1", "TecMundo", "UOL", "Folha"] },
+            { date: "2025-09-27", time: "14:10", title: "Após acordo, greve dos metroviários em São Paulo é encerrada.", portals: ["G1", "UOL", "R7", "Metrópoles", "Terra"] },
+            { date: "2025-09-27", time: "11:00", title: "Bolsa brasileira opera em alta com otimismo do mercado externo; dólar cai.", portals: ["Valor", "G1", "CNN", "UOL"] },
+            { date: "2025-09-27", time: "10:00", title: "Inflação oficial (IPCA-15) sobe 0,45% em setembro, pressionada por combustíveis.", portals: ["G1", "Valor", "UOL", "Folha", "R7"] },
+            
+            // Notícias da Última Semana
+            { date: "2025-09-26", time: "21:15", title: "Câmara aprova texto-base da minirreforma eleitoral; projeto segue para o Senado.", portals: ["G1", "Poder360", "Folha", "Estadão"] },
+            { date: "2025-09-26", time: "19:00", title: "Petrobras anuncia descoberta de nova reserva de petróleo na Bacia de Santos.", portals: ["G1", "Valor", "UOL", "CNN", "R7"] },
+            { date: "2025-09-25", time: "22:00", title: "Em jogo emocionante, Corinthians vence o Grêmio pelo Brasileirão.", portals: ["GE", "UOL", "Terra"] },
+            { date: "2025-09-25", time: "16:30", title: "WhatsApp inicia testes de pagamentos via Pix dentro do aplicativo no Brasil.", portals: ["TecMundo", "UOL", "G1", "R7", "Terra"] },
+            { date: "2025-09-24", time: "14:00", title: "Relatório da ONU alerta para aceleração do aquecimento global.", portals: ["G1", "Folha", "CNN", "UOL", "Estadão"] },
+            { date: "2025-09-23", time: "18:00", title: "Ministro da Fazenda se reúne com investidores em Nova York.", portals: ["G1", "Valor", "Poder360", "Folha"] },
+            { date: "2025-09-22", time: "09:30", title: "Polícia Federal deflagra operação contra fraudes em licitações na área da saúde.", portals: ["G1", "Metrópoles", "Folha", "Estadão"] }
         ];
 
         const gridContainer = document.getElementById('gap-grid-container');
-        const filterContainer = document.getElementById('gap-source-filter-container');
+        const sourceFilterContainer = document.getElementById('gap-source-filter-container');
+        const dateFilterContainer = document.getElementById('gap-date-filter-container');
+        const noResultsMessage = document.getElementById('gap-no-results');
+
+        let currentPortalFilter = 'todos';
+        let currentDateKey = 'hoje';
         
-        filterContainer.innerHTML = '';
+        // Função para renderizar o grid com base nos filtros
+        function renderFilteredGrid() {
+            gridContainer.innerHTML = '';
+            
+            const today = new Date('2025-09-27T12:00:00Z');
+            today.setUTCHours(0, 0, 0, 0);
+
+            let filteredData = gapData.filter(item => {
+                const itemDate = new Date(item.date + 'T12:00:00Z');
+                itemDate.setUTCHours(0, 0, 0, 0);
+
+                if (currentDateKey === 'hoje') {
+                    return itemDate.getTime() === today.getTime();
+                }
+                if (currentDateKey === 'ultima_semana') {
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    return itemDate >= weekAgo && itemDate < today;
+                }
+                return true;
+            });
+            
+            if (currentPortalFilter !== 'todos') {
+                filteredData = filteredData.filter(item => item.portals.includes(currentPortalFilter));
+            }
+            
+            if (filteredData.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+            }
+
+            filteredData.sort((a, b) => b.time.localeCompare(a.time)).forEach(item => {
+                const portalsHTML = item.portals.map(portal => 
+                    `<span class="text-xs font-semibold text-white ${portalColors[portal] || 'bg-slate-600'} px-2 py-1 rounded-full">${portal}</span>`
+                ).join('');
+
+                const itemElement = document.createElement('div');
+                itemElement.className = 'bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col transition-opacity duration-300';
+                itemElement.dataset.portals = item.portals.join(',');
+                itemElement.innerHTML = `
+                    <div class="flex-grow">
+                        <p class="font-semibold text-slate-300">${item.title}</p>
+                        <p class="text-sm text-cyan-400 font-mono mt-1 mb-3">${item.time}</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 mt-auto pt-2 border-t border-slate-700/50">
+                        ${portalsHTML}
+                    </div>
+                `;
+                gridContainer.appendChild(itemElement);
+            });
+        }
+        
+        // Setup inicial dos filtros de portal
+        sourceFilterContainer.innerHTML = '';
         const allButton = document.createElement('button');
         allButton.className = 'text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700 hover:bg-slate-600 filter-active';
         allButton.textContent = 'Exibir Todos';
         allButton.dataset.portal = 'todos';
-        filterContainer.appendChild(allButton);
+        sourceFilterContainer.appendChild(allButton);
 
         Object.keys(portalColors).forEach(portal => {
             const button = document.createElement('button');
             const colorClass = portalColors[portal] || 'bg-slate-700';
-            const hoverClass = colorClass.replace(/(\d)00/g, (match) => {
-                const shade = parseInt(match);
-                return `${Math.max(100, shade - 100)}`;
-            }).replace('bg-', 'hover:bg-');
-
-            button.className = `text-sm text-white font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 ${colorClass} ${hoverClass}`;
+            button.className = `text-sm text-white font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 ${colorClass}`;
             button.textContent = portal;
             button.dataset.portal = portal;
-            filterContainer.appendChild(button);
+            sourceFilterContainer.appendChild(button);
         });
 
-        gridContainer.innerHTML = ''; 
-        gapData.forEach(item => {
-            const portalsHTML = item.portals.map(portal => 
-                `<span class="text-xs font-semibold text-white ${portalColors[portal] || 'bg-slate-600'} px-2 py-1 rounded-full">${portal}</span>`
-            ).join('');
-
-            const itemElement = document.createElement('div');
-            itemElement.className = 'bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col transition-opacity duration-300';
-            itemElement.dataset.portals = item.portals.join(',');
-            itemElement.innerHTML = `
-                <div class="flex-grow">
-                    <p class="font-semibold text-slate-300">${item.title}</p>
-                    <p class="text-sm text-cyan-400 font-mono mt-1 mb-3">${item.time}</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-2 mt-auto pt-2 border-t border-slate-700/50">
-                    ${portalsHTML}
-                </div>
-            `;
-            gridContainer.appendChild(itemElement);
-        });
-
-        filterContainer.addEventListener('click', (e) => {
+        // Event listener para filtros de portal
+        sourceFilterContainer.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (!button) return;
-            const portalFilter = button.dataset.portal;
-            filterContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('filter-active'));
+            currentPortalFilter = button.dataset.portal;
+            sourceFilterContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('filter-active'));
             button.classList.add('filter-active');
-            gridContainer.querySelectorAll('[data-portals]').forEach(card => {
-                if (portalFilter === 'todos' || card.dataset.portals.includes(portalFilter)) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
+            renderFilteredGrid();
         });
+
+        // Event listener para filtros de data
+        dateFilterContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+            currentDateKey = button.dataset.dateKey;
+            dateFilterContainer.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('date-filter-active');
+                btn.classList.add('text-slate-300', 'hover:bg-slate-700');
+                btn.setAttribute('aria-pressed', 'false');
+            });
+            button.classList.add('date-filter-active');
+            button.classList.remove('text-slate-300', 'hover:bg-slate-700');
+            button.setAttribute('aria-pressed', 'true');
+            renderFilteredGrid();
+        });
+        
+        // Renderização inicial
+        renderFilteredGrid();
     }
+
 
 
     document.addEventListener('DOMContentLoaded', () => {
