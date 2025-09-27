@@ -62,13 +62,18 @@
         }
         /* Estilo para a Categoria Seguida (Para Si) - Reforço visual */
         .category-followed {
-            background-color: #334155 !important; /* slate-700 */
+            background-color: #3b82f6 !important; /* blue-500 */
+            color: #ffffff !important;
+        }
+        
+        /* Estilo para Categoria Prioritária */
+        .category-priority {
+            background-color: #f59e0b !important; /* amber-500 */
+            color: #1e293b !important; /* slate-800 */
+            font-weight: 700;
             box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.25);
-            color: #94a3b8 !important; /* slate-400 */
         }
 
-        /* ▼▼▼ NOVOS ESTILOS PARA MELHORIAS DE UI/UX ▼▼▼ */
-        
         /* Estilo para o título da notícia em destaque */
         .lead-story .news-title {
             font-size: 1.25rem; /* text-xl */
@@ -107,7 +112,17 @@
             opacity: 1;
             transform: translateX(-50%) translateY(-5px);
         }
-        /* ▲▲▲ FIM DOS NOVOS ESTILOS ▲▲▲ */
+
+        /* Estilos para o Resumo com IA */
+        .summary-container {
+            background-color: #1e293b; /* slate-800 */
+            border-left: 3px solid #0891b2; /* cyan-600 */
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -130,9 +145,13 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 mt-0.5 text-cyan-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 <span><b>Cobertura da Mídia:</b> Compare quais portais estão cobrindo os principais fatos do dia.</span>
             </li>
+            <li class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 mt-0.5 text-cyan-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8V6m0 8v-2m-3 2h6m-6-4h6m-3-6c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7z" /></svg>
+                <span><b>Perspectivas:</b> Acesse notícias de fontes independentes para diversos pontos de vista.</span>
+            </li>
         </ul>
     </div>
-
+    
     <div class="container mx-auto p-4 md:p-8">
         
         <header class="text-center mb-6 relative">
@@ -168,16 +187,26 @@
                 </div>
             </div>
 
-            <div class="flex justify-center">
+            <nav class="flex justify-center" aria-label="Navegação Principal">
                 <div id="mainViewTabs" class="flex justify-center bg-slate-700/50 p-1 rounded-lg">
-                    <button id="viewFilterRadar" class="view-filter-active text-white px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200" aria-pressed="true">Últimas Notícias</button>
+                    <button id="viewFilterRadar" class="view-filter-active text-white px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200 flex items-center gap-1.5" aria-pressed="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6" /></svg>
+                        Últimas Notícias
+                    </button>
                     <button id="viewFilterForYou" class="text-slate-300 hover:bg-slate-600/50 px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200 flex items-center gap-1.5" aria-pressed="false">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" /></svg>
                         Meu Radar
                     </button>
-                    <button id="viewFilterAggregate" class="text-slate-300 hover:bg-slate-600/50 px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200" aria-pressed="false">Cobertura da Mídia</button>
+                    <button id="viewFilterAggregate" class="text-slate-300 hover:bg-slate-600/50 px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200 flex items-center gap-1.5" aria-pressed="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Cobertura da Mídia
+                    </button>
+                    <button id="viewFilterPerspectives" class="text-slate-300 hover:bg-slate-600/50 px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200 flex items-center gap-1.5" aria-pressed="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8V6m0 8v-2m-3 2h6m-6-4h6m-3-6c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7z" /></svg>
+                        Perspectivas
+                    </button>
                 </div>
-            </div>
+            </nav>
             
             <div id="secondaryFilters" class="flex justify-center items-center flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-slate-700/50">
                 <div id="dateFilterContainer" class="flex items-center gap-2 p-1 rounded-lg">
@@ -301,6 +330,7 @@
     const viewFilterRadar = document.getElementById('viewFilterRadar');
     const viewFilterForYou = document.getElementById('viewFilterForYou');
     const viewFilterAggregate = document.getElementById('viewFilterAggregate');
+    const viewFilterPerspectives = document.getElementById('viewFilterPerspectives');
     const dateFilterContainer = document.getElementById('dateFilterContainer');
     const dateFilterToday = document.getElementById('dateFilterToday');
     const dateFilterLastWeek = document.getElementById('dateFilterLastWeek');
@@ -349,7 +379,7 @@
     };
     
     const categoryColorMap = {
-        'Todas': 'border-slate-400', 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500'
+        'Todas': 'border-slate-400', 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Horóscopo': 'border-orange-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Imóveis': 'border-gray-500', 'Música': 'border-pink-400', 'Cinema': 'border-yellow-400', 'Moda': 'border-rose-400', 'Meio Ambiente': 'border-green-500', 'Perspectiva': 'border-purple-400'
     };
     
     const categoryButtonColors = [
@@ -471,7 +501,21 @@
                 return fetchAndParse(searchUrl, 'Entretenimento');
             });
 
-            const allResults = await Promise.all([...categoryPromises, ...mediaPromises, ...entertainmentPromises]);
+            const perspectiveSourcesQueries = [
+                'site:apublica.org',
+                'site:agenciatruco.com.br',
+                'site:outraspalavras.net',
+                'site:ponte.org',
+                'site:piaui.folha.uol.com.br',
+                'site:congressoemfoco.uol.com.br'
+            ];
+
+            const perspectivePromises = perspectiveSourcesQueries.map(psq => {
+                const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(psq)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+                return fetchAndParse(searchUrl, 'Perspectiva');
+            });
+
+            const allResults = await Promise.all([...categoryPromises, ...mediaPromises, ...entertainmentPromises, ...perspectivePromises]);
             combinedNews = allResults.flat();
         }
 
@@ -514,22 +558,32 @@
             currentPage = 1;
         }
         
-        let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
+        let filteredNews = masterNewsCache;
+
+        if (currentAppView === 'perspectives') {
+            filteredNews = masterNewsCache.filter(news => news.category === 'Perspectiva');
+        } else if (currentAppView === 'radar') {
+             filteredNews = applyDateFilter(filteredNews, currentDateFilter);
+        }
+        
         filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); 
 
-        if (currentRadarView === 'paraSi') {
+        if (currentRadarView === 'paraSi' && currentAppView === 'radar') {
             if (followedTopics.length === 0) {
-                messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Meu Radar", selecione seus temas de interesse nas categorias abaixo.';
+                messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Meu Radar", clique nos editoriais abaixo para seguir e definir prioridades.';
                 contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return;
             }
-            filteredNews = filteredNews.filter(news => { 
-                const titleLower = news.title.toLowerCase(); 
-                const categoryLower = news.category ? news.category.toLowerCase() : ''; 
-                return followedTopics.some(topic => { 
-                    const topicLower = topic.toLowerCase(); 
-                    return titleLower.includes(topicLower) || categoryLower.includes(topicLower); 
-                }); 
+            
+            filteredNews = filteredNews.filter(news => {
+                return followedTopics.some(followed => followed.topic === news.category);
             });
+
+            const getPriority = (category) => {
+                const followed = followedTopics.find(t => t.topic === category);
+                return followed ? followed.priority : 0;
+            };
+
+            filteredNews.sort((a, b) => getPriority(b.category) - getPriority(a.category));
         }
         
         const totalItems = filteredNews.length; 
@@ -548,8 +602,7 @@
         messageState.classList.add('hidden');
         paginatedItems.forEach((item, index) => {
              const card = createGoogleNewsCard(item);
-             // Se for o primeiro item da primeira página, adiciona a classe de destaque
-             if (currentPage === 1 && index === 0 && !searchInput.value.trim() && currentRadarView === 'geral') {
+             if (currentPage === 1 && index === 0 && !searchInput.value.trim() && currentRadarView === 'geral' && currentAppView === 'radar') {
                  card.classList.add('md:col-span-2', 'lead-story');
              }
              resultsContainer.appendChild(card);
@@ -559,13 +612,17 @@
     }
     
     function createGoogleNewsCard(news) {
-        const newsElement = document.createElement('div');
+        const newsElement = document.createElement('article');
+        newsElement.setAttribute('aria-label', news.title);
+
         const primaryCategory = news.category === 'Geral' ? 'Todas' : news.category.split(' > ')[0];
         const borderColorClass = categoryColorMap[primaryCategory] || 'border-cyan-500';
         const categoryIndex = mainCategories.indexOf(primaryCategory); 
         let categoryColorClass = 'bg-slate-700'; 
         let categoryTextColorClass = 'text-white';
-        if (categoryIndex > 0) { 
+        if (primaryCategory === 'Perspectiva') {
+            categoryColorClass = 'bg-purple-600';
+        } else if (categoryIndex > 0) { 
             const colorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length];
             categoryColorClass = colorClass.split(' ')[0]; 
             const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass)); 
@@ -592,16 +649,26 @@
         const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${primaryCategory}</span>`;
         const mediaInfo = getMediaIconAndColor(news.mediaType);
         const mediaTag = `<span class="text-lg text-slate-300 ml-1 has-tooltip" data-tooltip="${mediaInfo.label}">${mediaInfo.emoji}</span>`; 
+        
+        let priorityIndicator = '';
+        const topicPriority = followedTopics.find(t => t.topic === news.category)?.priority;
+        if (currentRadarView === 'paraSi' && topicPriority === 1) {
+            priorityIndicator = `<span class="text-amber-400 text-xs font-bold mr-2" title="Tópico Prioritário">★</span>`;
+        }
+
         newsElement.className = `bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col transform hover:scale-[1.01] transition-transform duration-300`; 
         newsElement.innerHTML = `
-            <div class="flex justify-between items-start">
-                <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden">
+            <div class="flex justify-between items-start gap-2">
+                <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 min-w-0">
                     <img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`">
                     <div class="truncate">
-                        <p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p>
+                        <p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${priorityIndicator}${news.sourceName}</p>
                     </div>
                 </a>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button class="summarize-btn text-slate-400 hover:text-cyan-400" aria-label="Resumir com IA" title="Resumir com IA (Demonstração)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1.158a.75.75 0 01-.22.53l-2.08 2.08a.75.75 0 01-1.06 0L.56 4.688a.75.75 0 01-.22-.53V3a1 1 0 011-1h3.66zm9.78 3.22a.75.75 0 01.22-.53V3a1 1 0 011-1h3.66a1 1 0 011 1v1.158a.75.75 0 01-.22.53l-2.08 2.08a.75.75 0 01-1.06 0l-2.08-2.08zM10 12.5a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75v-.01zM10 8a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75V8zM9.25 5.5a.75.75 0 00-.75.75v.01a.75.75 0 00.75.75h.01a.75.75 0 00.75-.75V6.25a.75.75 0 00-.75-.75h-.01z" clip-rule="evenodd" /></svg>
+                    </button>
                     <button class="save-btn" data-url="${news.url}" aria-label="Salvar notícia">${saveButtonIcon}</button>
                 </div>
             </div>
@@ -610,6 +677,7 @@
                     <p class="text-slate-300 font-semibold leading-relaxed mb-2 news-title">${finalTitle} ${mediaTag}</p>
                 </a>
             </div>
+            <div class="summary-container hidden"></div>
             <div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50">
                 <div class="flex flex-wrap gap-2">
                     ${categoryHTML}
@@ -617,7 +685,6 @@
                 <span class="text-xs text-slate-500">${fullDateTime}</span>
             </div>
         `;
-        newsElement.querySelector('.save-btn').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleSaveNews(news, e.currentTarget); });
         return newsElement;
     }
     
@@ -675,53 +742,65 @@
     
     function renderCategories() {
         categoriesContainer.innerHTML = '';
-        clearFollowedBtn.classList.add('hidden'); 
+        clearFollowedBtn.classList.add('hidden');
         mainCategories.forEach((category, index) => {
-            if (currentRadarView === 'paraSi' && category === 'Todas') { return; }
-            
+            if (currentRadarView === 'paraSi' && category === 'Todas') {
+                return;
+            }
+
             const categoryButton = document.createElement('button');
-            const isFollowed = followedTopics.includes(category);
-            let buttonClass;
+            const followedTopic = followedTopics.find(t => t.topic === category);
+
+            let buttonClass = 'bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white';
             
             if (currentRadarView === 'geral') {
-                if (index === 0) { buttonClass = 'bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white'; } 
-                else {
+                if (index > 0) {
                     const colorIndex = index - 1;
                     const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length];
                     const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass));
                     const textColorClass = isLightBg ? 'text-black' : 'text-white';
                     buttonClass = `${colorClass} ${textColorClass}`;
                 }
-            } else { 
-                const colorIndex = index > 0 ? index - 1 : 0; 
-                if (isFollowed) { buttonClass = 'category-followed'; } 
-                else {
-                    const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length];
-                    buttonClass = `${colorClass.replace('bg-', 'hover:bg-').replace('hover:bg-', 'border-')}/50 text-slate-300 hover:text-white border`; 
+                 if (currentCategorySearch === category || (!currentCategorySearch && category === 'Todas')) {
+                    categoryButton.classList.add('category-active');
+                }
+            } else { // 'paraSi' view
+                if (followedTopic) {
+                    if (followedTopic.priority === 1) {
+                        buttonClass = 'category-priority'; // Amarelo para prioridade
+                    } else {
+                        buttonClass = 'category-followed'; // Azul para seguido
+                    }
+                } else {
+                     const colorIndex = index > 0 ? index - 1 : 0;
+                     const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length];
+                     buttonClass = `${colorClass.replace('bg-', 'hover:bg-').replace('hover:bg-', 'border-')}/50 text-slate-300 hover:text-white border`;
                 }
             }
             
             categoryButton.className = `${buttonClass} text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`;
             categoryButton.textContent = category;
-            
-            if (currentRadarView === 'geral' && (currentCategorySearch === category || (!currentCategorySearch && category === 'Todas'))) {
-                categoryButton.classList.add('category-active');
-            }
-            
+
             categoryButton.onclick = () => {
                 if (currentRadarView === 'paraSi') {
-                    const topicIndex = followedTopics.indexOf(category);
+                    const topicIndex = followedTopics.findIndex(t => t.topic === category);
                     if (topicIndex > -1) {
-                        followedTopics.splice(topicIndex, 1);
-                        showToast(`Deixou de seguir "${category}"`);
-                    } else {
-                        followedTopics.push(category);
+                        const currentPriority = followedTopics[topicIndex].priority;
+                        if (currentPriority === 0) { // De normal para prioritário
+                            followedTopics[topicIndex].priority = 1;
+                            showToast(`"${category}" definido como prioridade!`);
+                        } else { // De prioritário para não seguido
+                            followedTopics.splice(topicIndex, 1);
+                            showToast(`Deixou de seguir "${category}"`);
+                        }
+                    } else { // De não seguido para normal
+                        followedTopics.push({ topic: category, priority: 0 });
                         showToast(`Agora segue "${category}"`);
                     }
                     localStorage.setItem('followedTopics', JSON.stringify(followedTopics));
                     renderCategories();
-                    if (currentRadarView === 'paraSi') { renderRadarResults(); }
-                } else if (currentRadarView === 'geral') {
+                    renderRadarResults();
+                } else {
                     handleSearch(searchInput.value, category === 'Todas' ? null : category);
                     document.querySelectorAll('#categoriesContainer button').forEach(btn => btn.classList.remove('category-active'));
                     categoryButton.classList.add('category-active');
@@ -734,6 +813,7 @@
             clearFollowedBtn.classList.remove('hidden');
         }
     }
+
 
     function showToast(message) {
         toastMessage.textContent = message;
@@ -815,7 +895,6 @@
             showToast('Notícia salva!');
         }
         
-        // Animação de "pop"
         const newIcon = buttonElement.querySelector('.save-icon');
         if(newIcon){
             newIcon.classList.add('saved-pop');
@@ -835,12 +914,21 @@
     }
     
     function handleScroll() {
-        if (currentAppView === 'radar' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) {
-            const totalItems = applyMediaFilter(applyDateFilter(masterNewsCache, currentDateFilter), currentMediaFilter).length;
-            if (currentPage * itemsPerPage < totalItems) {
+        if ((currentAppView === 'radar' || currentAppView === 'perspectives') && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) {
+            
+            let currentList;
+            if (currentAppView === 'perspectives') {
+                currentList = masterNewsCache.filter(news => news.category === 'Perspectiva');
+            } else { // radar
+                currentList = applyDateFilter(masterNewsCache, currentDateFilter);
+                // aqui poderia ter a lógica de filtro do 'paraSi', mas para simplificar, vamos assumir que o scroll recarrega a lista geral
+            }
+            const totalItems = applyMediaFilter(currentList, currentMediaFilter).length;
+            
+            if (resultsContainer.children.length < totalItems) {
                 isLoadingMore = true;
                 currentPage++;
-                renderRadarResults(true); 
+                renderRadarResults(true);
             }
         }
         if (window.scrollY > 300) {
@@ -854,7 +942,7 @@
     
     function setView(view) {
         currentAppView = view;
-        const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate];
+        const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate, viewFilterPerspectives];
         buttons.forEach(btn => {
             btn.classList.remove('view-filter-active');
             btn.classList.add('text-slate-300', 'hover:bg-slate-600/50');
@@ -862,33 +950,46 @@
         });
 
         const secondaryFilters = document.getElementById('secondaryFilters');
+        const categoriesSection = document.querySelector('#radarContainer .mb-8');
+        
+        // Reset defaults
+        categoriesSection.classList.remove('hidden');
+        searchBarWrapper.style.display = 'flex';
+        secondaryFilters.style.display = 'flex';
+        dateFilterContainer.style.display = 'flex';
         
         if (view === 'radar') {
             radarContainer.classList.remove('hidden');
             aggregateContainer.classList.add('hidden');
-            searchBarWrapper.style.display = 'flex';
-            secondaryFilters.style.display = 'flex';
             
             if (currentRadarView === 'geral') {
                 viewFilterRadar.classList.add('view-filter-active');
-                viewFilterRadar.classList.remove('text-slate-300', 'hover:bg-slate-600/50');
                 viewFilterRadar.setAttribute('aria-pressed', 'true');
-            } else {
+            } else { // paraSi
                 viewFilterForYou.classList.add('view-filter-active');
-                viewFilterForYou.classList.remove('text-slate-300', 'hover:bg-slate-600/50');
                 viewFilterForYou.setAttribute('aria-pressed', 'true');
             }
-            renderCategories(); 
-            renderRadarResults();
+            
         } else if (view === 'aggregate') {
             radarContainer.classList.add('hidden');
             aggregateContainer.classList.remove('hidden');
             viewFilterAggregate.classList.add('view-filter-active');
-            viewFilterAggregate.classList.remove('text-slate-300', 'hover:bg-slate-600/50');
             viewFilterAggregate.setAttribute('aria-pressed', 'true');
             searchBarWrapper.style.display = 'none';
             secondaryFilters.style.display = 'none';
+            categoriesSection.classList.add('hidden');
+
+        } else if (view === 'perspectives') {
+            radarContainer.classList.remove('hidden');
+            aggregateContainer.classList.add('hidden');
+            viewFilterPerspectives.classList.add('view-filter-active');
+            viewFilterPerspectives.setAttribute('aria-pressed', 'true');
+            categoriesSection.classList.add('hidden');
+            dateFilterContainer.style.display = 'none';
         }
+        
+        renderCategories(); 
+        renderRadarResults();
     }
 
     // #################### SCRIPT PARA CONTEÚDO AGREGADO E FILTRO ####################
@@ -899,7 +1000,7 @@
             "Valor": "bg-emerald-800", "Metrópoles": "bg-yellow-700", "Poder360": "bg-indigo-800", "TecMundo": "bg-purple-800"
         };
         const gapData = [
-            { time: "23:05", title: "Fim de jogo no Maracanã: Flamengo vence o Bahia por 2 a 1", portals: ["GE", "UOL", "Terra"] }, { time: "22:40", title: "Governo adia mais uma vez anúncio sobre taxação de importados", portals: ["G1", "Poder360", "Folha"] }, { time: "22:15", title: "Bolsa de NY fecha em leve alta após dados de emprego nos EUA", portals: ["Valor", "CNN", "G1"] }, { time: "21:50", title: "Série de sucesso da HBO é renovada para 3ª temporada", portals: ["UOL", "Metrópoles", "R7"] }, { time: "21:20", title: "STF forma maioria para manter demarcação de terras indígenas", portals: ["G1", "Folha", "Estadão", "Poder360"] }, { time: "20:45", title: "Anvisa aprova novo medicamento para tratamento de Alzheimer no Brasil", portals: ["G1", "UOL", "R7", "Terra"] }, { time: "20:10", title: "Exclusivo: Delator detalha esquema de corrupção em ministério", portals: ["Metrópoles"] }, { time: "19:30", title: "Crise na Argentina: Dólar blue atinge novo recorde histórico", portals: ["Valor", "G1", "Folha", "CNN"] }, { time: "19:05", title: "Relatório aponta aumento de 15% no desmatamento na Amazônia", portals: ["G1", "Estadão", "Terra"] }, { time: "18:40", title: "Vazam especificações do novo Samsung Galaxy S26", portals: ["TecMundo", "UOL"] }, { time: "18:15", title: "Petrobras anuncia redução no preço da gasolina", portals: ["G1", "UOL", "Valor", "Folha", "CNN", "R7", "Estadão", "Terra"] }, { time: "17:50", title: "Técnico da Seleção convoca time para amistosos de outubro", portals: ["GE", "UOL", "Terra", "G1"] }, { time: "17:20", title: "PF mira desvio de verbas em obras no Nordeste", portals: ["G1", "Poder360", "Folha"] }, { time: "16:55", title: "INSS: Sai 2ª parcela do 13º salário para aposentados", portals: ["G1", "UOL", "R7", "Folha"] }, { time: "16:30", title: "Análise: Como a IA pode impactar as eleições de 2026", portals: ["Poder360", "Estadão"] }, { time: "16:00", title: "Rock in Rio confirma nova atração internacional", portals: ["G1", "UOL", "Metrópoles", "R7"] }, { time: "15:40", title: "Câmara inicia discussão sobre regulamentação de apostas esportivas", portals: ["G1", "Poder360", "GE", "Folha"] }, { time: "15:15", title: "Inflação oficial (IPCA) desacelera para 0,25% em agosto", portals: ["G1", "Valor", "UOL", "Folha", "Estadão"] }, { time: "14:50", title: "Presidente da França faz duro discurso sobre clima na ONU", portals: ["G1", "Folha", "CNN", "UOL"] }, { time: "14:20", title: "Polícia de SP prende suspeito de liderar quadrilha de roubo de cargas", portals: ["G1", "R7", "Metrópoles", "Terra"] }, { time: "14:00", title: "Mercado Livre anuncia novo centro de distribuição em MG", portals: ["Valor", "G1", "Folha"] }, { time: "13:45", title: "WhatsApp libera função de editar mensagens para todos", portals: ["TecMundo", "UOL", "G1", "R7", "Terra"] }, { time: "13:20", title: "Ministro da Fazenda se reúne com presidentes de bancos", portals: ["G1", "Valor", "Poder360", "Folha"] }, { time: "13:00", title: "Técnico do Palmeiras, Abel Ferreira, recebe proposta da Arábia Saudita", portals: ["GE", "UOL", "Terra"] }, { time: "12:40", title: "Morre aos 88 anos o ator brasileiro Antônio Fagundes", portals: ["G1", "UOL", "Folha", "Estadão", "R7", "Metrópoles", "Terra"] }, { time: "12:15", title: "Previsão: Frente fria derruba temperaturas no Sudeste", portals: ["G1", "UOL", "Terra", "CNN"] }, { time: "11:50", title: "Tesla anuncia recall de 500 mil veículos por falha nos freios", portals: ["Valor", "G1", "TecMundo", "UOL"] }, { time: "11:30", title: "Debate sobre reforma tributária avança no Senado", portals: ["Poder360", "G1", "Folha", "Estadão"] }, { time: "11:10", title: "Cantora Anitta lança novo clipe gravado na Colômbia", portals: ["UOL", "Metrópoles", "G1", "R7"] }, { time: "10:45", title: "Estudo da Fiocruz aponta queda nos casos de dengue no país", portals: ["G1", "UOL", "Folha", "Terra"] }, { time: "10:20", title: "Exclusivo: Documentos revelam lobby de empresas de energia", portals: ["Estadão", "Poder360"] }, { time: "10:00", title: "Dólar abre em queda, cotado a R$ 5,15", portals: ["Valor", "G1", "UOL", "CNN"] }, { time: "09:40", title: "Mega-Sena acumula e prêmio vai a R$ 80 milhões", portals: ["G1", "UOL", "R7", "Terra"] }, { time: "09:15", title: "Guerra na Ucrânia: Rússia intensifica ataques em Kharkiv", portals: ["G1", "CNN", "Folha", "Estadão"] }, { time: "08:50", title: "Greve de metrô em São Paulo é suspensa após acordo", portals: ["G1", "R7", "Folha", "Metrópoles"] }, { time: "08:20", title: "Opinião: A bolha das startups de IA está prestes a estourar?", portals: ["Folha", "TecMundo", "Estadão"] }, { time: "07:55", title: "Receita libera consulta ao 4º lote de restituição do IR", portals: ["G1", "UOL", "Valor", "R7", "Terra"] }, { time: "07:30", title: "Acidente entre caminhões interdita trecho da Rodovia Dutra", portals: ["G1", "R7", "CNN"] }, { time: "07:00", title: "CPI do 8/1: Depoimento de ex-ministro é marcado por bate-boca", portals: ["Poder360", "G1", "UOL", "Folha"] }, { time: "06:30", title: "Bolsas da Ásia fecham mistas com preocupações sobre China", portals: ["Valor", "G1", "CNN"] }, { time: "06:00", title: "Novo filme da Marvel estreia com alta aprovação da crítica", portals: ["UOL", "Metrópoles", "G1", "Terra"] }, { time: "05:30", title: "Japão emite alerta de tsunami após terremoto de 7.1", portals: ["G1", "CNN", "UOL", "Folha"] }, { time: "05:00", title: "Análise: A fragmentação da base do governo no Congresso", portals: ["Poder360", "Estadão", "Folha"] }, { time: "04:30", title: "Estudo brasileiro desenvolve método para diagnóstico precoce de câncer", portals: ["G1", "Folha", "UOL"] }, { time: "04:00", title: "F1: Verstappen lidera treinos livres para o GP do Japão", portals: ["GE", "UOL", "Terra"] }, { time: "03:30", title: "PF deporta hacker turco procurado pela Interpol", portals: ["G1", "Metrópoles", "Poder360"] }, { time: "03:00", title: "China lança com sucesso nova missão tripulada à sua estação espacial", portals: ["G1", "TecMundo", "CNN"] }, { time: "02:30", title: "Ex-CEO da Americanas presta depoimento à CVM", portals: ["Valor", "G1", "Estadão"] }, { time: "02:00", title: "Festival de Veneza premia filme iraniano com o Leão de Ouro", portals: ["UOL", "Folha", "G1"] }, { time: "01:30", title: "Incêndio de grandes proporções atinge parque na Califórnia", portals: ["G1", "CNN", "Terra"] },
+             { time: "23:05", title: "Fim de jogo no Maracanã: Flamengo vence o Bahia por 2 a 1", portals: ["GE", "UOL", "Terra"] }, { time: "22:40", title: "Governo adia mais uma vez anúncio sobre taxação de importados", portals: ["G1", "Poder360", "Folha"] }, { time: "22:15", title: "Bolsa de NY fecha em leve alta após dados de emprego nos EUA", portals: ["Valor", "CNN", "G1"] }, { time: "21:50", title: "Série de sucesso da HBO é renovada para 3ª temporada", portals: ["UOL", "Metrópoles", "R7"] }, { time: "21:20", title: "STF forma maioria para manter demarcação de terras indígenas", portals: ["G1", "Folha", "Estadão", "Poder360"] }, { time: "20:45", title: "Anvisa aprova novo medicamento para tratamento de Alzheimer no Brasil", portals: ["G1", "UOL", "R7", "Terra"] }, { time: "20:10", title: "Exclusivo: Delator detalha esquema de corrupção em ministério", portals: ["Metrópoles"] }, { time: "19:30", title: "Crise na Argentina: Dólar blue atinge novo recorde histórico", portals: ["Valor", "G1", "Folha", "CNN"] }, { time: "19:05", title: "Relatório aponta aumento de 15% no desmatamento na Amazônia", portals: ["G1", "Estadão", "Terra"] }, { time: "18:40", title: "Vazam especificações do novo Samsung Galaxy S26", portals: ["TecMundo", "UOL"] }, { time: "18:15", title: "Petrobras anuncia redução no preço da gasolina", portals: ["G1", "UOL", "Valor", "Folha", "CNN", "R7", "Estadão", "Terra"] }, { time: "17:50", title: "Técnico da Seleção convoca time para amistosos de outubro", portals: ["GE", "UOL", "Terra", "G1"] }, { time: "17:20", title: "PF mira desvio de verbas em obras no Nordeste", portals: ["G1", "Poder360", "Folha"] }, { time: "16:55", title: "INSS: Sai 2ª parcela do 13º salário para aposentados", portals: ["G1", "UOL", "R7", "Folha"] }, { time: "16:30", title: "Análise: Como a IA pode impactar as eleições de 2026", portals: ["Poder360", "Estadão"] }, { time: "16:00", title: "Rock in Rio confirma nova atração internacional", portals: ["G1", "UOL", "Metrópoles", "R7"] }, { time: "15:40", title: "Câmara inicia discussão sobre regulamentação de apostas esportivas", portals: ["G1", "Poder360", "GE", "Folha"] }, { time: "15:15", title: "Inflação oficial (IPCA) desacelera para 0,25% em agosto", portals: ["G1", "Valor", "UOL", "Folha", "Estadão"] }, { time: "14:50", title: "Presidente da França faz duro discurso sobre clima na ONU", portals: ["G1", "Folha", "CNN", "UOL"] }, { time: "14:20", title: "Polícia de SP prende suspeito de liderar quadrilha de roubo de cargas", portals: ["G1", "R7", "Metrópoles", "Terra"] }, { time: "14:00", title: "Mercado Livre anuncia novo centro de distribuição em MG", portals: ["Valor", "G1", "Folha"] }, { time: "13:45", title: "WhatsApp libera função de editar mensagens para todos", portals: ["TecMundo", "UOL", "G1", "R7", "Terra"] }, { time: "13:20", title: "Ministro da Fazenda se reúne com presidentes de bancos", portals: ["G1", "Valor", "Poder360", "Folha"] }, { time: "13:00", title: "Técnico do Palmeiras, Abel Ferreira, recebe proposta da Arábia Saudita", portals: ["GE", "UOL", "Terra"] }, { time: "12:40", title: "Morre aos 88 anos o ator brasileiro Antônio Fagundes", portals: ["G1", "UOL", "Folha", "Estadão", "R7", "Metrópoles", "Terra"] }, { time: "12:15", title: "Previsão: Frente fria derruba temperaturas no Sudeste", portals: ["G1", "UOL", "Terra", "CNN"] }, { time: "11:50", title: "Tesla anuncia recall de 500 mil veículos por falha nos freios", portals: ["Valor", "G1", "TecMundo", "UOL"] }, { time: "11:30", title: "Debate sobre reforma tributária avança no Senado", portals: ["Poder360", "G1", "Folha", "Estadão"] }, { time: "11:10", title: "Cantora Anitta lança novo clipe gravado na Colômbia", portals: ["UOL", "Metrópoles", "G1", "R7"] }, { time: "10:45", title: "Estudo da Fiocruz aponta queda nos casos de dengue no país", portals: ["G1", "UOL", "Folha", "Terra"] }, { time: "10:20", title: "Exclusivo: Documentos revelam lobby de empresas de energia", portals: ["Estadão", "Poder360"] }, { time: "10:00", title: "Dólar abre em queda, cotado a R$ 5,15", portals: ["Valor", "G1", "UOL", "CNN"] }, { time: "09:40", title: "Mega-Sena acumula e prêmio vai a R$ 80 milhões", portals: ["G1", "UOL", "R7", "Terra"] }, { time: "09:15", title: "Guerra na Ucrânia: Rússia intensifica ataques em Kharkiv", portals: ["G1", "CNN", "Folha", "Estadão"] }, { time: "08:50", title: "Greve de metrô em São Paulo é suspensa após acordo", portals: ["G1", "R7", "Folha", "Metrópoles"] }, { time: "08:20", title: "Opinião: A bolha das startups de IA está prestes a estourar?", portals: ["Folha", "TecMundo", "Estadão"] }, { time: "07:55", title: "Receita libera consulta ao 4º lote de restituição do IR", portals: ["G1", "UOL", "Valor", "R7", "Terra"] }, { time: "07:30", title: "Acidente entre caminhões interdita trecho da Rodovia Dutra", portals: ["G1", "R7", "CNN"] }, { time: "07:00", title: "CPI do 8/1: Depoimento de ex-ministro é marcado por bate-boca", portals: ["Poder360", "G1", "UOL", "Folha"] }, { time: "06:30", title: "Bolsas da Ásia fecham mistas com preocupações sobre China", portals: ["Valor", "G1", "CNN"] }, { time: "06:00", title: "Novo filme da Marvel estreia com alta aprovação da crítica", portals: ["UOL", "Metrópoles", "G1", "Terra"] }, { time: "05:30", title: "Japão emite alerta de tsunami após terremoto de 7.1", portals: ["G1", "CNN", "UOL", "Folha"] }, { time: "05:00", title: "Análise: A fragmentação da base do governo no Congresso", portals: ["Poder360", "Estadão", "Folha"] }, { time: "04:30", title: "Estudo brasileiro desenvolve método para diagnóstico precoce de câncer", portals: ["G1", "Folha", "UOL"] }, { time: "04:00", title: "F1: Verstappen lidera treinos livres para o GP do Japão", portals: ["GE", "UOL", "Terra"] }, { time: "03:30", title: "PF deporta hacker turco procurado pela Interpol", portals: ["G1", "Metrópoles", "Poder360"] }, { time: "03:00", title: "China lança com sucesso nova missão tripulada à sua estação espacial", portals: ["G1", "TecMundo", "CNN"] }, { time: "02:30", title: "Ex-CEO da Americanas presta depoimento à CVM", portals: ["Valor", "G1", "Estadão"] }, { time: "02:00", title: "Festival de Veneza premia filme iraniano com o Leão de Ouro", portals: ["UOL", "Folha", "G1"] }, { time: "01:30", title: "Incêndio de grandes proporções atinge parque na Califórnia", portals: ["G1", "CNN", "Terra"] },
         ];
 
         const gridContainer = document.getElementById('gap-grid-container');
@@ -972,7 +1073,7 @@
             infoBanner.classList.remove('hidden');
             const bannerTimeout = setTimeout(() => {
                 infoBanner.classList.add('hidden');
-            }, 15000);
+            }, 25000); // 25 segundos
             closeInfoBannerBtn.addEventListener('click', () => {
                 clearTimeout(bannerTimeout);
                 infoBanner.classList.add('hidden');
@@ -986,9 +1087,10 @@
         
         updateMediaDropdown(currentMediaFilter);
         renderSavedNews();
-        renderCategories();
         
-        loadInitialContent();
+        loadInitialContent().then(() => {
+            setView(currentAppView);
+        });
         setupAggregateView();
         
         setInterval(() => {
@@ -1020,9 +1122,10 @@
             }
         });
 
-        viewFilterRadar.addEventListener('click', () => { currentRadarView = 'geral'; setView('radar'); handleSearch(searchInput.value, null); });
+        viewFilterRadar.addEventListener('click', () => { currentRadarView = 'geral'; setView('radar'); });
         viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); });
-        viewFilterAggregate.addEventListener('click', () => { setView('aggregate'); }); 
+        viewFilterAggregate.addEventListener('click', () => setView('aggregate'));
+        viewFilterPerspectives.addEventListener('click', () => setView('perspectives')); 
 
         searchButton.addEventListener('click', () => handleSearch(searchInput.value, null));
         
@@ -1059,6 +1162,27 @@
             navigator.clipboard.writeText(listText).then(() => showToast('Lista copiada para a área de transferência!'));
         });
         
+        resultsContainer.addEventListener('click', (e) => {
+            const summarizeBtn = e.target.closest('.summarize-btn');
+            if (summarizeBtn) {
+                const card = summarizeBtn.closest('article');
+                const summaryContainer = card.querySelector('.summary-container');
+                
+                if (summaryContainer.classList.contains('hidden')) {
+                    summaryContainer.classList.remove('hidden');
+                    summaryContainer.innerHTML = 'Gerando resumo... <span class="animate-spin inline-block ml-2">⚙️</span>';
+
+                    setTimeout(() => {
+                        summaryContainer.innerHTML = `<ul class="list-disc pl-4 space-y-1"><li><b>Demonstração:</b> Esta é uma simulação de resumo por IA.</li><li>Em uma implementação real, o conteúdo do artigo seria processado por um modelo de linguagem para extrair os pontos-chave.</li><li>O objetivo é permitir que o usuário entenda o essencial da notícia sem precisar clicar no link.</li></ul>`;
+                    }, 1500);
+
+                } else {
+                    summaryContainer.classList.add('hidden');
+                    summaryContainer.innerHTML = '';
+                }
+            }
+        });
+
         window.addEventListener('scroll', handleScroll);
     });
     </script>
