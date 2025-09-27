@@ -112,17 +112,6 @@
             opacity: 1;
             transform: translateX(-50%) translateY(-5px);
         }
-
-        /* Estilos para o Resumo com IA */
-        .summary-container {
-            background-color: #1e293b; /* slate-800 */
-            border-left: 3px solid #0891b2; /* cyan-600 */
-            padding: 12px;
-            margin-top: 12px;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            line-height: 1.6;
-        }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -501,7 +490,6 @@
                 return fetchAndParse(searchUrl, 'Entretenimento');
             });
 
-            // ▼▼▼ LISTA DE FONTES DE PERSPECTIVAS EXPANDIDA ▼▼▼
             const perspectiveSourcesQueries = [
                 'site:apublica.org',
                 'site:theintercept.com/brasil',
@@ -514,7 +502,8 @@
                 'site:reporterbrasil.org.br',
                 'site:agencialupa.com',
                 'site:amazoniareal.com.br',
-                'site:jota.info'
+                'site:jota.info',
+                'site:projetocomprova.com.br'
             ];
 
             const perspectivePromises = perspectiveSourcesQueries.map(psq => {
@@ -673,9 +662,6 @@
                     </div>
                 </a>
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <button class="summarize-btn text-slate-400 hover:text-cyan-400" aria-label="Resumir com IA" title="Resumir com IA (Demonstração)">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1.158a.75.75 0 01-.22.53l-2.08 2.08a.75.75 0 01-1.06 0L.56 4.688a.75.75 0 01-.22-.53V3a1 1 0 011-1h3.66zm9.78 3.22a.75.75 0 01.22-.53V3a1 1 0 011-1h3.66a1 1 0 011 1v1.158a.75.75 0 01-.22.53l-2.08 2.08a.75.75 0 01-1.06 0l-2.08-2.08zM10 12.5a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75v-.01zM10 8a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75V8zM9.25 5.5a.75.75 0 00-.75.75v.01a.75.75 0 00.75.75h.01a.75.75 0 00.75-.75V6.25a.75.75 0 00-.75-.75h-.01z" clip-rule="evenodd" /></svg>
-                    </button>
                     <button class="save-btn" data-url="${news.url}" aria-label="Salvar notícia">${saveButtonIcon}</button>
                 </div>
             </div>
@@ -684,7 +670,6 @@
                     <p class="text-slate-300 font-semibold leading-relaxed mb-2 news-title">${finalTitle} ${mediaTag}</p>
                 </a>
             </div>
-            <div class="summary-container hidden"></div>
             <div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50">
                 <div class="flex flex-wrap gap-2">
                     ${categoryHTML}
@@ -722,7 +707,7 @@
                 return itemDate >= weekAgoStart && itemDate < today;
             }
         };
-        return filterFn[filterKey] ? items.filter(filterFn[filterKey]) : items;
+        return items.filter(filterFn[filterKey]);
     };
     
     function renderSavedNews() {
@@ -926,7 +911,7 @@
             let currentList;
             if (currentAppView === 'perspectives') {
                 currentList = masterNewsCache.filter(news => news.category === 'Perspectiva');
-            } else { 
+            } else { // radar
                 let radarList = masterNewsCache.filter(n => n.category !== 'Perspectiva');
                 currentList = applyDateFilter(radarList, currentDateFilter);
             }
@@ -959,6 +944,7 @@
         const secondaryFilters = document.getElementById('secondaryFilters');
         const categoriesSection = document.querySelector('#radarContainer .mb-8');
         
+        // Reset defaults
         categoriesSection.classList.remove('hidden');
         searchBarWrapper.style.display = 'flex';
         secondaryFilters.style.display = 'flex';
@@ -1166,27 +1152,6 @@
         document.getElementById('copyListBtn').addEventListener('click', () => {
             const listText = savedNews.map((n, i) => `${i + 1}. [${n.title}](${n.url}) - ${n.sourceName}`).join('\n');
             navigator.clipboard.writeText(listText).then(() => showToast('Lista copiada para a área de transferência!'));
-        });
-        
-        resultsContainer.addEventListener('click', (e) => {
-            const summarizeBtn = e.target.closest('.summarize-btn');
-            if (summarizeBtn) {
-                const card = summarizeBtn.closest('article');
-                const summaryContainer = card.querySelector('.summary-container');
-                
-                if (summaryContainer.classList.contains('hidden')) {
-                    summaryContainer.classList.remove('hidden');
-                    summaryContainer.innerHTML = 'Gerando resumo... <span class="animate-spin inline-block ml-2">⚙️</span>';
-
-                    setTimeout(() => {
-                        summaryContainer.innerHTML = `<ul class="list-disc pl-4 space-y-1"><li><b>Demonstração:</b> Esta é uma simulação de resumo por IA.</li><li>Em uma implementação real, o conteúdo do artigo seria processado por um modelo de linguagem para extrair os pontos-chave.</li><li>O objetivo é permitir que o usuário entenda o essencial da notícia sem precisar clicar no link.</li></ul>`;
-                    }, 1500);
-
-                } else {
-                    summaryContainer.classList.add('hidden');
-                    summaryContainer.innerHTML = '';
-                }
-            }
         });
 
         window.addEventListener('scroll', handleScroll);
