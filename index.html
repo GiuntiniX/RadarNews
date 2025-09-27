@@ -194,87 +194,11 @@
         </div>
         
         <div id="aggregateContainer" class="hidden">
-            <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Análise de Gaps de Cobertura</h2>
-            <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Esta seção destaca notícias recentes para ilustrar como diferentes portais abordam os mesmos eventos, revelando lacunas, exclusividades e variações de ângulo na cobertura.</p>
+            <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Análise de Gaps de Cobertura por Assunto</h2>
+            <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Visualize em tempo real os 50 principais assuntos e a cobertura dos portais, identificando Gaps de agilidade e exclusividade de forma dinâmica.</p>
 
-            <div class="max-w-4xl mx-auto space-y-4">
-                
-                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                    <div class="flex items-start gap-4">
-                        <div class="text-center flex-shrink-0">
-                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
-                            <p class="text-xl font-bold text-cyan-400">22:15</p>
-                        </div>
-                        <div class="border-l border-slate-600 pl-4 flex-grow">
-                            <p class="font-semibold text-slate-200">Folha de S.Paulo: "Articulação de Lira foi chave para aprovação de pauta econômica, dizem líderes"</p>
-                            <p class="text-sm text-slate-400 mt-1 italic">
-                               <b class="text-amber-400">Análise do Gap:</b> Cobertura com foco nos bastidores políticos e análise de poder. Outros grandes portais (G1, UOL) focaram apenas no resultado prático da votação, sem aprofundar nas negociações.
-                            </p>
-                        </div>
-                    </div>
+            <div id="gap-grid-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 </div>
-
-                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                    <div class="flex items-start gap-4">
-                        <div class="text-center flex-shrink-0">
-                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
-                            <p class="text-xl font-bold text-cyan-400">21:40</p>
-                        </div>
-                        <div class="border-l border-slate-600 pl-4 flex-grow">
-                            <p class="font-semibold text-slate-200">G1: "Câmara aprova em 1º turno projeto que altera impostos sobre serviços digitais"</p>
-                            <p class="text-sm text-slate-400 mt-1 italic">
-                                <b class="text-amber-400">Análise do Gap:</b> Reportagem factual e direta, sendo o primeiro grande portal a noticiar o resultado. Foco na agilidade e na informação principal.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                    <div class="flex items-start gap-4">
-                        <div class="text-center flex-shrink-0">
-                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
-                            <p class="text-xl font-bold text-cyan-400">20:55</p>
-                        </div>
-                        <div class="border-l border-slate-600 pl-4 flex-grow">
-                            <p class="font-semibold text-slate-200">Valor Econômico: "Com nova regra cambial, BC espera reduzir volatilidade do dólar em 2026"</p>
-                            <p class="text-sm text-slate-400 mt-1 italic">
-                               <b class="text-amber-400">Análise do Gap:</b> Matéria exclusiva com fontes do Banco Central, antecipando impactos de uma medida ainda não amplamente divulgada. Cobertura de nicho e aprofundada, ausente na mídia generalista até o momento.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                    <div class="flex items-start gap-4">
-                        <div class="text-center flex-shrink-0">
-                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
-                            <p class="text-xl font-bold text-cyan-400">19:30</p>
-                        </div>
-                        <div class="border-l border-slate-600 pl-4 flex-grow">
-                            <p class="font-semibold text-slate-200">CNN Brasil: "VÍDEO: Tempestade causa estragos e deixa bairros sem luz na Grande Florianópolis"</p>
-                             <p class="text-sm text-slate-400 mt-1 italic">
-                                <b class="text-amber-400">Análise do Gap:</b> Cobertura regional com forte apelo visual (vídeo). Embora outros portais tenham citado o evento em notas, a CNN foi a única a dar destaque com material audiovisual e reportagem local.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                    <div class="flex items-start gap-4">
-                        <div class="text-center flex-shrink-0">
-                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
-                            <p class="text-xl font-bold text-cyan-400">18:10</p>
-                        </div>
-                        <div class="border-l border-slate-600 pl-4 flex-grow">
-                            <p class="font-semibold text-slate-200">UOL Esporte: "Clube europeu faz proposta milionária por jovem promessa do Flamengo; diretoria avalia"</p>
-                             <p class="text-sm text-slate-400 mt-1 italic">
-                                <b class="text-amber-400">Análise do Gap:</b> Furo de reportagem no mercado de transferências. Portais concorrentes como Globo Esporte e ESPN ainda não confirmaram ou noticiaram a proposta.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
         </div>
         </div>
     
@@ -375,29 +299,13 @@
     
     // --- LÓGICA DE CLASSIFICAÇÃO DE MÍDIA ---
     
-    /**
-     * Tenta determinar o tipo de mídia (texto, vídeo, podcast) baseado no título e URL.
-     */
     function determineMediaType(title, url) {
         const titleLower = title.toLowerCase();
         const urlLower = url.toLowerCase();
-
-        // 1. Palavras-chave no título (indicadores fortes)
-        if (titleLower.includes('vídeo') || titleLower.includes('assista') || titleLower.includes('galeria') || titleLower.includes('imagens') || titleLower.includes('live') || titleLower.includes('ao vivo') || titleLower.includes('tv')) {
-            return 'video';
-        }
-        if (titleLower.includes('podcast') || titleLower.includes('áudio') || titleLower.includes('ouça') || titleLower.includes('spotify') || titleLower.includes('cast')) {
-            return 'podcast';
-        }
-        
-        // 2. Domínios e padrões de URL (reforço para vídeos e áudio)
-        if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/') || urlLower.includes('recordtv.r7.com') || urlLower.includes('band.com.br/videos') || urlLower.includes('uol.com.br/videos')) {
-            return 'video';
-        }
-        if (urlLower.includes('soundcloud.com') || urlLower.includes('/podcasts/') || urlLower.includes('g1.globo.com/podcast') || urlLower.includes('anchor.fm')) {
-            return 'podcast';
-        }
-
+        if (titleLower.includes('vídeo') || titleLower.includes('assista') || titleLower.includes('galeria') || titleLower.includes('imagens') || titleLower.includes('live') || titleLower.includes('ao vivo') || titleLower.includes('tv')) return 'video';
+        if (titleLower.includes('podcast') || titleLower.includes('áudio') || titleLower.includes('ouça') || titleLower.includes('spotify') || titleLower.includes('cast')) return 'podcast';
+        if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/video/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/') || urlLower.includes('recordtv.r7.com') || urlLower.includes('band.com.br/videos') || urlLower.includes('uol.com.br/videos')) return 'video';
+        if (urlLower.includes('soundcloud.com') || urlLower.includes('/podcasts/') || urlLower.includes('g1.globo.com/podcast') || urlLower.includes('anchor.fm')) return 'podcast';
         return 'texto';
     }
 
@@ -417,9 +325,7 @@
             if (item.sourceUrl && typeof item.sourceUrl === 'string') { 
                 sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); 
             } 
-        } catch (e) { 
-            // Ignora erros de URL, usa valor padrão
-        }
+        } catch (e) {}
         
         const bestCategory = categoryTag && categoryTag !== 'Todas' ? categoryTag : 'Geral'; 
         const mediaType = determineMediaType(item.title, item.link); 
@@ -437,9 +343,6 @@
         };
     }
 
-    /**
-     * Busca notícias do Google News via RSS com reforço para conteúdos de vídeo e podcasts.
-     */
     async function fetchFromGoogleNewsAPI(query = null) {
         const fetchAndParse = async (searchUrl, categoryTag) => {
             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`;
@@ -484,7 +387,6 @@
                 return fetchAndParse(searchUrl, cat);
             });
             
-            // BUSCA REFORÇADA PARA VÍDEOS E PODCASTS DE TODOS OS PORTAIS
             const mediaQueries = [
                 'site:youtube.com "ao vivo" OR site:youtube.com "live"',
                 'vídeo de notícia Brasil OR site:g1.globo.com/videos OR site:r7.com/videos OR site:band.com.br/videos OR site:uol.com.br/videos',
@@ -534,9 +436,6 @@
         return items.filter(item => item.mediaType === filterKey);
     };
 
-    /**
-     * Renderiza os cards de notícia na tela, aplicando todos os filtros e a paginação/scroll infinito.
-     */
     function renderRadarResults(append = false) {
         if (!append) { 
             resultsContainer.innerHTML = ''; 
@@ -546,7 +445,6 @@
         let filteredNews = applyDateFilter(masterNewsCache, currentDateFilter);
         filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); 
 
-        // Filtro "Para Si"
         if (currentRadarView === 'paraSi') {
             if (followedTopics.length === 0) {
                  messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Para Si", selecione seus temas de interesse nas categorias abaixo.';
@@ -581,18 +479,13 @@
         isLoadingMore = false; 
     }
     
-    /**
-     * Cria o elemento HTML (card) de uma notícia.
-     */
     function createGoogleNewsCard(news) {
         const newsElement = document.createElement('div');
-        
         const primaryCategory = news.category === 'Geral' ? 'Todas' : news.category.split(' > ')[0];
         const borderColorClass = categoryColorMap[primaryCategory] || 'border-cyan-500';
         const categoryIndex = mainCategories.indexOf(primaryCategory); 
         let categoryColorClass = 'bg-slate-700'; 
         let categoryTextColorClass = 'text-white';
-        
         if (categoryIndex > 0) { 
             const colorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length];
             categoryColorClass = colorClass.split(' ')[0]; 
@@ -601,7 +494,6 @@
         } else if (primaryCategory === 'Todas') {
             categoryColorClass = 'bg-slate-700'; 
         }
-        
         const newsDateTime = new Date(news.timestamp);
         const newsDate = newsDateTime.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
         const newsTime = newsDateTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -614,18 +506,14 @@
             : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
         const searchTerm = searchInput.value.trim();
         let finalTitle = news.title;
-        
         if (searchTerm) { 
             const regex = new RegExp(`(${searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'); 
             finalTitle = finalTitle.replace(regex, `<span class="highlight">$1</span>`); 
         }
-        
         const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${primaryCategory}</span>`;
         const mediaInfo = getMediaIconAndColor(news.mediaType);
         const mediaTag = `<span class="text-lg text-slate-300 ml-1" title="${mediaInfo.label}">${mediaInfo.emoji}</span>`; 
-        
         newsElement.className = `bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col gap-4 transform hover:scale-[1.01] transition-transform duration-300`; 
-        
         newsElement.innerHTML = `
             <div class="flex justify-between items-start">
                 <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 overflow-hidden">
@@ -654,7 +542,7 @@
         return newsElement;
     }
     
-    // --- LÓGICA DE INTERFACE E UTILITÁRIOS (mantido como está) ---
+    // --- LÓGICA DE INTERFACE E UTILITÁRIOS ---
     
     function handleDateFilterChange(filterKey, buttonElement) {
         currentDateFilter = filterKey;
@@ -689,7 +577,6 @@
         savedNewsCountSidebar.textContent = savedNews.length; savedNewsCountBadge.textContent = savedNews.length; savedNewsPreviewContainer.innerHTML = '';
         if (savedNews.length === 0) { const emptyMsg = `<p class="text-sm text-center text-slate-400 p-4">Nenhuma notícia salva.</p>`; savedNewsContainer.innerHTML = emptyMsg; savedNewsPreviewContainer.innerHTML = emptyMsg; return; }
         
-        // Renderiza lista completa no modal
         savedNews.forEach(news => { 
             const savedItem = document.createElement('div'); 
             savedItem.className = 'flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-700'; 
@@ -697,7 +584,6 @@
             savedNewsContainer.appendChild(savedItem); 
         });
         
-        // Renderiza pré-visualização na sidebar
         savedNews.slice(0, 15).forEach(news => { 
             const savedItem = document.createElement('div'); 
             savedItem.className = 'flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-700'; 
@@ -745,7 +631,6 @@
             
             categoryButton.onclick = () => {
                 if (currentRadarView === 'paraSi') {
-                    // Lógica de seguir/deixar de seguir
                     const topicIndex = followedTopics.indexOf(category);
                     if (topicIndex > -1) {
                         followedTopics.splice(topicIndex, 1);
@@ -758,7 +643,6 @@
                     renderCategories();
                     if (currentRadarView === 'paraSi') { renderRadarResults(); }
                 } else if (currentRadarView === 'geral') {
-                    // Lógica de filtro por categoria
                     handleSearch(searchInput.value, category === 'Todas' ? null : category);
                     document.querySelectorAll('#categoriesContainer button').forEach(btn => btn.classList.remove('category-active'));
                     categoryButton.classList.add('category-active');
@@ -789,7 +673,6 @@
             if (isInitialLoad) {
                 messageState.classList.add('hidden'); 
                 resultsContainer.innerHTML = '';
-                // Simulação de Cards de Loading
                 for(let i = 0; i < 6; i++) { resultsContainer.innerHTML += `<div class="bg-slate-800 border-l-4 border-slate-700 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 animate-pulse"><div class="flex justify-between items-start"><div class="flex items-center gap-3 w-1/2"><div class="w-6 h-6 rounded-md bg-slate-700"></div><div class="h-4 bg-slate-700 rounded w-full"></div></div><div class="h-6 w-12 bg-slate-700 rounded-full"></div></div><div><div class="h-5 bg-slate-700 rounded w-full mb-2"></div><div class="h-5 bg-slate-700 rounded w-3/4"></div></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div class="h-5 w-20 bg-slate-700 rounded-full"></div><div class="h-4 w-24 bg-slate-700 rounded"></div></div></div>`; }
             }
         } else {
@@ -812,9 +695,7 @@
         setLoading(true);
         currentCategorySearch = category;
         const query = category !== null ? category : queryValue;
-        
         masterNewsCache = await fetchFromGoogleNewsAPI(query.trim() === '' ? null : query);
-        
         setLoading(false);
         renderRadarResults();
         renderCategories(); 
@@ -859,7 +740,6 @@
     }
     
     function handleScroll() {
-        // Lógica de Paginação (Carregar Mais)
         if (currentAppView === 'radar' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) {
             const totalItems = applyMediaFilter(applyDateFilter(masterNewsCache, currentDateFilter), currentMediaFilter).length;
             if (currentPage * itemsPerPage < totalItems) {
@@ -868,7 +748,6 @@
                 renderRadarResults(true); 
             }
         }
-        // Lógica do botão Voltar ao Topo
         if (window.scrollY > 300) {
             backToTopBtn.classList.remove('hidden', 'opacity-0', 'translate-y-20');
             backToTopBtn.classList.add('opacity-100', 'translate-y-0');
@@ -898,7 +777,7 @@
                 viewFilterRadar.classList.add('view-filter-active');
                 viewFilterRadar.classList.remove('text-slate-300', 'hover:bg-slate-700');
                 viewFilterRadar.setAttribute('aria-pressed', 'true');
-            } else { // Para Si
+            } else {
                 viewFilterForYou.classList.add('view-filter-active');
                 viewFilterForYou.classList.remove('text-slate-300', 'hover:bg-slate-700');
                 viewFilterForYou.setAttribute('aria-pressed', 'true');
@@ -913,11 +792,93 @@
             viewFilterAggregate.setAttribute('aria-pressed', 'true');
             searchBarWrapper.classList.add('hidden');
             dateFilterContainer.classList.add('hidden');
-            mediaFilterDropdown.classList.add('hidden'); 
-            // Nenhuma função de renderização é necessária aqui, pois o conteúdo agora é estático.
+            mediaFilterDropdown.classList.add('hidden');
         }
     }
 
+    // #################### SCRIPT PARA CONTEÚDO AGREGADO E PAGINAÇÃO ####################
+    function setupAggregateView() {
+        const portalColors = {
+            "G1": "bg-red-800", "UOL": "bg-orange-600", "Folha": "bg-blue-800", "Estadão": "bg-sky-800",
+            "CNN": "bg-red-600", "R7": "bg-blue-600", "Terra": "bg-orange-800", "GE": "bg-green-700",
+            "Valor": "bg-emerald-800", "Metrópoles": "bg-yellow-700", "Poder360": "bg-indigo-800", "TecMundo": "bg-purple-800"
+        };
+        const gapData = [
+            // DADOS ATUALIZADOS E CRONOLÓGICOS
+            { time: "23:05", title: "Fim de jogo no Maracanã: Flamengo vence o Bahia por 2 a 1", portals: ["GE", "UOL", "Terra"] },
+            { time: "22:40", title: "Governo adia mais uma vez anúncio sobre taxação de importados", portals: ["G1", "Poder360", "Folha"] },
+            { time: "22:15", title: "Bolsa de NY fecha em leve alta após dados de emprego nos EUA", portals: ["Valor", "CNN", "G1"] },
+            { time: "21:50", title: "Série de sucesso da HBO é renovada para 3ª temporada", portals: ["UOL", "Metrópoles", "R7"] },
+            { time: "21:20", title: "STF forma maioria para manter demarcação de terras indígenas", portals: ["G1", "Folha", "Estadão", "Poder360"] },
+            { time: "20:45", title: "Anvisa aprova novo medicamento para tratamento de Alzheimer no Brasil", portals: ["G1", "UOL", "R7", "Terra"] },
+            { time: "20:10", title: "Exclusivo: Delator detalha esquema de corrupção em ministério", portals: ["Metrópoles"] },
+            { time: "19:30", title: "Crise na Argentina: Dólar blue atinge novo recorde histórico", portals: ["Valor", "G1", "Folha", "CNN"] },
+            { time: "19:05", title: "Relatório aponta aumento de 15% no desmatamento na Amazônia", portals: ["G1", "Estadão", "Terra"] },
+            { time: "18:40", title: "Vazam especificações do novo Samsung Galaxy S26", portals: ["TecMundo", "UOL"] },
+            { time: "18:15", title: "Petrobras anuncia redução no preço da gasolina", portals: ["G1", "UOL", "Valor", "Folha", "CNN", "R7", "Estadão", "Terra"] },
+            { time: "17:50", title: "Técnico da Seleção convoca time para amistosos de outubro", portals: ["GE", "UOL", "Terra", "G1"] },
+            { time: "17:20", title: "PF mira desvio de verbas em obras no Nordeste", portals: ["G1", "Poder360", "Folha"] },
+            { time: "16:55", title: "INSS: Sai 2ª parcela do 13º salário para aposentados", portals: ["G1", "UOL", "R7", "Folha"] },
+            { time: "16:30", title: "Análise: Como a IA pode impactar as eleições de 2026", portals: ["Poder360", "Estadão"] },
+            { time: "16:00", title: "Rock in Rio confirma nova atração internacional", portals: ["G1", "UOL", "Metrópoles", "R7"] },
+            { time: "15:40", title: "Câmara inicia discussão sobre regulamentação de apostas esportivas", portals: ["G1", "Poder360", "GE", "Folha"] },
+            { time: "15:15", title: "Inflação oficial (IPCA) desacelera para 0,25% em agosto", portals: ["G1", "Valor", "UOL", "Folha", "Estadão"] },
+            { time: "14:50", title: "Presidente da França faz duro discurso sobre clima na ONU", portals: ["G1", "Folha", "CNN", "UOL"] },
+            { time: "14:20", title: "Polícia de SP prende suspeito de liderar quadrilha de roubo de cargas", portals: ["G1", "R7", "Metrópoles", "Terra"] },
+            { time: "14:00", title: "Mercado Livre anuncia novo centro de distribuição em MG", portals: ["Valor", "G1", "Folha"] },
+            { time: "13:45", title: "WhatsApp libera função de editar mensagens para todos", portals: ["TecMundo", "UOL", "G1", "R7", "Terra"] },
+            { time: "13:20", title: "Ministro da Fazenda se reúne com presidentes de bancos", portals: ["G1", "Valor", "Poder360", "Folha"] },
+            { time: "13:00", title: "Técnico do Palmeiras, Abel Ferreira, recebe proposta da Arábia Saudita", portals: ["GE", "UOL", "ESPN"] },
+            { time: "12:40", title: "Morre aos 88 anos o ator brasileiro Antônio Fagundes", portals: ["G1", "UOL", "Folha", "Estadão", "R7", "Metrópoles", "Terra"] },
+            { time: "12:15", title: "Previsão: Frente fria derruba temperaturas no Sudeste", portals: ["G1", "UOL", "Terra", "CNN"] },
+            { time: "11:50", title: "Tesla anuncia recall de 500 mil veículos por falha nos freios", portals: ["Valor", "G1", "TecMundo", "UOL"] },
+            { time: "11:30", title: "Debate sobre reforma tributária avança no Senado", portals: ["Poder360", "G1", "Folha", "Estadão"] },
+            { time: "11:10", title: "Cantora Anitta lança novo clipe gravado na Colômbia", portals: ["UOL", "Metrópoles", "G1", "R7"] },
+            { time: "10:45", title: "Estudo da Fiocruz aponta queda nos casos de dengue no país", portals: ["G1", "UOL", "Folha", "Terra"] },
+            { time: "10:20", title: "Exclusivo: Documentos revelam lobby de empresas de energia", portals: ["Estadão", "Poder360"] },
+            { time: "10:00", title: "Dólar abre em queda, cotado a R$ 5,15", portals: ["Valor", "G1", "UOL", "CNN"] },
+            { time: "09:40", title: "Mega-Sena acumula e prêmio vai a R$ 80 milhões", portals: ["G1", "UOL", "R7", "Terra"] },
+            { time: "09:15", title: "Guerra na Ucrânia: Rússia intensifica ataques em Kharkiv", portals: ["G1", "CNN", "Folha", "Estadão"] },
+            { time: "08:50", title: "Greve de metrô em São Paulo é suspensa após acordo", portals: ["G1", "R7", "Folha", "Metrópoles"] },
+            { time: "08:20", title: "Opinião: A bolha das startups de IA está prestes a estourar?", portals: ["Folha", "TecMundo", "Estadão"] },
+            { time: "07:55", title: "Receita libera consulta ao 4º lote de restituição do IR", portals: ["G1", "UOL", "Valor", "R7", "Terra"] },
+            { time: "07:30", title: "Acidente entre caminhões interdita trecho da Rodovia Dutra", portals: ["G1", "R7", "CNN"] },
+            { time: "07:00", title: "CPI do 8/1: Depoimento de ex-ministro é marcado por bate-boca", portals: ["Poder360", "G1", "UOL", "Folha"] },
+            { time: "06:30", title: "Bolsas da Ásia fecham mistas com preocupações sobre China", portals: ["Valor", "G1", "CNN"] },
+            { time: "06:00", title: "Novo filme da Marvel estreia com alta aprovação da crítica", portals: ["UOL", "Metrópoles", "G1", "Terra"] },
+            { time: "05:30", title: "Japão emite alerta de tsunami após terremoto de 7.1", portals: ["G1", "CNN", "UOL", "Folha"] },
+            { time: "05:00", title: "Análise: A fragmentação da base do governo no Congresso", portals: ["Poder360", "Estadão", "Folha"] },
+            { time: "04:30", title: "Estudo brasileiro desenvolve método para diagnóstico precoce de câncer", portals: ["G1", "Folha", "UOL"] },
+            { time: "04:00", title: "F1: Verstappen lidera treinos livres para o GP do Japão", portals: ["GE", "UOL", "Terra"] },
+            { time: "03:30", title: "PF deporta hacker turco procurado pela Interpol", portals: ["G1", "Metrópoles", "Poder360"] },
+            { time: "03:00", title: "China lança com sucesso nova missão tripulada à sua estação espacial", portals: ["G1", "TecMundo", "CNN"] },
+            { time: "02:30", title: "Ex-CEO da Americanas presta depoimento à CVM", portals: ["Valor", "G1", "Estadão"] },
+            { time: "02:00", title: "Festival de Veneza premia filme iraniano com o Leão de Ouro", portals: ["UOL", "Folha", "G1"] },
+            { time: "01:30", title: "Incêndio de grandes proporções atinge parque na Califórnia", portals: ["G1", "CNN", "Terra"] },
+        ];
+
+        const gridContainer = document.getElementById('gap-grid-container');
+        gridContainer.innerHTML = ''; // Limpa o conteúdo anterior
+
+        gapData.forEach(item => {
+            const portalsHTML = item.portals.map(portal => 
+                `<span class="text-xs font-semibold text-white ${portalColors[portal] || 'bg-slate-600'} px-2 py-1 rounded-full">${portal}</span>`
+            ).join('');
+
+            const itemElement = document.createElement('div');
+            itemElement.className = 'bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col';
+            itemElement.innerHTML = `
+                <div class="flex-grow">
+                    <p class="font-semibold text-slate-300">${item.title}</p>
+                    <p class="text-sm text-cyan-400 font-mono mt-1 mb-3">${item.time}</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 mt-auto pt-2 border-t border-slate-700/50">
+                    ${portalsHTML}
+                </div>
+            `;
+            gridContainer.appendChild(itemElement);
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         // Carrega estado salvo do LocalStorage
@@ -933,8 +894,11 @@
         
         // Inicia o carregamento de conteúdo
         loadInitialContent();
+
+        // Inicializa a visualização agregada
+        setupAggregateView();
         
-        // Auto-Refresh a cada 20 minutos
+        // Auto-Refresh
         setInterval(() => {
             loadInitialContent(true);
             showToast('Notícias atualizadas automaticamente!');
@@ -942,7 +906,6 @@
 
         // --- EVENT LISTENERS GERAIS ---
         
-        // Eventos do Dropdown de Mídia
         mediaFilterButton.addEventListener('click', (e) => {
             e.stopPropagation(); 
             const isExpanded = mediaFilterButton.getAttribute('aria-expanded') === 'true';
@@ -953,8 +916,7 @@
 
         mediaDropdownMenu.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', (e) => {
-                const filterKey = e.currentTarget.getAttribute('data-media-key');
-                handleMediaFilterChange(filterKey);
+                handleMediaFilterChange(e.currentTarget.getAttribute('data-media-key'));
             });
         });
 
@@ -966,31 +928,25 @@
             }
         });
 
-        // Eventos de Visão (Radar, Para Si, Agregado)
         viewFilterRadar.addEventListener('click', () => { currentRadarView = 'geral'; setView('radar'); handleSearch(searchInput.value, null); });
-        viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); }); // setView chama renderResults
+        viewFilterForYou.addEventListener('click', () => { currentRadarView = 'paraSi'; setView('radar'); });
         viewFilterAggregate.addEventListener('click', () => { setView('aggregate'); }); 
 
-        // Eventos de Busca
         searchButton.addEventListener('click', () => handleSearch(searchInput.value, null));
         
-        // Debounce para a busca em tempo real
         searchInput.addEventListener('input', () => { 
             updateClearSearchButton(); 
             const debounce = (func, delay = 500) => {
                 let timeout;
                 return function(...args) {
                     clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        func.apply(this, args);
-                    }, delay);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
                 };
             };
             debounce(() => handleSearch(searchInput.value, null), 500)();
         });
         clearSearchBtn.addEventListener('click', () => { searchInput.value = ''; updateClearSearchButton(); handleSearch('', null); });
         
-        // Eventos de Data e Ação
         dateFilterToday.addEventListener('click', (e) => handleDateFilterChange('hoje', e.currentTarget));
         dateFilterLastWeek.addEventListener('click', (e) => handleDateFilterChange('ultima_semana', e.currentTarget));
         refreshButton.addEventListener('click', () => { searchInput.value = ''; loadInitialContent(); });
@@ -998,7 +954,6 @@
         closeReadingListBtn.addEventListener('click', () => readingListModal.classList.add('hidden'));
         backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         
-        // Botão "Limpar Tópicos" do Para Si
         document.getElementById('clearFollowedBtn').addEventListener('click', () => { 
             followedTopics = []; 
             localStorage.removeItem('followedTopics'); 
@@ -1007,13 +962,11 @@
             showToast('Tópicos seguidos limpos.'); 
         });
 
-        // Copiar Lista
         document.getElementById('copyListBtn').addEventListener('click', () => {
             const listText = savedNews.map((n, i) => `${i + 1}. [${n.title}](${n.url}) - ${n.sourceName}`).join('\n');
             navigator.clipboard.writeText(listText).then(() => showToast('Lista copiada para a área de transferência!'));
         });
         
-        // Evento de Scroll para paginação e botão "Voltar ao Topo"
         window.addEventListener('scroll', handleScroll);
     });
     </script>
