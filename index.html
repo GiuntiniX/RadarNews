@@ -19,9 +19,11 @@
 
         /* Estilos dos botões de filtro ATIVO */
         .view-filter-active,
-        .date-filter-active {
+        .date-filter-active,
+        .filter-active {
             background-color: #06b6d4 !important; /* cyan-500 */
             color: #ffffff !important;
+            font-weight: 600;
         }
         /* Estilo da Categoria Ativa (Geral) */
         .category-active {
@@ -195,7 +197,13 @@
         
         <div id="aggregateContainer" class="hidden">
             <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Análise de Gaps de Cobertura por Assunto</h2>
-            <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Visualize em tempo real os 50 principais assuntos e a cobertura dos portais, identificando Gaps de agilidade e exclusividade de forma dinâmica.</p>
+            <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Visualize os 50 principais assuntos e a cobertura dos portais. Use o filtro para analisar a presença de cada fonte.</p>
+            
+            <div class="mb-6">
+                <p class="text-sm font-semibold text-slate-400 mb-3 text-center">Filtrar por Fonte:</p>
+                <div id="gap-source-filter-container" class="flex flex-wrap justify-center gap-2">
+                    </div>
+            </div>
 
             <div id="gap-grid-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 </div>
@@ -796,7 +804,7 @@
         }
     }
 
-    // #################### SCRIPT PARA CONTEÚDO AGREGADO E PAGINAÇÃO ####################
+    // #################### SCRIPT PARA CONTEÚDO AGREGADO E FILTRO ####################
     function setupAggregateView() {
         const portalColors = {
             "G1": "bg-red-800", "UOL": "bg-orange-600", "Folha": "bg-blue-800", "Estadão": "bg-sky-800",
@@ -828,7 +836,7 @@
             { time: "14:00", title: "Mercado Livre anuncia novo centro de distribuição em MG", portals: ["Valor", "G1", "Folha"] },
             { time: "13:45", title: "WhatsApp libera função de editar mensagens para todos", portals: ["TecMundo", "UOL", "G1", "R7", "Terra"] },
             { time: "13:20", title: "Ministro da Fazenda se reúne com presidentes de bancos", portals: ["G1", "Valor", "Poder360", "Folha"] },
-            { time: "13:00", title: "Técnico do Palmeiras, Abel Ferreira, recebe proposta da Arábia Saudita", portals: ["GE", "UOL", "ESPN"] },
+            { time: "13:00", title: "Técnico do Palmeiras, Abel Ferreira, recebe proposta da Arábia Saudita", portals: ["GE", "UOL", "Terra"] },
             { time: "12:40", title: "Morre aos 88 anos o ator brasileiro Antônio Fagundes", portals: ["G1", "UOL", "Folha", "Estadão", "R7", "Metrópoles", "Terra"] },
             { time: "12:15", title: "Previsão: Frente fria derruba temperaturas no Sudeste", portals: ["G1", "UOL", "Terra", "CNN"] },
             { time: "11:50", title: "Tesla anuncia recall de 500 mil veículos por falha nos freios", portals: ["Valor", "G1", "TecMundo", "UOL"] },
@@ -858,15 +866,34 @@
         ];
 
         const gridContainer = document.getElementById('gap-grid-container');
-        gridContainer.innerHTML = ''; // Limpa o conteúdo anterior
+        const filterContainer = document.getElementById('gap-source-filter-container');
+        
+        // 1. Renderiza os botões de filtro
+        filterContainer.innerHTML = ''; // Limpa filtros antigos
+        const allButton = document.createElement('button');
+        allButton.className = 'text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700 hover:bg-slate-600 filter-active';
+        allButton.textContent = 'Exibir Todos';
+        allButton.dataset.portal = 'todos';
+        filterContainer.appendChild(allButton);
 
+        Object.keys(portalColors).forEach(portal => {
+            const button = document.createElement('button');
+            button.className = 'text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700 hover:bg-slate-600';
+            button.textContent = portal;
+            button.dataset.portal = portal;
+            filterContainer.appendChild(button);
+        });
+
+        // 2. Renderiza os cards na grade
+        gridContainer.innerHTML = ''; 
         gapData.forEach(item => {
             const portalsHTML = item.portals.map(portal => 
                 `<span class="text-xs font-semibold text-white ${portalColors[portal] || 'bg-slate-600'} px-2 py-1 rounded-full">${portal}</span>`
             ).join('');
 
             const itemElement = document.createElement('div');
-            itemElement.className = 'bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col';
+            itemElement.className = 'bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col transition-opacity duration-300';
+            itemElement.dataset.portals = item.portals.join(','); // Adiciona data-attribute para o filtro
             itemElement.innerHTML = `
                 <div class="flex-grow">
                     <p class="font-semibold text-slate-300">${item.title}</p>
@@ -878,7 +905,30 @@
             `;
             gridContainer.appendChild(itemElement);
         });
+
+        // 3. Adiciona a lógica do filtro
+        filterContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+
+            const portalFilter = button.dataset.portal;
+
+            // Atualiza o estado visual dos botões
+            filterContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('filter-active'));
+            button.classList.add('filter-active');
+
+            // Filtra os cards
+            const allCards = gridContainer.querySelectorAll('[data-portals]');
+            allCards.forEach(card => {
+                if (portalFilter === 'todos' || card.dataset.portals.includes(portalFilter)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        });
     }
+
 
     document.addEventListener('DOMContentLoaded', () => {
         // Carrega estado salvo do LocalStorage
