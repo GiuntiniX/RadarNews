@@ -107,8 +107,9 @@
             <div id="lastUpdated" class="text-sm text-slate-500 mt-2 flex justify-center items-center gap-2"></div>
         </header>
 
-        <div class="sticky top-4 bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-700 shadow-lg mb-8">
-            <div id="searchBarWrapper" class="flex flex-wrap items-center justify-center gap-4">
+        <div class="sticky top-4 bg-slate-800/80 backdrop-blur-sm z-10 p-4 rounded-xl border border-slate-700 shadow-lg mb-8 flex flex-col gap-3">
+            
+            <div id="searchBarWrapper" class="flex flex-wrap items-center justify-center">
                 <div class="flex-grow flex items-center bg-slate-900 rounded-lg p-1 border border-slate-700 w-full lg:w-auto max-w-4xl">
                     <input type="text" id="searchInput" placeholder="Busque enquanto digita..." class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none px-4 py-2">
                     <button id="clearSearchBtn" aria-label="Limpar busca" class="text-slate-500 hover:text-slate-300 transition-colors duration-200 p-2 hidden">
@@ -121,15 +122,18 @@
                 </div>
             </div>
 
-            <div class="flex justify-center items-center mt-4 flex-wrap gap-x-4 gap-y-2">
-                <div class="flex items-center gap-2 p-1 rounded-lg">
-                    <button id="viewFilterRadar" class="view-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" aria-pressed="true">Últimas Notícias</button>
-                    <button id="viewFilterForYou" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700 flex items-center gap-1.5" aria-pressed="false">
+            <div class="flex justify-center">
+                <div id="mainViewTabs" class="flex justify-center bg-slate-700/50 p-1 rounded-lg">
+                    <button id="viewFilterRadar" class="view-filter-active text-white px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200" aria-pressed="true">Últimas Notícias</button>
+                    <button id="viewFilterForYou" class="text-slate-300 hover:bg-slate-600/50 px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200 flex items-center gap-1.5" aria-pressed="false">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" /></svg>
                         Para Si
                     </button>
-                    <button id="viewFilterAggregate" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Cobertura da Mídia</button>
+                    <button id="viewFilterAggregate" class="text-slate-300 hover:bg-slate-600/50 px-4 py-1.5 rounded-md text-sm font-semibold transition-colors duration-200" aria-pressed="false">Cobertura da Mídia</button>
                 </div>
+            </div>
+            
+            <div id="secondaryFilters" class="flex justify-center items-center flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-slate-700/50">
                 <div id="dateFilterContainer" class="flex items-center gap-2 p-1 rounded-lg">
                     <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" data-date-key="hoje" aria-pressed="true">Hoje</button>
                     <button id="dateFilterLastWeek" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" data-date-key="ultima_semana" aria-pressed="false">Última Semana</button>
@@ -147,6 +151,7 @@
                         <button class="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-600 rounded-lg" data-media-key="podcast">Podcast 🎙️</button>
                     </div>
                 </div>
+
                 <div class="flex items-center gap-2">
                     <button id="refreshButton" aria-label="Atualizar notícias" class="text-slate-300 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
@@ -158,9 +163,9 @@
                     </button>
                 </div>
             </div>
-            <p id="apiError" class="text-center text-red-400 text-sm mt-3 h-4"></p>
+
+            <p id="apiError" class="text-center text-red-400 text-sm h-4"></p>
         </div>
-        
         <div id="radarContainer">
             <div class="lg:grid lg:grid-cols-10 lg:gap-8">
                 <div class="lg:col-span-7">
@@ -769,25 +774,24 @@
         currentAppView = view;
         const buttons = [viewFilterRadar, viewFilterForYou, viewFilterAggregate];
         buttons.forEach(btn => {
-            btn.classList.remove('view-filter-active', 'text-white');
-            btn.classList.add('text-slate-300', 'hover:bg-slate-700');
+            btn.classList.remove('view-filter-active');
+            btn.classList.add('text-slate-300', 'hover:bg-slate-600/50');
             btn.setAttribute('aria-pressed', 'false');
         });
 
         if (view === 'radar') {
             radarContainer.classList.remove('hidden');
             aggregateContainer.classList.add('hidden');
-            searchBarWrapper.classList.remove('hidden');
-            dateFilterContainer.classList.remove('hidden');
-            mediaFilterDropdown.classList.remove('hidden'); 
+            searchBarWrapper.style.display = 'flex';
+            document.getElementById('secondaryFilters').style.display = 'flex';
             
             if (currentRadarView === 'geral') {
                 viewFilterRadar.classList.add('view-filter-active');
-                viewFilterRadar.classList.remove('text-slate-300', 'hover:bg-slate-700');
+                viewFilterRadar.classList.remove('text-slate-300', 'hover:bg-slate-600/50');
                 viewFilterRadar.setAttribute('aria-pressed', 'true');
             } else {
                 viewFilterForYou.classList.add('view-filter-active');
-                viewFilterForYou.classList.remove('text-slate-300', 'hover:bg-slate-700');
+                viewFilterForYou.classList.remove('text-slate-300', 'hover:bg-slate-600/50');
                 viewFilterForYou.setAttribute('aria-pressed', 'true');
             }
             renderCategories(); 
@@ -796,11 +800,10 @@
             radarContainer.classList.add('hidden');
             aggregateContainer.classList.remove('hidden');
             viewFilterAggregate.classList.add('view-filter-active');
-            viewFilterAggregate.classList.remove('text-slate-300', 'hover:bg-slate-700');
+            viewFilterAggregate.classList.remove('text-slate-300', 'hover:bg-slate-600/50');
             viewFilterAggregate.setAttribute('aria-pressed', 'true');
-            searchBarWrapper.classList.add('hidden');
-            dateFilterContainer.classList.add('hidden');
-            mediaFilterDropdown.classList.add('hidden');
+            searchBarWrapper.style.display = 'none';
+            document.getElementById('secondaryFilters').style.display = 'none';
         }
     }
 
