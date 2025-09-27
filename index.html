@@ -194,20 +194,89 @@
         </div>
         
         <div id="aggregateContainer" class="hidden">
-            <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">Análise de Cobertura (Simulação)</h2>
-            <div id="gapAnalysisContainer" class="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
-                <h3 class="text-xl font-semibold text-amber-400 mb-4">Assuntos em Destaque na Concorrência (Top 10)</h3>
-                <div id="gapResults">
-                    <p class="text-slate-400 text-center py-4">Carregando dados de simulação...</p>
+            <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Análise de Gaps de Cobertura</h2>
+            <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Esta seção destaca notícias recentes para ilustrar como diferentes portais abordam os mesmos eventos, revelando lacunas, exclusividades e variações de ângulo na cobertura.</p>
+
+            <div class="max-w-4xl mx-auto space-y-4">
+                
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div class="flex items-start gap-4">
+                        <div class="text-center flex-shrink-0">
+                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
+                            <p class="text-xl font-bold text-cyan-400">22:15</p>
+                        </div>
+                        <div class="border-l border-slate-600 pl-4 flex-grow">
+                            <p class="font-semibold text-slate-200">Folha de S.Paulo: "Articulação de Lira foi chave para aprovação de pauta econômica, dizem líderes"</p>
+                            <p class="text-sm text-slate-400 mt-1 italic">
+                               <b class="text-amber-400">Análise do Gap:</b> Cobertura com foco nos bastidores políticos e análise de poder. Outros grandes portais (G1, UOL) focaram apenas no resultado prático da votação, sem aprofundar nas negociações.
+                            </p>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div class="flex items-start gap-4">
+                        <div class="text-center flex-shrink-0">
+                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
+                            <p class="text-xl font-bold text-cyan-400">21:40</p>
+                        </div>
+                        <div class="border-l border-slate-600 pl-4 flex-grow">
+                            <p class="font-semibold text-slate-200">G1: "Câmara aprova em 1º turno projeto que altera impostos sobre serviços digitais"</p>
+                            <p class="text-sm text-slate-400 mt-1 italic">
+                                <b class="text-amber-400">Análise do Gap:</b> Reportagem factual e direta, sendo o primeiro grande portal a noticiar o resultado. Foco na agilidade e na informação principal.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div class="flex items-start gap-4">
+                        <div class="text-center flex-shrink-0">
+                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
+                            <p class="text-xl font-bold text-cyan-400">20:55</p>
+                        </div>
+                        <div class="border-l border-slate-600 pl-4 flex-grow">
+                            <p class="font-semibold text-slate-200">Valor Econômico: "Com nova regra cambial, BC espera reduzir volatilidade do dólar em 2026"</p>
+                            <p class="text-sm text-slate-400 mt-1 italic">
+                               <b class="text-amber-400">Análise do Gap:</b> Matéria exclusiva com fontes do Banco Central, antecipando impactos de uma medida ainda não amplamente divulgada. Cobertura de nicho e aprofundada, ausente na mídia generalista até o momento.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div class="flex items-start gap-4">
+                        <div class="text-center flex-shrink-0">
+                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
+                            <p class="text-xl font-bold text-cyan-400">19:30</p>
+                        </div>
+                        <div class="border-l border-slate-600 pl-4 flex-grow">
+                            <p class="font-semibold text-slate-200">CNN Brasil: "VÍDEO: Tempestade causa estragos e deixa bairros sem luz na Grande Florianópolis"</p>
+                             <p class="text-sm text-slate-400 mt-1 italic">
+                                <b class="text-amber-400">Análise do Gap:</b> Cobertura regional com forte apelo visual (vídeo). Embora outros portais tenham citado o evento em notas, a CNN foi a única a dar destaque com material audiovisual e reportagem local.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div class="flex items-start gap-4">
+                        <div class="text-center flex-shrink-0">
+                            <p class="text-sm font-semibold text-slate-400">Hoje</p>
+                            <p class="text-xl font-bold text-cyan-400">18:10</p>
+                        </div>
+                        <div class="border-l border-slate-600 pl-4 flex-grow">
+                            <p class="font-semibold text-slate-200">UOL Esporte: "Clube europeu faz proposta milionária por jovem promessa do Flamengo; diretoria avalia"</p>
+                             <p class="text-sm text-slate-400 mt-1 italic">
+                                <b class="text-amber-400">Análise do Gap:</b> Furo de reportagem no mercado de transferências. Portais concorrentes como Globo Esporte e ESPN ainda não confirmaram ou noticiaram a proposta.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-
-             <h3 class="text-xl font-semibold text-cyan-400 mb-4">Conteúdo por Portal e Mídia</h3>
-
-            <div id="dashboardContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                </div>
         </div>
-    </div>
+        </div>
     
     <div id="readingListModal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-lg w-full max-w-2xl max-h-[80vh] flex flex-col">
@@ -229,7 +298,7 @@
     
     <script>
     // =================================================================================
-    // CÓDIGO FINAL UNIFICADO - RADAR DE NOTÍCIAS (COM SCROLL INFINITO E LÓGICA 'PARA SI' E 'AGREGADO' CORRIGIDAS)
+    // CÓDIGO FINAL UNIFICADO
     // =================================================================================
 
     // --- DOM ELEMENTS (Inicialização de Variáveis) ---
@@ -270,8 +339,6 @@
     const copyListBtn = document.getElementById('copyListBtn');
     const savedNewsCountSidebar = document.getElementById('savedNewsCountSidebar');
     const clearFollowedBtn = document.getElementById('clearFollowedBtn');
-    const gapResults = document.getElementById('gapResults');
-    const dashboardContainer = document.getElementById('dashboardContainer');
 
 
     // --- APP STATE (Estado Global) ---
@@ -731,88 +798,6 @@
         }
     }
     
-    // --- LÓGICA AGREGADA (SIMULAÇÃO) ---
-
-    // Dados simulados para o dashboard de agregação
-    const simulatedAggregateData = {
-        topTopics: [
-            { topic: "Crise na Petrobras", mentions: 45, mainSource: "Folha de S.Paulo" },
-            { topic: "Novas Regras do Pix", mentions: 32, mainSource: "G1" },
-            { topic: "Clima Extremo no Sul", mentions: 28, mainSource: "CNN Brasil" },
-            { topic: "Aumento da Selic", mentions: 25, mainSource: "Valor Econômico" },
-            { topic: "Reforma Tributária", mentions: 22, mainSource: "Estadão" },
-            { topic: "Lançamento de IA do Google", mentions: 18, mainSource: "Tecnoblog" },
-            { topic: "Novidade na Liga de Futebol", mentions: 15, mainSource: "Globo Esporte" },
-        ],
-        portalBreakdown: [
-            { name: "G1", texto: 85, video: 35, podcast: 15 },
-            { name: "CNN Brasil", texto: 60, video: 55, podcast: 20 },
-            { name: "UOL", texto: 120, video: 25, podcast: 10 },
-            { name: "Jovem Pan", texto: 45, video: 40, podcast: 5 },
-            { name: "Folha de S.Paulo", texto: 70, video: 5, podcast: 8 },
-            { name: "R7", texto: 50, video: 30, podcast: 5 },
-        ]
-    };
-
-    function renderAggregateView() {
-        // 1. Renderiza Top Tópicos
-        gapResults.innerHTML = '';
-        simulatedAggregateData.topTopics.forEach((item, index) => {
-            const topicElement = document.createElement('div');
-            topicElement.className = 'flex justify-between items-center py-2 border-b border-slate-700/50 last:border-b-0';
-            topicElement.innerHTML = `
-                <span class="text-sm text-slate-300 font-medium">
-                    ${index + 1}. ${item.topic} 
-                    <span class="text-xs text-slate-500 ml-2">(${item.mainSource})</span>
-                </span>
-                <span class="text-amber-400 font-bold">${item.mentions} menções</span>
-            `;
-            gapResults.appendChild(topicElement);
-        });
-
-        // 2. Renderiza Dashboard de Portais
-        dashboardContainer.innerHTML = '';
-        simulatedAggregateData.portalBreakdown.forEach(portal => {
-            const total = portal.texto + portal.video + portal.podcast;
-            const textPct = ((portal.texto / total) * 100).toFixed(0);
-            const videoPct = ((portal.video / total) * 100).toFixed(0);
-            const podcastPct = ((portal.podcast / total) * 100).toFixed(0);
-
-            const card = document.createElement('div');
-            card.className = 'bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-xl';
-            card.innerHTML = `
-                <h4 class="text-lg font-bold text-cyan-400 mb-4">${portal.name} (${total} Itens)</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-slate-400">Notícias 📝 (${portal.texto})</span>
-                        <span class="text-sm font-semibold text-slate-300">${textPct}%</span>
-                    </div>
-                    <div class="w-full bg-slate-700 rounded-full h-2.5">
-                        <div class="bg-cyan-500 h-2.5 rounded-full" style="width: ${textPct}%"></div>
-                    </div>
-
-                    <div class="flex justify-between items-center pt-3">
-                        <span class="text-sm text-slate-400">Vídeo ▶️ (${portal.video})</span>
-                        <span class="text-sm font-semibold text-slate-300">${videoPct}%</span>
-                    </div>
-                    <div class="w-full bg-slate-700 rounded-full h-2.5">
-                        <div class="bg-red-500 h-2.5 rounded-full" style="width: ${videoPct}%"></div>
-                    </div>
-
-                    <div class="flex justify-between items-center pt-3">
-                        <span class="text-sm text-slate-400">Podcast 🎙️ (${portal.podcast})</span>
-                        <span class="text-sm font-semibold text-slate-300">${podcastPct}%</span>
-                    </div>
-                    <div class="w-full bg-slate-700 rounded-full h-2.5">
-                        <div class="bg-green-500 h-2.5 rounded-full" style="width: ${podcastPct}%"></div>
-                    </div>
-                </div>
-            `;
-            dashboardContainer.appendChild(card);
-        });
-    }
-
-    
     // --- LÓGICA DE APLICAÇÃO (LOAD E EVENTOS) ---
     
     async function loadInitialContent(isAutoRefresh = false) {
@@ -929,7 +914,7 @@
             searchBarWrapper.classList.add('hidden');
             dateFilterContainer.classList.add('hidden');
             mediaFilterDropdown.classList.add('hidden'); 
-            renderAggregateView(); // Chama a função de simulação
+            // Nenhuma função de renderização é necessária aqui, pois o conteúdo agora é estático.
         }
     }
 
