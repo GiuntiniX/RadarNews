@@ -128,7 +128,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" /></svg>
                         Para Si
                     </button>
-                    <button id="viewFilterAggregate" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Conteúdo Agregado</button>
+                    <button id="viewFilterAggregate" class="text-slate-300 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-slate-700" aria-pressed="false">Cobertura da Mídia</button>
                 </div>
                 <div id="dateFilterContainer" class="flex items-center gap-2 p-1 rounded-lg">
                     <button id="dateFilterToday" class="date-filter-active text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200" data-date-key="hoje" aria-pressed="true">Hoje</button>
@@ -196,7 +196,7 @@
         </div>
         
         <div id="aggregateContainer" class="hidden">
-            <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Análise de Gaps de Cobertura por Assunto</h2>
+            <h2 class="text-2xl font-bold text-cyan-400 mb-2 text-center">Cobertura da Mídia</h2>
             <p class="text-center text-slate-400 mb-8 max-w-3xl mx-auto">Visualize os 50 principais assuntos e a cobertura dos portais. Use o filtro para analisar a presença de cada fonte.</p>
             
             <div class="mb-6">
@@ -455,8 +455,8 @@
 
         if (currentRadarView === 'paraSi') {
             if (followedTopics.length === 0) {
-                 messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Para Si", selecione seus temas de interesse nas categorias abaixo.';
-                 contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return;
+                messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Para Si", selecione seus temas de interesse nas categorias abaixo.';
+                contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return;
             }
             filteredNews = filteredNews.filter(news => { 
                 const titleLower = news.title.toLowerCase(); 
@@ -878,7 +878,14 @@
 
         Object.keys(portalColors).forEach(portal => {
             const button = document.createElement('button');
-            button.className = 'text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 bg-slate-700 hover:bg-slate-600';
+            const colorClass = portalColors[portal] || 'bg-slate-700';
+            // Gera uma classe de hover diminuindo a intensidade da cor (ex: bg-red-800 -> hover:bg-red-700)
+            const hoverClass = colorClass.replace(/(\d)00/g, (match) => {
+                const shade = parseInt(match);
+                return `${Math.max(100, shade - 100)}`;
+            }).replace('bg-', 'hover:bg-');
+
+            button.className = `text-sm text-white font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200 ${colorClass} ${hoverClass}`;
             button.textContent = portal;
             button.dataset.portal = portal;
             filterContainer.appendChild(button);
