@@ -213,6 +213,67 @@
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-transform duration-300"><p id="toastMessage"></p></div>
     <button id="backToTopBtn" aria-label="Voltar ao topo" class="hidden fixed bottom-5 right-5 bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-full shadow-lg opacity-0 transform translate-y-20"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg></button>
     
+    <button id="helpButton" aria-label="Ajuda e Guia de Uso" class="fixed bottom-5 left-5 bg-slate-600 hover:bg-slate-500 text-white p-3 rounded-full shadow-lg z-40 transition-transform hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    </button>
+    
+    <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col">
+            <header class="flex items-center justify-between p-4 border-b border-slate-700 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <h2 class="text-xl font-bold text-cyan-400">Guia de Uso da Ferramenta</h2>
+                </div>
+                <button id="closeHelpModalBtn" aria-label="Fechar Ajuda">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </header>
+            <div class="flex-grow p-6 overflow-y-auto space-y-6 text-slate-300">
+                
+                <div>
+                    <h3 class="font-bold text-cyan-400 mb-2">🔎 Barra de Busca</h3>
+                    <p class="text-sm">Use a barra principal para encontrar notícias por palavras-chave. Para refinar sua busca por um veículo específico, adicione <code class="bg-slate-700 text-amber-300 px-1 py-0.5 rounded text-xs">fonte:</code> seguido do domínio. Ex: <code class="bg-slate-700 text-amber-300 px-1 py-0.5 rounded text-xs">inteligência artificial fonte:g1.globo.com</code>.</p>
+                </div>
+    
+                <div>
+                    <h3 class="font-bold text-cyan-400 mb-2">🧭 Navegação Principal</h3>
+                    <ul class="space-y-2 text-sm list-disc list-inside ml-2">
+                        <li><b>Últimas Notícias:</b> O feed principal. Mostra todas as notícias mais recentes capturadas pela ferramenta, em ordem cronológica.</li>
+                        <li><b>Meu Radar:</b> Seu feed personalizado. Apenas as notícias dos editoriais que você escolheu seguir aparecerão aqui.</li>
+                        <li><b>Cobertura da Mídia:</b> Um painel para análise. Permite ver as manchetes dos principais portais lado a lado ou identificar os assuntos mais quentes do dia.</li>
+                        <li><b>Minhas Rondas:</b> Suas pastas de apuração. Salve notícias de qualquer feed clicando no ícone de marcador (🔖) para organizá-las por pauta, adicionar notas e exportar para Excel.</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-cyan-400 mb-2">📊 Filtros Rápidos</h3>
+                     <ul class="space-y-2 text-sm list-disc list-inside ml-2">
+                        <li><b>Filtro de Data (Hoje / Última Semana):</b> Limita os resultados ao período selecionado.</li>
+                        <li><b>Filtro de Mídia (📝 ▶️ 🎙️ 🖼️):</b> Mostra apenas notícias em formato de texto, vídeo, podcast ou galeria de imagens.</li>
+                         <li><b>Botão Atualizar (🔄):</b> Força uma nova varredura em busca de notícias, sem esperar o ciclo automático de 20 minutos.</li>
+                    </ul>
+                </div>
+    
+                <div>
+                    <h3 class="font-bold text-cyan-400 mb-2">🏷️ Navegue por Editorial</h3>
+                    <p class="text-sm">Os botões de editoriais (Política, Economia, etc.) têm duas funções:</p>
+                    <ul class="space-y-2 text-sm list-disc list-inside ml-2 mt-2">
+                        <li>Na aba <b>"Últimas Notícias"</b>, eles funcionam como um filtro rápido para ver apenas as notícias daquela categoria.</li>
+                        <li>Na aba <b>"Meu Radar"</b>, eles servem para montar seu feed:
+                            <ul class="list-inside list-[circle] ml-4 mt-1 space-y-1">
+                                <li><b class="text-blue-400">Um clique:</b> Você começa a seguir o editorial.</li>
+                                <li><b class="text-amber-400">Segundo clique:</b> Você define o editorial como prioritário, fazendo com que suas notícias apareçam no topo do seu feed.</li>
+                                <li><b class="text-red-400">Terceiro clique:</b> Você deixa de seguir o editorial.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     // ================================================================================= 
     // CÓDIGO PRO - Versão Final
@@ -269,6 +330,10 @@
     const welcomeBanner = document.getElementById('welcomeBanner');
     const closeWelcomeBannerBtn = document.getElementById('closeWelcomeBannerBtn');
     const exportAllRondasBtn = document.getElementById('exportAllRondasBtn');
+    // Elementos do Modal de Ajuda
+    const helpButton = document.getElementById('helpButton');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelpModalBtn = document.getElementById('closeHelpModalBtn');
 
     // --- APP STATE --- 
     let currentAppView = 'radar';
@@ -415,6 +480,15 @@
         closeRondaInfoBtn.addEventListener('click', () => { localStorage.setItem('hasSeenRondaInfo', 'true'); rondaInfoModal.classList.add('hidden'); renderRondas(); rondasModal.classList.remove('hidden'); });
         closeWelcomeBannerBtn.addEventListener('click', () => { localStorage.setItem('hasSeenWelcomeInfo', 'true'); welcomeBanner.classList.add('hidden'); });
         exportAllRondasBtn.addEventListener('click', () => exportAllRondasToXLSX());
+        
+        // Listeners do Modal de Ajuda
+        helpButton.addEventListener('click', () => helpModal.classList.remove('hidden'));
+        closeHelpModalBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
+        helpModal.addEventListener('click', (e) => {
+            if (e.target.id === 'helpModal') {
+                helpModal.classList.add('hidden');
+            }
+        });
     });
     </script>
 </body>
