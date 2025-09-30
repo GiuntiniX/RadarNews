@@ -6,7 +6,7 @@
     <title>Radar de Notícias</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/GiuntiniX/RadarNews/main/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
@@ -128,7 +128,10 @@
                                 <h2 class="text-lg font-bold text-cyan-400">Navegue por Editorial</h2>
                                 <button id="clearFollowedBtn" class="hidden text-xs text-red-400 hover:text-red-300 font-semibold transition-colors duration-200">Limpar Tópicos</button>
                             </div>
-                            <div id="categoriesContainer" class="flex flex-wrap gap-2"></div>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <button id="filterAllCategories" class="category-active text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 bg-cyan-600 hover:bg-cyan-500" data-category="Todas">Todas as Editorias</button>
+                            </div>
+                            <div id="categoriesContainer" class="flex flex-wrap gap-2 border-t border-slate-700/50 pt-2"></div>
                         </div>
                     </div>
                     <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
@@ -152,7 +155,7 @@
                         <button id="refreshAggregateBtn" aria-label="Atualizar cobertura" class="text-slate-300 text-sm font-semibold p-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                         </button>
-                         <div id="aggregate-last-updated" class="text-sm text-slate-500 text-right flex-shrink-0"></div>
+                           <div id="aggregate-last-updated" class="text-sm text-slate-500 text-right flex-shrink-0"></div>
                     </div>
                 </div>
             </div>
@@ -249,10 +252,10 @@
                 
                 <div>
                     <h3 class="font-bold text-cyan-400 mb-2">📊 Filtros Rápidos</h3>
-                     <ul class="space-y-2 text-sm list-disc list-inside ml-2">
+                    <ul class="space-y-2 text-sm list-disc list-inside ml-2">
                         <li><b>Filtro de Data (Hoje / Última Semana):</b> Limita os resultados ao período selecionado.</li>
                         <li><b>Filtro de Mídia (📝 ▶️ 🎙️ 🖼️):</b> Mostra apenas notícias em formato de texto, vídeo, podcast ou galeria de imagens.</li>
-                         <li><b>Botão Atualizar (🔄):</b> Força uma nova varredura em busca de notícias, sem esperar o ciclo automático de 20 minutos.</li>
+                        <li><b>Botão Atualizar (🔄):</b> Força uma nova varredura em busca de notícias, sem esperar o ciclo automático de 20 minutos.</li>
                     </ul>
                 </div>
     
@@ -275,9 +278,9 @@
     </div>
 
     <script>
-    // ================================================================================= 
-    // CÓDIGO PRO - Versão Final
-    // ================================================================================= 
+    // =================================================================================
+    // CÓDIGO PRO - Versão com Editorias Corrigidas
+    // =================================================================================
 
     // --- DOM ELEMENTS (continua o mesmo) ---
     const searchInput = document.getElementById('searchInput');
@@ -330,10 +333,11 @@
     const welcomeBanner = document.getElementById('welcomeBanner');
     const closeWelcomeBannerBtn = document.getElementById('closeWelcomeBannerBtn');
     const exportAllRondasBtn = document.getElementById('exportAllRondasBtn');
-    // Elementos do Modal de Ajuda
     const helpButton = document.getElementById('helpButton');
     const helpModal = document.getElementById('helpModal');
     const closeHelpModalBtn = document.getElementById('closeHelpModalBtn');
+    // NOVO elemento para o botão de filtro 'Todas'
+    const filterAllCategoriesBtn = document.getElementById('filterAllCategories');
 
     // --- APP STATE --- 
     let currentAppView = 'radar';
@@ -346,45 +350,171 @@
     let currentPage = 1;
     const itemsPerPage = 20;
     let isLoadingMore = false;
+    // O filtro de categoria agora pode ser null (para 'Todas') ou o nome da categoria.
     let currentCategorySearch = null;
     let currentAggregateView = 'portal';
     let newsHoldingPen = [];
 
     // --- CONSTANTS & CONFIGS ---
-    const mainCategories = ['Todas', 'Política', 'Economia', 'Cidades', 'Esportes', 'Cultura', 'Saúde', 'Mundo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Meio Ambiente'];
+    // A editoria 'Todas' foi removida, pois será tratada separadamente como filtro.
+    const mainCategories = ['Política', 'Economia', 'Cidades', 'Esportes', 'Cultura', 'Saúde', 'Mundo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Meio Ambiente'];
     const MEDIA_FORMATS = { 'todos': { label: 'Todos', emoji: '' }, 'texto': { label: 'Notícia', emoji: '📝' }, 'video': { label: 'Vídeo', emoji: '▶️' }, 'podcast': { label: 'Podcast', emoji: '🎙️' }, 'imagem': { label: 'Imagem/Galeria', emoji: '🖼️' } };
-    const categoryColorMap = { 'Todas': 'border-slate-400', 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Cidades': 'border-orange-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Meio Ambiente': 'border-green-500' };
+    // 'Todas' removida do mapa de cores; 'Geral' na função mapGoogleNewsData não é mais usada.
+    const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Cidades': 'border-orange-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Meio Ambiente': 'border-green-500' };
     const categoryButtonColors = [ 'bg-blue-600 hover:bg-blue-500', 'bg-emerald-600 hover:bg-emerald-500', 'bg-orange-600 hover:bg-orange-500', 'bg-red-600 hover:bg-red-500', 'bg-yellow-600 hover:bg-yellow-500', 'bg-pink-600 hover:bg-pink-500', 'bg-sky-600 hover:bg-sky-500', 'bg-teal-600 hover:bg-teal-500', 'bg-lime-600 hover:bg-lime-500', 'bg-rose-600 hover:bg-rose-500', 'bg-indigo-600 hover:bg-indigo-500', 'bg-amber-600 hover:bg-amber-500', 'bg-green-600 hover:bg-green-500' ];
     const lightBgClasses = ['bg-lime-600', 'bg-yellow-600'];
     const PORTAL_LOGOS = { "G1": "g1.globo.com", "UOL": "uol.com.br", "Folha": "folha.uol.com.br", "Estadão": "estadao.com.br", "Poder360": "poder360.com.br", "CNN": "cnnbrasil.com.br", "Metrópoles": "metropoles.com", "GE": "ge.globo.com", "Valor": "valor.globo.com", "Terra": "terra.com.br" };
+    // Nova lista de queries por Editoria (mais detalhada)
+    const categoryQueries = [
+        { category: 'Política', queries: ['Política Brasil', 'STF Supremo Tribunal Federal', 'Congresso Nacional', 'Governo Federal', 'Eleições 2024'] },
+        { category: 'Economia', queries: ['Economia Brasil', 'Mercado Financeiro', 'Dólar Câmbio Juros', 'Inflação IPCA', 'Negócios e Empresas'] },
+        { category: 'Cidades', queries: ['Notícias São Paulo', 'Notícias Rio de Janeiro', 'Segurança Pública', 'Loterias resultado', 'Trânsito e Transporte'] },
+        { category: 'Esportes', queries: ['Futebol Brasileiro', 'Fórmula 1', 'Copa do Brasil', 'Olimpíadas', 'Vôlei Basquete'] },
+        { category: 'Cultura', queries: ['Cinema estreia', 'Música shows festivais', 'Exposição arte', 'Livros lançamentos'] },
+        { category: 'Saúde', queries: ['Saúde e Bem-estar', 'Vacinação', 'Ministério da Saúde', 'Doenças e Tratamentos'] },
+        { category: 'Mundo', queries: ['Notícias Internacionais', 'Guerra Ucrânia', 'Gaza Israel', 'Diplomacia Exterior', 'Clima Global'] },
+        { category: 'Entretenimento', queries: ['Televisão e Famosos', 'Games lançamento', 'Celebridades', 'Streaming Novidades'] },
+        { category: 'Ciência', queries: ['Ciência e Tecnologia', 'Inteligência Artificial', 'Espaço Astronomia', 'Inovação'] },
+        { category: 'Educação', queries: ['Concursos Públicos', 'ENEM Vestibular', 'Universidades Pesquisa'] },
+        { category: 'Viagem', queries: ['Viagem e Turismo', 'Destinos Nacionais', 'Pacotes de Viagem'] },
+        { category: 'Gastronomia', queries: ['Gastronomia restaurantes', 'Receitas culinária', 'Culinária regional'] },
+        { category: 'Carros', queries: ['Carros lançamento', 'Indústria Automotiva', 'Test drive'] },
+        { category: 'Meio Ambiente', queries: ['Meio Ambiente sustentabilidade', 'Crise Climática', 'Desmatamento'] },
+    ];
+
 
     // --- FUNÇÕES DE ANÁLISE DE CONTEÚDO ---
     function extractEntities(title) { const words = title.split(' '); const entities = words.filter((word, index) => index > 0 && word.length > 3 && word[0] === word[0].toUpperCase() && isNaN(word)); return [...new Set(entities)]; }
     function determineMediaType(title, url) { const urlLower = url.toLowerCase(); const titleLower = title.toLowerCase(); if (titleLower.includes('galeria') || titleLower.includes('fotos') || titleLower.includes('imagens') || titleLower.includes('infográfico')) return 'imagem'; if (titleLower.includes('vídeo') || titleLower.includes('assista') || titleLower.includes('live') || titleLower.includes('ao vivo') || titleLower.includes('tv')) return 'video'; if (titleLower.includes('podcast') || titleLower.includes('áudio') || titleLower.includes('ouça') || titleLower.includes('cast')) return 'podcast'; if (urlLower.includes('youtube.com') || urlLower.includes('vimeo.com') || urlLower.includes('/videos/') || urlLower.includes('/tv/') || urlLower.includes('globo.com/videos/')) return 'video'; if (urlLower.includes('soundcloud.com') || urlLower.includes('/podcasts/') || urlLower.includes('g1.globo.com/podcast')) return 'podcast'; return 'texto'; }
 
     // --- FUNÇÕES DE FETCH E MAPEAMENTO DE DADOS ---
-    function mapGoogleNewsData(item, categoryTag = null) { const getSourceName = (sourceString) => { if (!sourceString) return 'Fonte Desconhecida'; const tempDiv = document.createElement('div'); tempDiv.innerHTML = sourceString; const text = tempDiv.textContent || tempDiv.innerText || ""; const parts = text.split(' - '); return parts[parts.length - 1].trim(); }; let sourceDomain = 'news.google.com'; try { if (item.sourceUrl && typeof item.sourceUrl === 'string') { sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); } } catch (e) {} let finalSourceName = getSourceName(item.title); const bestCategory = categoryTag ? categoryTag : 'Geral'; const mediaType = determineMediaType(item.title, item.link); return { source: 'googlenews', title: item.title, timestamp: new Date(item.pubDate).getTime(), url: item.link, description: item.content, sourceName: finalSourceName, sourceDomain: sourceDomain, category: bestCategory, mediaType: mediaType }; }
-    async function fetchFromGoogleNewsAPI(query = null) { const fetchAndParse = async (searchUrl, categoryTag) => { const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`; try { const response = await fetch(proxyUrl); if (!response.ok) { return []; } const textData = await response.text(); if (!textData) return []; const parser = new DOMParser(); const xmlDoc = parser.parseFromString(textData, "application/xml"); const items = xmlDoc.querySelectorAll("item"); const newsResults = []; items.forEach(item => { const sourceElement = item.querySelector("source"); newsResults.push({ title: item.querySelector("title").textContent, link: item.querySelector("link").textContent, sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent, pubDate: item.querySelector("pubDate").textContent, description: item.querySelector("description")?.textContent }); }); return newsResults.map(item => mapGoogleNewsData(item, categoryTag)); } catch (error) { console.error(`Erro no fetch para ${searchUrl}:`, error); return []; } }; let combinedNews = []; const timeFilter = " when:1d"; if (query) { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query + timeFilter)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; combinedNews = await fetchAndParse(searchUrl, query); } else { 
-        const searchQueries = [ { query: 'Política Brasil', category: 'Política' }, { query: 'STF Supremo Tribunal Federal', category: 'Política' }, { query: 'Congresso Nacional', category: 'Política' }, { query: 'Governo Federal', category: 'Política' }, { query: 'Eleições', category: 'Política' }, { query: 'Notícias Internacionais', category: 'Mundo' }, { query: 'Economia Brasil', category: 'Economia' }, { query: 'Mercado Financeiro', category: 'Economia' }, { query: 'Agronegócio', category: 'Economia' }, { query: 'Inflação IPCA', category: 'Economia' }, { query: 'Concursos Públicos', category: 'Educação' }, { query: 'Negócios e Empresas', category: 'Economia' }, { query: 'Notícias São Paulo', category: 'Cidades' }, { query: 'Notícias Rio de Janeiro', category: 'Cidades' }, { query: 'Segurança Pública', category: 'Cidades' }, { query: 'Futebol Brasileiro', category: 'Esportes' }, { query: 'Fórmula 1', category: 'Esportes' }, { query: 'Cinema estreia', category: 'Cultura' }, { query: 'Música shows festivais', category: 'Cultura' }, { query: 'Televisão e Famosos', category: 'Entretenimento' }, { query: 'Games lançamento', category: 'Entretenimento' }, { query: 'Saúde e Bem-estar', category: 'Saúde' }, { query: 'Ciência e Tecnologia', category: 'Ciência' }, { query: 'Meio Ambiente sustentabilidade', category: 'Meio Ambiente' }, { query: 'Viagem e Turismo', category: 'Viagem' }, { query: 'Gastronomia restaurantes', category: 'Gastronomia' }, { query: 'Horóscopo do dia', category: 'Entretenimento' }, { query: 'Loterias resultado', category: 'Cidades' }, ]; 
-        const queryPromises = searchQueries.map(sq => { const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(sq.query + timeFilter)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`; return fetchAndParse(searchUrl, sq.category); });
-        
-        const majorOutlets = Object.values(PORTAL_LOGOS);
-        const outletPromises = majorOutlets.map(domain => {
-            const searchUrl = `https://news.google.com/rss/search?q=site:${domain}${encodeURIComponent(timeFilter)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
-            return fetchAndParse(searchUrl, null);
-        });
+    function mapGoogleNewsData(item, categoryTag) {
+        const getSourceName = (sourceString) => { if (!sourceString) return 'Fonte Desconhecida'; const tempDiv = document.createElement('div'); tempDiv.innerHTML = sourceString; const text = tempDiv.textContent || tempDiv.innerText || ""; const parts = text.split(' - '); return parts[parts.length - 1].trim(); };
+        let sourceDomain = 'news.google.com';
+        try { if (item.sourceUrl && typeof item.sourceUrl === 'string') { sourceDomain = new URL(item.sourceUrl).hostname.replace('www.', ''); } } catch (e) {}
+        let finalSourceName = getSourceName(item.title);
+        // A categoria agora vem diretamente do tag
+        const finalCategory = categoryTag;
+        const mediaType = determineMediaType(item.title, item.link);
+        return { source: 'googlenews', title: item.title, timestamp: new Date(item.pubDate).getTime(), url: item.link, description: item.content, sourceName: finalSourceName, sourceDomain: sourceDomain, category: finalCategory, mediaType: mediaType };
+    }
 
-        const allResults = await Promise.all([...queryPromises, ...outletPromises]); combinedNews = allResults.flat(); 
-    } const uniqueNews = new Map(); combinedNews.forEach(news => { if (!uniqueNews.has(news.url)) { uniqueNews.set(news.url, news); } }); return Array.from(uniqueNews.values()).sort((a, b) => b.timestamp - a.timestamp); }
+    async function fetchFromGoogleNewsAPI(query = null) {
+        const fetchAndParse = async (searchUrl, categoryTag) => {
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`;
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) { return []; }
+                const textData = await response.text();
+                if (!textData) return [];
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(textData, "application/xml");
+                const items = xmlDoc.querySelectorAll("item");
+                const newsResults = [];
+                items.forEach(item => {
+                    const sourceElement = item.querySelector("source");
+                    newsResults.push({ title: item.querySelector("title").textContent, link: item.querySelector("link").textContent, sourceUrl: sourceElement ? sourceElement.getAttribute("url") : item.querySelector("link").textContent, pubDate: item.querySelector("pubDate").textContent, description: item.querySelector("description")?.textContent });
+                });
+                return newsResults.map(item => mapGoogleNewsData(item, categoryTag));
+            } catch (error) { console.error(`Erro no fetch para ${searchUrl}:`, error); return []; }
+        };
+
+        let combinedNews = [];
+        const timeFilter = " when:1d";
+        
+        if (query) {
+            // Se for uma busca manual, mantém a lógica de busca única. A categoria será o próprio query.
+            const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query + timeFilter)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+            combinedNews = await fetchAndParse(searchUrl, 'Geral'); // Usamos 'Geral' aqui, pois é uma busca genérica.
+        } else {
+            // Lógica para carregamento inicial: Busca notícias para CADA UMA das editorias.
+            const queryPromises = [];
+            categoryQueries.forEach(catEntry => {
+                catEntry.queries.forEach(q => {
+                    const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q + timeFilter)}&hl=pt-BR&gl=BR&ceid=BR:pt-419&num=50`; // Busca mais itens por query para maior diversidade
+                    // Cada promessa retorna notícias já marcadas com a categoria correta.
+                    queryPromises.push(fetchAndParse(searchUrl, catEntry.category));
+                });
+            });
+
+            const allResults = await Promise.all(queryPromises);
+            combinedNews = allResults.flat();
+        }
+        
+        // Remove duplicatas
+        const uniqueNews = new Map();
+        combinedNews.forEach(news => { if (!uniqueNews.has(news.url)) { uniqueNews.set(news.url, news); } });
+
+        // A editoria 'Geral' será renomeada para 'Outros' no caso de buscas genéricas, 
+        // mas o foco aqui é garantir que a maioria já venha categorizada.
+        const finalNews = Array.from(uniqueNews.values());
+
+        // Ordena por timestamp
+        return finalNews.sort((a, b) => b.timestamp - a.timestamp);
+    }
 
     // --- FUNÇÕES DE RENDERIZAÇÃO ---
     function getMediaIconAndColor(mediaType) { return MEDIA_FORMATS[mediaType] || MEDIA_FORMATS['texto']; }
     function updateMediaDropdown(filterKey) { const mediaInfo = getMediaIconAndColor(filterKey); currentMediaLabel.textContent = `Mídia: ${mediaInfo.label} ${mediaInfo.emoji}`; mediaDropdownMenu.querySelectorAll('button').forEach(btn => btn.classList.remove('media-dropdown-active')); const activeBtn = mediaDropdownMenu.querySelector(`[data-media-key="${filterKey}"]`); if (activeBtn) activeBtn.classList.add('media-dropdown-active'); }
     const applyMediaFilter = (items, filterKey) => (filterKey === 'todos' ? items : items.filter(item => item.mediaType === filterKey));
-    function renderRadarResults(append = false) { if (!append) { resultsContainer.innerHTML = ''; currentPage = 1; } let filteredNews = masterNewsCache; filteredNews = applyDateFilter(filteredNews, currentDateFilter); filteredNews = applyMediaFilter(filteredNews, currentMediaFilter); if (currentRadarView === 'paraSi' && currentAppView === 'radar') { if (followedTopics.length === 0) { messageState.classList.remove('hidden'); messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; messageText.textContent = 'Para ver o feed "Meu Radar", clique nos editoriais abaixo para seguir.'; contentCounter.textContent = ''; resultsContainer.innerHTML = ''; return; } filteredNews = filteredNews.filter(news => followedTopics.some(followed => followed.topic === news.category)); const getPriority = (category) => { const followed = followedTopics.find(t => t.topic === category); return followed ? followed.priority : 0; }; filteredNews.sort((a, b) => getPriority(b.category) - getPriority(a.category)); } const totalItems = filteredNews.length; const startIndex = (currentPage - 1) * itemsPerPage; const endIndex = startIndex + itemsPerPage; const paginatedItems = filteredNews.slice(startIndex, endIndex); if (paginatedItems.length === 0 && currentPage === 1) { messageState.classList.remove('hidden'); messageTitle.textContent = 'Nenhuma notícia encontrada.'; messageText.textContent = 'Tente um termo diferente ou ajuste os filtros.'; contentCounter.textContent = ''; return; } messageState.classList.add('hidden'); paginatedItems.forEach((item, index) => { const card = createGoogleNewsCard(item); if (currentPage === 1 && index === 0 && !searchInput.value.trim() && currentRadarView === 'geral' && currentAppView === 'radar') { card.classList.add('md:col-span-2', 'lg:col-span-2', 'lead-story'); } resultsContainer.appendChild(card); }); contentCounter.textContent = `Exibindo ${resultsContainer.children.length} de ${totalItems} notícias.`; isLoadingMore = false; }
+    
+    function renderRadarResults(append = false) { 
+        if (!append) { resultsContainer.innerHTML = ''; currentPage = 1; } 
+        
+        let filteredNews = masterNewsCache;
+        filteredNews = applyDateFilter(filteredNews, currentDateFilter);
+        filteredNews = applyMediaFilter(filteredNews, currentMediaFilter);
+
+        // APLICA FILTRO DE CATEGORIA
+        if (currentCategorySearch && currentCategorySearch !== 'Todas') {
+            filteredNews = filteredNews.filter(news => news.category === currentCategorySearch);
+        }
+
+        if (currentRadarView === 'paraSi' && currentAppView === 'radar') { 
+            if (followedTopics.length === 0) { 
+                messageState.classList.remove('hidden'); 
+                messageTitle.textContent = 'Adicione seus Tópicos Favoritos!'; 
+                messageText.textContent = 'Para ver o feed "Meu Radar", clique nos editoriais abaixo para seguir.'; 
+                contentCounter.textContent = ''; 
+                resultsContainer.innerHTML = ''; 
+                return; 
+            } 
+            filteredNews = filteredNews.filter(news => followedTopics.some(followed => followed.topic === news.category)); 
+            const getPriority = (category) => { const followed = followedTopics.find(t => t.topic === category); return followed ? followed.priority : 0; }; 
+            filteredNews.sort((a, b) => getPriority(b.category) - getPriority(a.category)); 
+        } 
+
+        const totalItems = filteredNews.length; 
+        const startIndex = (currentPage - 1) * itemsPerPage; 
+        const endIndex = startIndex + itemsPerPage; 
+        const paginatedItems = filteredNews.slice(startIndex, endIndex); 
+        
+        if (paginatedItems.length === 0 && currentPage === 1) { 
+            messageState.classList.remove('hidden'); 
+            messageTitle.textContent = 'Nenhuma notícia encontrada.'; 
+            messageText.textContent = 'Tente um termo diferente ou ajuste os filtros.'; 
+            contentCounter.textContent = ''; 
+            return; 
+        } 
+        
+        messageState.classList.add('hidden'); 
+        
+        paginatedItems.forEach((item, index) => { 
+            const card = createGoogleNewsCard(item); 
+            if (currentPage === 1 && index === 0 && !searchInput.value.trim() && currentRadarView === 'geral' && currentAppView === 'radar') { 
+                card.classList.add('md:col-span-2', 'lg:col-span-2', 'lead-story'); 
+            } 
+            resultsContainer.appendChild(card); 
+        }); 
+        
+        contentCounter.textContent = `Exibindo ${resultsContainer.children.length} de ${totalItems} notícias.`; 
+        isLoadingMore = false; 
+    }
+    
     function createGoogleNewsCard(news) {
         const newsElement = document.createElement('article');
-        const primaryCategory = news.category === 'Geral' ? 'Todas' : news.category.split(' > ')[0];
+        // A categoria agora vem diretamente da notícia. Se for uma busca manual, pode ser 'Geral'.
+        const primaryCategory = news.category === 'Geral' ? 'Outros' : news.category; 
         const newsDateTime = new Date(news.timestamp);
         const fullDateTime = `${newsDateTime.toLocaleDateString('pt-BR')} ${newsDateTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
         const logoUrl = `https://www.google.com/s2/favicons?domain=${news.sourceDomain}&sz=64`;
@@ -401,8 +531,19 @@
         const categoryIndex = mainCategories.indexOf(primaryCategory);
         let categoryColorClass = 'bg-slate-700';
         let categoryTextColorClass = 'text-white';
-        if (categoryIndex > 0) { const colorClass = categoryButtonColors[(categoryIndex - 1) % categoryButtonColors.length]; categoryColorClass = colorClass.split(' ')[0]; const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass)); categoryTextColorClass = isLightBg ? 'text-slate-900' : 'text-white'; }
+        // A cor agora é baseada no índice real da categoria na mainCategories
+        if (categoryIndex >= 0) { 
+            const colorClass = categoryButtonColors[categoryIndex % categoryButtonColors.length]; 
+            categoryColorClass = colorClass.split(' ')[0]; 
+            const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass)); 
+            categoryTextColorClass = isLightBg ? 'text-slate-900' : 'text-white'; 
+        } else if (primaryCategory === 'Outros') {
+            borderColorClass = 'border-slate-400';
+            categoryColorClass = 'bg-slate-600';
+        }
+        
         const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${primaryCategory}</span>`;
+        
         newsElement.className = `bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col transform hover:scale-[1.01] transition-transform duration-300`;
         newsElement.innerHTML = `<div class="flex justify-between items-start gap-2"><a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 min-w-0"><img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`"><p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p></a><button class="add-to-ronda-btn" data-url="${news.url}" aria-label="Adicionar à Ronda">${saveButtonIcon}</button></div><div><a href="${news.url}" target="_blank" rel="noopener noreferrer"><p class="text-slate-300 font-semibold leading-relaxed my-2 news-title">${finalTitle} ${mediaTag}</p></a>${entitiesHTML}</div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50">${categoryHTML}<span class="text-xs text-slate-500">${fullDateTime}</span></div>`;
         return newsElement;
@@ -411,31 +552,218 @@
     // --- LÓGICA DE INTERFACE E UTILITÁRIOS ---
     function handleDateFilterChange(filterKey, buttonElement) { currentDateFilter = filterKey; dateFilterContainer.querySelectorAll('button').forEach(btn => { btn.classList.remove('date-filter-active'); btn.setAttribute('aria-pressed', 'false'); btn.classList.add('text-slate-300', 'hover:bg-slate-700'); }); buttonElement.classList.add('date-filter-active'); buttonElement.classList.remove('text-slate-300', 'hover:bg-slate-700'); buttonElement.setAttribute('aria-pressed', 'true'); renderRadarResults(); }
     const applyDateFilter = (items, filterKey) => { const today = new Date(); today.setHours(0, 0, 0, 0); const filterFn = { 'hoje': (item) => new Date(item.timestamp) >= today, 'ultima_semana': (item) => { const sevenDaysAgo = new Date(today); sevenDaysAgo.setDate(today.getDate() - 7); const itemDate = new Date(item.timestamp); return itemDate >= sevenDaysAgo && itemDate < today; } }; return items.filter(filterFn[filterKey]); };
-    function renderCategories() { categoriesContainer.innerHTML = ''; clearFollowedBtn.classList.add('hidden'); mainCategories.forEach((category, index) => { if (currentRadarView === 'paraSi' && category === 'Todas') return; const categoryButton = document.createElement('button'); const followedTopic = followedTopics.find(t => t.topic === category); let buttonClass = 'bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white'; if (currentRadarView === 'geral') { if (index > 0) { const colorIndex = index - 1; const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length]; const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass)); const textColorClass = isLightBg ? 'text-black' : 'text-white'; buttonClass = `${colorClass} ${textColorClass}`; } if (currentCategorySearch === category || (!currentCategorySearch && category === 'Todas')) { categoryButton.classList.add('category-active'); } } else { if (followedTopic) { buttonClass = followedTopic.priority === 1 ? 'category-priority' : 'category-followed'; } else { const colorIndex = index > 0 ? index - 1 : 0; const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length]; buttonClass = `${colorClass.replace('bg-', 'hover:bg-').replace('hover:bg-', 'border-')}/50 text-slate-300 hover:text-white border`; } } categoryButton.className = `${buttonClass} text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`; categoryButton.textContent = category; categoryButton.onclick = () => { if (currentRadarView === 'paraSi') { const topicIndex = followedTopics.findIndex(t => t.topic === category); if (topicIndex > -1) { if (followedTopics[topicIndex].priority === 0) { followedTopics[topicIndex].priority = 1; showToast(`"${category}" definido como prioridade!`); } else { followedTopics.splice(topicIndex, 1); showToast(`Deixou de seguir "${category}"`); } } else { followedTopics.push({ topic: category, priority: 0 }); showToast(`Agora segue "${category}"`); } localStorage.setItem('followedTopics', JSON.stringify(followedTopics)); renderCategories(); renderRadarResults(); } else { handleSearch(searchInput.value, category === 'Todas' ? null : category); document.querySelectorAll('#categoriesContainer button').forEach(btn => btn.classList.remove('category-active')); categoryButton.classList.add('category-active'); } window.scrollTo({ top: 0, behavior: 'smooth' }); }; categoriesContainer.appendChild(categoryButton); }); if (currentRadarView === 'paraSi' && followedTopics.length > 0) { clearFollowedBtn.classList.remove('hidden'); } }
+    
+    function renderCategories() { 
+        categoriesContainer.innerHTML = ''; 
+        clearFollowedBtn.classList.add('hidden'); 
+        
+        mainCategories.forEach((category, index) => { 
+            const categoryButton = document.createElement('button'); 
+            const followedTopic = followedTopics.find(t => t.topic === category); 
+            let buttonClass = 'bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white'; 
+            
+            // Lógica de cores baseada no novo índice de mainCategories (começa em 0)
+            const colorIndex = index;
+            const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length];
+            const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass));
+            const textColorClass = isLightBg ? 'text-black' : 'text-white';
+            
+            if (currentRadarView === 'geral') { 
+                buttonClass = `${colorClass} ${textColorClass}`;
+                if (currentCategorySearch === category) { 
+                    categoryButton.classList.add('category-active'); 
+                    categoryButton.classList.remove(...colorClass.split(' '));
+                    categoryButton.classList.add('bg-cyan-600', 'text-white'); // Cor ativa
+                } else if (currentCategorySearch === null) {
+                    filterAllCategoriesBtn.classList.add('category-active');
+                    filterAllCategoriesBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700');
+                } else {
+                    categoryButton.classList.remove('category-active');
+                }
+            } else { // Meu Radar
+                if (followedTopic) { 
+                    buttonClass = followedTopic.priority === 1 ? 'category-priority' : 'category-followed'; 
+                } else { 
+                    buttonClass = `${colorClass.replace('bg-', 'hover:bg-').replace('hover:bg-', 'border-')}/50 text-slate-300 hover:text-white border`; 
+                } 
+            } 
+            
+            categoryButton.className = `${buttonClass} text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`; 
+            categoryButton.textContent = category; 
+            
+            categoryButton.onclick = () => { 
+                if (currentRadarView === 'paraSi') { 
+                    const topicIndex = followedTopics.findIndex(t => t.topic === category); 
+                    if (topicIndex > -1) { 
+                        if (followedTopics[topicIndex].priority === 0) { 
+                            followedTopics[topicIndex].priority = 1; 
+                            showToast(`"${category}" definido como prioridade!`); 
+                        } else { 
+                            followedTopics.splice(topicIndex, 1); 
+                            showToast(`Deixou de seguir "${category}"`); 
+                        } 
+                    } else { 
+                        followedTopics.push({ topic: category, priority: 0 }); 
+                        showToast(`Agora segue "${category}"`); 
+                    } 
+                    localStorage.setItem('followedTopics', JSON.stringify(followedTopics)); 
+                    renderCategories(); 
+                    renderRadarResults(); 
+                } else { 
+                    // Novo comportamento: Filtra a categoria atual
+                    handleCategoryFilter(category);
+                } 
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            }; 
+            categoriesContainer.appendChild(categoryButton); 
+        }); 
+        
+        if (currentRadarView === 'paraSi' && followedTopics.length > 0) { clearFollowedBtn.classList.remove('hidden'); } 
+    }
+
+    // NOVA FUNÇÃO para lidar com o clique nos botões de Categoria/Editorial
+    function handleCategoryFilter(category) {
+        currentCategorySearch = category;
+        // Remove a classe 'category-active' de todos os botões de categoria
+        document.querySelectorAll('#categoriesContainer button').forEach(btn => {
+            btn.classList.remove('category-active');
+            // Re-aplica a cor normal do botão (necessário para o Meu Radar)
+            const catName = btn.textContent;
+            const index = mainCategories.indexOf(catName);
+            if (index >= 0) {
+                const colorClass = categoryButtonColors[index % categoryButtonColors.length];
+                btn.classList.add(colorClass.split(' ')[0], 'text-white');
+            }
+        });
+        
+        // Ativa o botão clicado ou o botão 'Todas'
+        if (category === 'Todas' || category === null) {
+            currentCategorySearch = null;
+            filterAllCategoriesBtn.classList.add('category-active');
+        } else {
+            filterAllCategoriesBtn.classList.remove('category-active');
+            const activeBtn = Array.from(categoriesContainer.querySelectorAll('button')).find(btn => btn.textContent === category);
+            if(activeBtn) {
+                activeBtn.classList.add('category-active');
+                activeBtn.classList.remove(...(categoryButtonColors[mainCategories.indexOf(category) % categoryButtonColors.length]).split(' '));
+                activeBtn.classList.add('bg-cyan-600', 'text-white');
+            }
+        }
+        
+        renderRadarResults();
+    }
+    
     function showToast(message) { toastMessage.textContent = message; toast.classList.remove('opacity-0', 'translate-y-20'); toast.classList.add('opacity-100', 'translate-y-0'); setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-20'); toast.classList.remove('opacity-100', 'translate-y-0'); }, 3000); }
     function setLoading(isLoading, isInitialLoad = true) { const refreshIcon = refreshButton.querySelector('svg'); if (isLoading) { searchButton.disabled = true; buttonText.textContent = "Buscando..."; if (refreshIcon) refreshIcon.classList.add('animate-spin'); if (isInitialLoad) { messageState.classList.add('hidden'); resultsContainer.innerHTML = Array(6).fill(`<div class="bg-slate-800 border-l-4 border-slate-700 rounded-r-lg p-5 shadow-lg flex flex-col gap-4 animate-pulse"><div class="flex justify-between items-start"><div class="flex items-center gap-3 w-1/2"><div class="w-6 h-6 rounded-md bg-slate-700"></div><div class="h-4 bg-slate-700 rounded w-full"></div></div><div class="h-6 w-12 bg-slate-700 rounded-full"></div></div><div><div class="h-5 bg-slate-700 rounded w-full mb-2"></div><div class="h-5 bg-slate-700 rounded w-3/4"></div></div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50"><div class="h-5 w-20 bg-slate-700 rounded-full"></div><div class="h-4 w-24 bg-slate-700 rounded"></div></div></div>`).join(''); } } else { searchButton.disabled = false; buttonText.textContent = "Buscar"; if (refreshIcon) refreshIcon.classList.remove('animate-spin'); } }
-    async function loadInitialContent(isAutoRefresh = false) { if (!isAutoRefresh) { setLoading(true, true); } let fetchedNews = await fetchFromGoogleNewsAPI(); if (isAutoRefresh && newsHoldingPen.length > 0) { const newItemsCount = Math.min(newsHoldingPen.length, 2); for (let i = 0; i < newItemsCount; i++) { let newItem = newsHoldingPen.pop(); newItem.timestamp = new Date().getTime(); fetchedNews.unshift(newItem); } showToast("Novas matérias encontradas!"); } masterNewsCache = fetchedNews; if (!isAutoRefresh) { setLoading(false, true); } renderRadarResults(); updateTimestamp(); }
-    async function handleSearch(queryValue, category = null) { setLoading(true); currentCategorySearch = category; let finalQuery = queryValue.trim(); let sourceFilter = null; const sourceMatch = finalQuery.match(/fonte:(\S+)/); if (sourceMatch) { sourceFilter = sourceMatch[1].toLowerCase(); finalQuery = finalQuery.replace(sourceMatch[0], '').trim(); } const query = category !== null ? category : finalQuery; let results = await fetchFromGoogleNewsAPI(query === '' ? null : query); if (sourceFilter) { results = results.filter(item => item.sourceDomain.toLowerCase().includes(sourceFilter)); } masterNewsCache = results; setLoading(false); renderRadarResults(); renderCategories(); }
+    async function loadInitialContent(isAutoRefresh = false) { 
+        if (!isAutoRefresh) { setLoading(true, true); } 
+        let fetchedNews = await fetchFromGoogleNewsAPI(); 
+        if (isAutoRefresh && newsHoldingPen.length > 0) { 
+            const newItemsCount = Math.min(newsHoldingPen.length, 2); 
+            for (let i = 0; i < newItemsCount; i++) { 
+                let newItem = newsHoldingPen.pop(); 
+                newItem.timestamp = new Date().getTime(); 
+                fetchedNews.unshift(newItem); 
+            } 
+            showToast("Novas matérias encontradas!"); 
+        } 
+        masterNewsCache = fetchedNews; 
+        if (!isAutoRefresh) { setLoading(false, true); } 
+        renderRadarResults(); 
+        updateTimestamp(); 
+    }
+    
+    async function handleSearch(queryValue, category = null) { 
+        setLoading(true); 
+        // Em uma busca manual, o filtro de categoria é resetado para o filtro do resultado da busca
+        currentCategorySearch = category; 
+        
+        let finalQuery = queryValue.trim(); 
+        let sourceFilter = null; 
+        const sourceMatch = finalQuery.match(/fonte:(\S+)/); 
+        
+        if (sourceMatch) { 
+            sourceFilter = sourceMatch[1].toLowerCase(); 
+            finalQuery = finalQuery.replace(sourceMatch[0], '').trim(); 
+        } 
+        
+        // Se houver texto de busca, ele é usado. Se não houver, busca as categorias.
+        const query = finalQuery === '' ? null : finalQuery; 
+        
+        let results = await fetchFromGoogleNewsAPI(query); 
+        
+        if (sourceFilter) { 
+            results = results.filter(item => item.sourceDomain.toLowerCase().includes(sourceFilter)); 
+        } 
+        
+        masterNewsCache = results; 
+        setLoading(false); 
+        renderRadarResults(); 
+        
+        // Ativa o filtro 'Todas' após uma busca/limpeza
+        handleCategoryFilter(null);
+    }
+    
     function handleMediaFilterChange(filterKey) { currentMediaFilter = filterKey; updateMediaDropdown(filterKey); mediaDropdownMenu.classList.add('hidden'); mediaFilterButton.setAttribute('aria-expanded', 'false'); mediaDropdownIcon.classList.remove('rotate-180'); renderRadarResults(); }
     function updateTimestamp() { const timeString = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); lastUpdatedElement.innerHTML = `<span>Atualizado às ${timeString}</span> <span class="text-slate-500/70">(auto-refresh a cada 20 min)</span>`; }
     function updateClearSearchButton() { clearSearchBtn.classList.toggle('hidden', searchInput.value.trim().length === 0); }
     function handleScroll() { if (currentAppView === 'radar' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoadingMore) { let listForCounting = masterNewsCache; listForCounting = applyDateFilter(listForCounting, currentDateFilter); const totalItems = applyMediaFilter(listForCounting, currentMediaFilter).length; if (resultsContainer.children.length < totalItems) { isLoadingMore = true; currentPage++; renderRadarResults(true); } } if (window.scrollY > 300) { backToTopBtn.classList.remove('hidden', 'opacity-0', 'translate-y-20'); backToTopBtn.classList.add('opacity-100', 'translate-y-0'); } else { backToTopBtn.classList.add('opacity-0', 'translate-y-20'); setTimeout(() => backToTopBtn.classList.add('hidden'), 300); } }
-    function setView(view) { currentAppView = view; [viewFilterRadar, viewFilterForYou, viewFilterAggregate].forEach(btn => { btn.classList.remove('view-filter-active'); btn.classList.add('text-slate-300', 'hover:bg-slate-600/50'); btn.setAttribute('aria-pressed', 'false'); }); const secondaryFilters = document.getElementById('secondaryFilters'); const categoriesSection = document.querySelector('#radarContainer .mb-8'); categoriesSection.classList.remove('hidden'); searchBarWrapper.style.display = 'flex'; secondaryFilters.style.display = 'flex'; dateFilterContainer.style.display = 'flex'; if (view === 'radar') { radarContainer.classList.remove('hidden'); aggregateContainer.classList.add('hidden'); if (currentRadarView === 'geral') { viewFilterRadar.classList.add('view-filter-active'); viewFilterRadar.setAttribute('aria-pressed', 'true'); } else { viewFilterForYou.classList.add('view-filter-active'); viewFilterForYou.setAttribute('aria-pressed', 'true'); } } else if (view === 'aggregate') { radarContainer.classList.add('hidden'); aggregateContainer.classList.remove('hidden'); viewFilterAggregate.classList.add('view-filter-active'); viewFilterAggregate.setAttribute('aria-pressed', 'true'); searchBarWrapper.style.display = 'none'; secondaryFilters.style.display = 'none'; categoriesSection.classList.add('hidden'); setupAggregateView(); } renderCategories(); renderRadarResults(); }
+    
+    function setView(view) { 
+        currentAppView = view; 
+        [viewFilterRadar, viewFilterForYou, viewFilterAggregate].forEach(btn => { 
+            btn.classList.remove('view-filter-active'); 
+            btn.classList.add('text-slate-300', 'hover:bg-slate-600/50'); 
+            btn.setAttribute('aria-pressed', 'false'); 
+        }); 
+        
+        const secondaryFilters = document.getElementById('secondaryFilters'); 
+        const categoriesSection = document.querySelector('#radarContainer .mb-8'); 
+        categoriesSection.classList.remove('hidden'); 
+        searchBarWrapper.style.display = 'flex'; 
+        secondaryFilters.style.display = 'flex'; 
+        dateFilterContainer.style.display = 'flex'; 
+        
+        if (view === 'radar') { 
+            radarContainer.classList.remove('hidden'); 
+            aggregateContainer.classList.add('hidden'); 
+            if (currentRadarView === 'geral') { 
+                viewFilterRadar.classList.add('view-filter-active'); 
+                viewFilterRadar.setAttribute('aria-pressed', 'true'); 
+            } else { 
+                viewFilterForYou.classList.add('view-filter-active'); 
+                viewFilterForYou.setAttribute('aria-pressed', 'true'); 
+            } 
+            handleCategoryFilter(currentCategorySearch); // Re-aplica o filtro de categoria
+        } else if (view === 'aggregate') { 
+            radarContainer.classList.add('hidden'); 
+            aggregateContainer.classList.remove('hidden'); 
+            viewFilterAggregate.classList.add('view-filter-active'); 
+            viewFilterAggregate.setAttribute('aria-pressed', 'true'); 
+            searchBarWrapper.style.display = 'none'; 
+            secondaryFilters.style.display = 'none'; 
+            categoriesSection.classList.add('hidden'); 
+            setupAggregateView(); 
+        } 
+        
+        renderCategories(); 
+        renderRadarResults(); 
+    }
 
-    // --- LÓGICA DE RONDAS ---
+    // --- LÓGICA DE RONDAS (sem alteração funcional) ---
     function renderRondas() { rondasContent.innerHTML = ''; rondaCountBadge.textContent = rondas.length; if (rondas.length === 0) { rondasContent.innerHTML = `<p class="text-center text-slate-400">Crie sua primeira ronda para organizar suas pautas.</p>`; return; } rondas.forEach((ronda, index) => { const rondaElement = document.createElement('div'); rondaElement.className = 'bg-slate-700/50 rounded-lg p-4 mb-4'; rondaElement.innerHTML = `<div class="flex justify-between items-center mb-3"><h3 class="text-base font-bold text-cyan-400">${ronda.name} (${ronda.news.length})</h3><div><button class="export-xlsx-btn text-xs text-cyan-400 hover:underline mr-4" data-index="${index}">Exportar Ronda</button><button class="delete-ronda-btn text-xs text-red-400 hover:text-red-300" data-index="${index}">Excluir</button></div></div><div class="space-y-2 max-h-60 overflow-y-auto pr-2" id="ronda-list-${index}">${ronda.news.length > 0 ? ronda.news.map((item, itemIndex) => `<div class="bg-slate-800 p-2 rounded-md"><div class="flex justify-between items-start"><a href="${item.url}" target="_blank" class="text-sm text-slate-300 hover:underline flex-1 truncate pr-2" title="${item.title}">${item.title}</a><button class="remove-from-ronda-btn flex-shrink-0" data-ronda-index="${index}" data-item-index="${itemIndex}" aria-label="Remover"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 hover:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button></div><textarea class="note-textarea w-full bg-slate-700 text-slate-300 text-xs p-1 mt-2 rounded border border-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500" rows="1" placeholder="Adicionar anotação..." data-ronda-index="${index}" data-item-index="${itemIndex}">${item.note || ''}</textarea></div>`).join('') : '<p class="text-xs text-slate-500 text-center">Nenhuma notícia nesta ronda.</p>'}</div>`; rondasContent.appendChild(rondaElement); }); }
     function saveRondas() { localStorage.setItem('rondas', JSON.stringify(rondas)); }
     function exportToXLSX(rondaIndex) { const ronda = rondas[rondaIndex]; if (!ronda || ronda.news.length === 0) { showToast('Ronda vazia.'); return; } const dataToExport = ronda.news.map(item => ({ 'Título': item.title, 'URL': item.url, 'Fonte': item.sourceName, 'Data': new Date(item.timestamp).toLocaleString('pt-BR'), 'Anotação': item.note || '' })); const worksheet = XLSX.utils.json_to_sheet(dataToExport); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Ronda"); XLSX.writeFile(workbook, `${ronda.name.replace(/\s+/g, '_')}.xlsx`); showToast(`Ronda "${ronda.name}" exportada!`); }
     function exportAllRondasToXLSX() { if (rondas.length === 0) { showToast("Nenhuma ronda para exportar."); return; } const workbook = XLSX.utils.book_new(); rondas.forEach(ronda => { if (ronda.news.length > 0) { const dataToExport = ronda.news.map(item => ({ 'Título': item.title, 'URL': item.url, 'Fonte': item.sourceName, 'Data': new Date(item.timestamp).toLocaleString('pt-BR'), 'Anotação': item.note || '' })); const worksheet = XLSX.utils.json_to_sheet(dataToExport); const sheetName = ronda.name.replace(/[\\/*?\[\]]/g, '').substring(0, 31); XLSX.utils.book_append_sheet(workbook, worksheet, sheetName); } }); if (workbook.SheetNames.length === 0) { showToast("Todas as rondas estão vazias."); return; } XLSX.writeFile(workbook, `Minhas_Rondas_${new Date().toISOString().split('T')[0]}.xlsx`); }
     
-    // --- LÓGICA DA "COBERTURA DA MÍDIA" ---
+    // --- LÓGICA DA "COBERTURA DA MÍDIA" (sem alteração funcional) ---
     async function setupAggregateView() { if (currentAggregateView === 'portal') { await renderPortalsPanel(); } else { renderTrendingTopicsView(); } const updateTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); aggregateLastUpdated.innerHTML = `Verificado às: <strong>${updateTime}</strong>`; }
     async function fetchRealPortalData() { const portalsToFetch = Object.keys(PORTAL_LOGOS); const fetchPromises = portalsToFetch.map(portal => { const domain = PORTAL_LOGOS[portal]; return fetchFromGoogleNewsAPI(`site:${domain}`); }); const results = await Promise.all(fetchPromises); return portalsToFetch.reduce((acc, portal, index) => { acc[portal] = results[index]; return acc; }, {}); }
     async function renderPortalsPanel() { portalsPanelContainer.innerHTML = `<p class="text-center text-slate-400 col-span-full animate-pulse">Buscando manchetes em tempo real nos principais portais...</p>`; const portalData = await fetchRealPortalData(); portalsPanelContainer.innerHTML = ''; for (const portal in portalData) { const portalNews = portalData[portal]; if (portalNews.length === 0) continue; const logo = `https://www.google.com/s2/favicons?domain=${portalNews[0].sourceDomain}&sz=32`; const itemsHTML = portalNews.map((item, index) => { const isLead = index === 0; const time = new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); return `<a href="${item.url}" target="_blank" rel="noopener noreferrer" class="block border-t border-slate-700/50 pt-2 mt-2 hover:bg-slate-700/50 p-1 rounded-md transition-colors"><p class="${isLead ? 'font-bold text-cyan-400 text-base' : 'text-slate-300 text-sm'}">${item.title}</p><p class="text-xs text-slate-500 font-mono mt-1">${time}</p></a>`; }).join(''); const column = document.createElement('div'); column.className = 'portal-column bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col h-full'; column.innerHTML = `<div class="flex items-center gap-2 mb-4 flex-shrink-0"><img src="${logo}" class="w-5 h-5 rounded-full" alt="Logo ${portal}"/><h3 class="font-bold text-lg text-slate-100">${portal}</h3></div><div class="flex-grow overflow-y-auto pr-2 portal-news-list">${itemsHTML}</div>`; portalsPanelContainer.appendChild(column); } }
     
     function renderTrendingTopicsView() {
         const trendingTopicsData = [
-            // --- Notícias de Hoje: Segunda-feira, 29/09/2025 ---
+             // --- Notícias de Hoje: Segunda-feira, 29/09/2025 ---
             { time: "11:30", topic: "Polícia Federal deflagra nova fase de operação contra fraudes em contratos de tecnologia em ministérios.", portals: ["G1", "UOL", "Folha", "Estadão", "Metrópoles"] },
             { time: "10:15", topic: "Ministério da Fazenda atualiza projeções para a inflação e o PIB de 2025, indicando leve melhora no cenário.", portals: ["Valor", "G1", "CNN", "Estadão"] },
             { time: "09:40", topic: "Debate sobre a regulamentação da Inteligência Artificial avança no Senado com a apresentação de novo relatório.", portals: ["Poder360", "Folha", "G1", "UOL"] },
@@ -481,6 +809,9 @@
         updateMediaDropdown(currentMediaFilter);
         loadInitialContent().then(() => setView(currentAppView));
         setInterval(() => { loadInitialContent(true); refreshAggregateView(); }, 20 * 60 * 1000);
+
+        // --- Event Listeners Adicionais/Modificados ---
+        filterAllCategoriesBtn.addEventListener('click', () => handleCategoryFilter(null));
 
         mediaFilterButton.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = mediaFilterButton.getAttribute('aria-expanded') === 'true'; mediaFilterButton.setAttribute('aria-expanded', !isExpanded); mediaDropdownMenu.classList.toggle('hidden', isExpanded); mediaDropdownIcon.classList.toggle('rotate-180', !isExpanded); });
         mediaDropdownMenu.querySelectorAll('button').forEach(button => button.addEventListener('click', (e) => handleMediaFilterChange(e.currentTarget.getAttribute('data-media-key'))));
