@@ -15,7 +15,7 @@
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
         .view-filter-active, .date-filter-active, .filter-active, .agg-view-btn-active { background-color: #06b6d4 !important; color: #ffffff !important; font-weight: 600; }
-        .category-active { background-color: #0891b2 !important; color: #ffffff !important; font-weight: 600; }
+        .category-active { background-color: #0891b2 !important; color: #ffffff !important; font-weight: 700; transform: scale(1.05); }
         .highlight { background-color: #fde047; color: #1e293b; padding: 0 2px; border-radius: 2px; }
         .media-dropdown-active { background-color: #06b6d4; color: #ffffff; font-weight: 600; }
         .dropdown-menu { transition: opacity 0.2s ease-out, transform 0.2s ease-out; }
@@ -23,7 +23,7 @@
         #toast, #welcomeBanner { transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; }
         #backToTopBtn { transition: opacity 0.3s, transform 0.3s; }
         .category-followed { background-color: #3b82f6 !important; color: #ffffff !important; }
-        .category-priority { background-color: #f59e0b !important; color: #1e293b !important; font-weight: 700; box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.25); }
+        .category-priority { background-color: #f59e0b !important; color: #ffffff !important; font-weight: 700; box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.25); }
         .lead-story .news-title { font-size: 1.25rem; }
         .save-icon { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .saved-pop { transform: scale(1.3); }
@@ -33,11 +33,8 @@
         #mainViewTabs::-webkit-scrollbar { display: none; }
         #mainViewTabs { -ms-overflow-style: none; scrollbar-width: none; }
         .entity-tag { background-color: #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; }
-        .portal-column-container { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(320px, 1fr); overflow-x: auto; gap: 1rem; padding-bottom: 1rem; height: 75vh; }
-        .portal-column-container::-webkit-scrollbar { height: 8px; }
-        .portal-column-container::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
-        .portal-column-container::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        .portal-column-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .portal-column-container { display: grid; scroll-behavior: smooth; grid-auto-flow: column; grid-auto-columns: minmax(320px, 1fr); overflow-x: auto; gap: 1rem; padding-bottom: 1rem; height: 75vh; }
+        .portal-column-container::-webkit-scrollbar { display: none; } /* Esconde a scrollbar dos portais */
         .portal-column { transition: opacity 0.5s ease-in-out; }
         .portal-news-list, #topicDetailContent { scrollbar-width: thin; scrollbar-color: #475569 #1e293b; }
         .portal-news-list::-webkit-scrollbar, #topicDetailContent::-webkit-scrollbar { width: 6px; }
@@ -45,6 +42,8 @@
         .portal-news-list::-webkit-scrollbar-thumb, #topicDetailContent::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .topic-card { cursor: pointer; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
         .topic-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .category-tabs-container::-webkit-scrollbar { display: none; }
+        .category-tabs-container { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-slate-200 antialiased">
@@ -124,16 +123,12 @@
             <div class="lg:grid lg:grid-cols-10 lg:gap-8">
                 <div class="lg:col-span-10">
                     <div id="contentCounter" class="text-sm text-slate-400 mb-4 h-5"></div>
-                    <div class="mb-8">
-                        <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-lg font-bold text-cyan-400">Navegue por Editorial</h2>
-                                <button id="clearFollowedBtn" class="hidden text-xs text-red-400 hover:text-red-300 font-semibold transition-colors duration-200">Limpar Tópicos</button>
-                            </div>
-                            <div class="flex flex-wrap gap-2 mb-2">
-                                <button id="filterAllCategories" class="category-active text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 bg-cyan-600 hover:bg-cyan-500" data-category="Todas">Todas as Editorias</button>
-                            </div>
-                            <div id="categoriesContainer" class="flex flex-wrap gap-2 border-t border-slate-700/50 pt-2"></div>
+                    <div class="mb-8 bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                             <h2 class="text-lg font-bold text-cyan-400">Navegue por Editorial</h2>
+                             <button id="clearFollowedBtn" class="hidden text-xs text-red-400 hover:text-red-300 font-semibold transition-colors duration-200">Limpar Tópicos</button>
+                        </div>
+                        <div id="categoriesContainer" class="border-t border-slate-700 pt-2">
                         </div>
                     </div>
                     <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
@@ -157,15 +152,21 @@
                         <button id="refreshAggregateBtn" aria-label="Atualizar cobertura" class="text-slate-300 text-sm font-semibold p-2 rounded-lg transition-colors duration-200 bg-slate-700/50 hover:bg-slate-700 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                         </button>
-                           <div id="aggregate-last-updated" class="text-sm text-slate-500 text-right flex-shrink-0"></div>
+                            <div id="aggregate-last-updated" class="text-sm text-slate-500 text-right flex-shrink-0"></div>
                     </div>
                 </div>
             </div>
-            <div id="portalsPanelContainerWrapper">
+            <div id="portalsPanelContainerWrapper" class="relative group">
+                 <button id="scrollPortalsLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-slate-800/80 backdrop-blur-sm hover:bg-slate-700/80 rounded-full p-2 transition-opacity opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                </button>
                 <div id="portalsPanelContainer" class="portal-column-container"></div>
+                <button id="scrollPortalsRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-slate-800/80 backdrop-blur-sm hover:bg-slate-700/80 rounded-full p-2 transition-opacity opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
             </div>
             <div id="trendingTopicsContainerWrapper" class="hidden">
-                <div id="trendingTopicsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+                 <div id="trendingTopicsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
             </div>
         </div>
 
@@ -254,7 +255,7 @@
                     <h3 class="font-bold text-cyan-400 mb-2">🔎 Barra de Busca</h3>
                     <p class="text-sm">Use a barra principal para encontrar notícias por palavras-chave. Para refinar sua busca por um veículo específico, adicione <code class="bg-slate-700 text-amber-300 px-1 py-0.5 rounded text-xs">fonte:</code> seguido do domínio. Ex: <code class="bg-slate-700 text-amber-300 px-1 py-0.5 rounded text-xs">inteligência artificial fonte:g1.globo.com</code>.</p>
                 </div>
-    
+        
                 <div>
                     <h3 class="font-bold text-cyan-400 mb-2">🧭 Navegação Principal</h3>
                     <ul class="space-y-2 text-sm list-disc list-inside ml-2">
@@ -273,7 +274,7 @@
                         <li><b>Botão Atualizar (🔄):</b> Força uma nova varredura em busca de notícias, sem esperar o ciclo automático de 20 minutos.</li>
                     </ul>
                 </div>
-    
+        
                 <div>
                     <h3 class="font-bold text-cyan-400 mb-2">🏷️ Navegue por Editorial</h3>
                     <p class="text-sm">Os botões de editoriais (Política, Economia, etc.) têm duas funções:</p>
@@ -294,7 +295,7 @@
 
     <script>
     // =================================================================================
-    // CÓDIGO PRO - Versão com Editorias Corrigidas e Visão por Assunto Dinâmica
+    // CÓDIGO PRO - Versão com UI Colorida e Correções
     // =================================================================================
 
     // --- DOM ELEMENTS ---
@@ -351,13 +352,12 @@
     const helpButton = document.getElementById('helpButton');
     const helpModal = document.getElementById('helpModal');
     const closeHelpModalBtn = document.getElementById('closeHelpModalBtn');
-    const filterAllCategoriesBtn = document.getElementById('filterAllCategories');
-    // NOVOS ELEMENTOS DO MODAL DE DETALHES
     const topicDetailModal = document.getElementById('topicDetailModal');
     const topicDetailTitle = document.getElementById('topicDetailTitle');
     const topicDetailContent = document.getElementById('topicDetailContent');
     const closeTopicDetailModalBtn = document.getElementById('closeTopicDetailModalBtn');
-
+    const scrollPortalsLeft = document.getElementById('scrollPortalsLeft');
+    const scrollPortalsRight = document.getElementById('scrollPortalsRight');
 
     // --- APP STATE --- 
     let currentAppView = 'radar';
@@ -373,17 +373,34 @@
     let currentCategorySearch = null;
     let currentAggregateView = 'portal';
     let newsHoldingPen = [];
-    let trendingTopicsDataMap = new Map(); // Armazena os dados dos artigos por tópico
+    let trendingTopicsDataMap = new Map();
 
     // --- CONSTANTS & CONFIGS ---
-    const mainCategories = ['Política', 'Economia', 'Cidades', 'Esportes', 'Cultura', 'Saúde', 'Mundo', 'Entretenimento', 'Ciência', 'Educação', 'Viagem', 'Gastronomia', 'Carros', 'Meio Ambiente'];
+    const mainCategories = ['Política', 'Economia', 'Mundo', 'Cidades', 'Saúde', 'Educação', 'Ciência', 'Meio Ambiente', 'Esportes', 'Cultura', 'Entretenimento', 'Viagem', 'Gastronomia', 'Carros'];
     const MEDIA_FORMATS = { 'todos': { label: 'Todos', emoji: '' }, 'texto': { label: 'Notícia', emoji: '📝' }, 'video': { label: 'Vídeo', emoji: '▶️' }, 'podcast': { label: 'Podcast', emoji: '🎙️' }, 'imagem': { label: 'Imagem/Galeria', emoji: '🖼️' } };
-    const categoryColorMap = { 'Política': 'border-blue-500', 'Economia': 'border-emerald-500', 'Cidades': 'border-orange-500', 'Esportes': 'border-red-500', 'Cultura': 'border-yellow-500', 'Saúde': 'border-pink-500', 'Mundo': 'border-sky-500', 'Entretenimento': 'border-teal-500', 'Ciência': 'border-lime-500', 'Educação': 'border-rose-500', 'Viagem': 'border-indigo-500', 'Gastronomia': 'border-amber-500', 'Carros': 'border-slate-500', 'Meio Ambiente': 'border-green-500' };
-    const categoryButtonColors = [ 'bg-blue-600 hover:bg-blue-500', 'bg-emerald-600 hover:bg-emerald-500', 'bg-orange-600 hover:bg-orange-500', 'bg-red-600 hover:bg-red-500', 'bg-yellow-600 hover:bg-yellow-500', 'bg-pink-600 hover:bg-pink-500', 'bg-sky-600 hover:bg-sky-500', 'bg-teal-600 hover:bg-teal-500', 'bg-lime-600 hover:bg-lime-500', 'bg-rose-600 hover:bg-rose-500', 'bg-indigo-600 hover:bg-indigo-500', 'bg-amber-600 hover:bg-amber-500', 'bg-green-600 hover:bg-green-500' ];
-    const lightBgClasses = ['bg-lime-600', 'bg-yellow-600'];
+    
+    // NOVO MAPA DE CORES PARA EDITORIAS
+    const categoryColorMap = {
+        'Política':      { bg: 'bg-blue-600', hover: 'hover:bg-blue-500', border: 'border-blue-500', tagBg: 'bg-blue-500/20', tagText: 'text-blue-400' },
+        'Economia':      { bg: 'bg-emerald-600', hover: 'hover:bg-emerald-500', border: 'border-emerald-500', tagBg: 'bg-emerald-500/20', tagText: 'text-emerald-400' },
+        'Mundo':         { bg: 'bg-sky-600', hover: 'hover:bg-sky-500', border: 'border-sky-500', tagBg: 'bg-sky-500/20', tagText: 'text-sky-400' },
+        'Cidades':       { bg: 'bg-orange-500', hover: 'hover:bg-orange-400', border: 'border-orange-500', tagBg: 'bg-orange-500/20', tagText: 'text-orange-400' },
+        'Saúde':         { bg: 'bg-red-600', hover: 'hover:bg-red-500', border: 'border-red-500', tagBg: 'bg-red-500/20', tagText: 'text-red-400' },
+        'Educação':      { bg: 'bg-indigo-600', hover: 'hover:bg-indigo-500', border: 'border-indigo-500', tagBg: 'bg-indigo-500/20', tagText: 'text-indigo-400' },
+        'Ciência':       { bg: 'bg-purple-600', hover: 'hover:bg-purple-500', border: 'border-purple-500', tagBg: 'bg-purple-500/20', tagText: 'text-purple-400' },
+        'Meio Ambiente': { bg: 'bg-green-600', hover: 'hover:bg-green-500', border: 'border-green-500', tagBg: 'bg-green-500/20', tagText: 'text-green-400' },
+        'Esportes':      { bg: 'bg-lime-600', hover: 'hover:bg-lime-500', border: 'border-lime-500', tagBg: 'bg-lime-500/20', tagText: 'text-lime-400' },
+        'Cultura':       { bg: 'bg-rose-600', hover: 'hover:bg-rose-500', border: 'border-rose-500', tagBg: 'bg-rose-500/20', tagText: 'text-rose-400' },
+        'Entretenimento':{ bg: 'bg-pink-600', hover: 'hover:bg-pink-500', border: 'border-pink-500', tagBg: 'bg-pink-500/20', tagText: 'text-pink-400' },
+        'Viagem':        { bg: 'bg-teal-600', hover: 'hover:bg-teal-500', border: 'border-teal-500', tagBg: 'bg-teal-500/20', tagText: 'text-teal-400' },
+        'Gastronomia':   { bg: 'bg-amber-600', hover: 'hover:bg-amber-500', border: 'border-amber-500', tagBg: 'bg-amber-500/20', tagText: 'text-amber-400' },
+        'Carros':        { bg: 'bg-slate-500', hover: 'hover:bg-slate-400', border: 'border-slate-500', tagBg: 'bg-slate-500/20', tagText: 'text-slate-400' },
+        'Outros':        { bg: 'bg-gray-600', hover: 'hover:bg-gray-500', border: 'border-gray-500', tagBg: 'bg-gray-500/20', tagText: 'text-gray-400' },
+    };
+
     const PORTAL_LOGOS = { "G1": "g1.globo.com", "UOL": "uol.com.br", "Folha": "folha.uol.com.br", "Estadão": "estadao.com.br", "Poder360": "poder360.com.br", "CNN": "cnnbrasil.com.br", "Metrópoles": "metropoles.com", "GE": "ge.globo.com", "Valor": "valor.globo.com", "Terra": "terra.com.br" };
     const categoryQueries = [
-        { category: 'Política', queries: ['Política Brasil', 'STF Supremo Tribunal Federal', 'Congresso Nacional', 'Governo Federal', 'Eleições 2024'] },
+        { category: 'Política', queries: ['Política Brasil', 'STF Supremo Tribunal Federal', 'Congresso Nacional', 'Governo Federal', 'Eleições'] },
         { category: 'Economia', queries: ['Economia Brasil', 'Mercado Financeiro', 'Dólar Câmbio Juros', 'Inflação IPCA', 'Negócios e Empresas'] },
         { category: 'Cidades', queries: ['Notícias São Paulo', 'Notícias Rio de Janeiro', 'Segurança Pública', 'Loterias resultado', 'Trânsito e Transporte'] },
         { category: 'Esportes', queries: ['Futebol Brasileiro', 'Fórmula 1', 'Copa do Brasil', 'Olimpíadas', 'Vôlei Basquete'] },
@@ -447,7 +464,7 @@
         };
 
         let combinedNews = [];
-        const timeFilter = " when:1d";
+        const timeFilter = " when:2d"; 
         
         if (query) {
             const searchUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query + timeFilter)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
@@ -531,6 +548,8 @@
     function createGoogleNewsCard(news) {
         const newsElement = document.createElement('article');
         const primaryCategory = news.category === 'Geral' ? 'Outros' : news.category; 
+        const colors = categoryColorMap[primaryCategory] || categoryColorMap['Outros'];
+        
         const newsDateTime = new Date(news.timestamp);
         const fullDateTime = `${newsDateTime.toLocaleDateString('pt-BR')} ${newsDateTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
         const logoUrl = `https://www.google.com/s2/favicons?domain=${news.sourceDomain}&sz=64`;
@@ -543,22 +562,10 @@
         const mediaTag = `<span class="text-lg text-slate-300 ml-1 has-tooltip" data-tooltip="${mediaInfo.label}">${mediaInfo.emoji}</span>`;
         const entities = extractEntities(news.title);
         const entitiesHTML = entities.length > 0 ? `<div class="flex flex-wrap gap-1 mt-3">${entities.map(e => `<span class="entity-tag">${e}</span>`).join('')}</div>` : '';
-        const borderColorClass = categoryColorMap[primaryCategory] || 'border-cyan-500';
-        const categoryIndex = mainCategories.indexOf(primaryCategory);
-        let categoryColorClass = 'bg-slate-700';
-        let categoryTextColorClass = 'text-white';
-        if (categoryIndex >= 0) { 
-            const colorClass = categoryButtonColors[categoryIndex % categoryButtonColors.length]; 
-            categoryColorClass = colorClass.split(' ')[0]; 
-            const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass)); 
-            categoryTextColorClass = isLightBg ? 'text-slate-900' : 'text-white'; 
-        } else if (primaryCategory === 'Outros') {
-            borderColorClass = 'border-slate-400';
-            categoryColorClass = 'bg-slate-600';
-        }
         
-        const categoryHTML = `<span class="text-xs font-medium ${categoryColorClass} ${categoryTextColorClass} px-2 py-1 rounded-full">${primaryCategory}</span>`;
-        
+        const borderColorClass = colors.border;
+        const categoryHTML = `<span class="text-xs font-medium ${colors.tagBg} ${colors.tagText} px-2 py-1 rounded-full">${primaryCategory}</span>`;
+
         newsElement.className = `bg-slate-800 border-l-4 ${borderColorClass} rounded-r-lg p-5 shadow-lg flex flex-col transform hover:scale-[1.01] transition-transform duration-300`;
         newsElement.innerHTML = `<div class="flex justify-between items-start gap-2"><a href="${news.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 min-w-0"><img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-6 h-6 rounded-md" onerror="this.outerHTML = \`${fallbackSvg}\`"><p class="font-semibold text-slate-100 truncate" title="${news.sourceName}">${news.sourceName}</p></a><button class="add-to-ronda-btn" data-url="${news.url}" aria-label="Adicionar à Ronda">${saveButtonIcon}</button></div><div><a href="${news.url}" target="_blank" rel="noopener noreferrer"><p class="text-slate-300 font-semibold leading-relaxed my-2 news-title">${finalTitle} ${mediaTag}</p></a>${entitiesHTML}</div><div class="flex items-center justify-between text-sm mt-auto pt-4 border-t border-slate-700/50">${categoryHTML}<span class="text-xs text-slate-500">${fullDateTime}</span></div>`;
         return newsElement;
@@ -568,97 +575,78 @@
     function handleDateFilterChange(filterKey, buttonElement) { currentDateFilter = filterKey; dateFilterContainer.querySelectorAll('button').forEach(btn => { btn.classList.remove('date-filter-active'); btn.setAttribute('aria-pressed', 'false'); btn.classList.add('text-slate-300', 'hover:bg-slate-700'); }); buttonElement.classList.add('date-filter-active'); buttonElement.classList.remove('text-slate-300', 'hover:bg-slate-700'); buttonElement.setAttribute('aria-pressed', 'true'); renderRadarResults(); }
     const applyDateFilter = (items, filterKey) => { const today = new Date(); today.setHours(0, 0, 0, 0); const filterFn = { 'hoje': (item) => new Date(item.timestamp) >= today, 'ultima_semana': (item) => { const sevenDaysAgo = new Date(today); sevenDaysAgo.setDate(today.getDate() - 7); const itemDate = new Date(item.timestamp); return itemDate >= sevenDaysAgo && itemDate < today; } }; return items.filter(filterFn[filterKey]); };
     
-    function renderCategories() { 
-        categoriesContainer.innerHTML = ''; 
-        clearFollowedBtn.classList.add('hidden'); 
+    function renderCategories() {
+        categoriesContainer.innerHTML = '';
+        const tabsContainer = document.createElement('div');
+        tabsContainer.className = 'flex items-center gap-2 overflow-x-auto category-tabs-container pb-2';
         
-        mainCategories.forEach((category, index) => { 
-            const categoryButton = document.createElement('button'); 
-            const followedTopic = followedTopics.find(t => t.topic === category); 
-            let buttonClass = 'bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white'; 
-            
-            const colorIndex = index;
-            const colorClass = categoryButtonColors[colorIndex % categoryButtonColors.length];
-            const isLightBg = lightBgClasses.some(lightClass => colorClass.includes(lightClass));
-            const textColorClass = isLightBg ? 'text-black' : 'text-white';
-            
-            if (currentRadarView === 'geral') { 
-                buttonClass = `${colorClass} ${textColorClass}`;
-                if (currentCategorySearch === category) { 
-                    categoryButton.classList.add('category-active'); 
-                    categoryButton.classList.remove(...colorClass.split(' '));
-                    categoryButton.classList.add('bg-cyan-600', 'text-white');
-                } else if (currentCategorySearch === null) {
-                    filterAllCategoriesBtn.classList.add('category-active');
-                    filterAllCategoriesBtn.classList.remove('bg-slate-700/50', 'hover:bg-slate-700');
+        const createTab = (category) => {
+            const tabButton = document.createElement('button');
+            const colors = categoryColorMap[category] || categoryColorMap['Outros'];
+            let buttonClasses = 'text-sm font-semibold text-white px-4 py-1.5 rounded-full whitespace-nowrap transition-all duration-200 transform hover:scale-105';
+
+            if (currentRadarView === 'paraSi') {
+                const followedTopic = followedTopics.find(t => t.topic === category);
+                if (followedTopic) {
+                    buttonClasses += followedTopic.priority === 1 ? ' category-priority' : ' category-followed';
                 } else {
-                    categoryButton.classList.remove('category-active');
+                    buttonClasses += ' bg-slate-700 hover:bg-slate-600'; // Estilo para não seguidos
                 }
-            } else { // Meu Radar
-                if (followedTopic) { 
-                    buttonClass = followedTopic.priority === 1 ? 'category-priority' : 'category-followed'; 
-                } else { 
-                    buttonClass = `${colorClass.replace('bg-', 'hover:bg-').replace('hover:bg-', 'border-')}/50 text-slate-300 hover:text-white border`; 
-                } 
-            } 
+            } else { // 'geral'
+                buttonClasses += ` ${colors.bg} ${colors.hover}`;
+            }
             
-            categoryButton.className = `${buttonClass} text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200`; 
-            categoryButton.textContent = category; 
+            tabButton.className = buttonClasses;
+            tabButton.textContent = category;
+            tabButton.dataset.category = category;
             
-            categoryButton.onclick = () => { 
-                if (currentRadarView === 'paraSi') { 
-                    const topicIndex = followedTopics.findIndex(t => t.topic === category); 
-                    if (topicIndex > -1) { 
-                        if (followedTopics[topicIndex].priority === 0) { 
-                            followedTopics[topicIndex].priority = 1; 
-                            showToast(`"${category}" definido como prioridade!`); 
-                        } else { 
-                            followedTopics.splice(topicIndex, 1); 
-                            showToast(`Deixou de seguir "${category}"`); 
-                        } 
-                    } else { 
-                        followedTopics.push({ topic: category, priority: 0 }); 
-                        showToast(`Agora segue "${category}"`); 
-                    } 
-                    localStorage.setItem('followedTopics', JSON.stringify(followedTopics)); 
-                    renderCategories(); 
-                    renderRadarResults(); 
-                } else { 
+            tabButton.onclick = () => {
+                if (currentRadarView === 'paraSi') {
+                    const topicIndex = followedTopics.findIndex(t => t.topic === category);
+                    if (topicIndex > -1) {
+                        if (followedTopics[topicIndex].priority === 0) {
+                            followedTopics[topicIndex].priority = 1; showToast(`"${category}" definido como prioridade!`);
+                        } else {
+                            followedTopics.splice(topicIndex, 1); showToast(`Deixou de seguir "${category}"`);
+                        }
+                    } else {
+                        followedTopics.push({ topic: category, priority: 0 }); showToast(`Agora segue "${category}"`);
+                    }
+                    localStorage.setItem('followedTopics', JSON.stringify(followedTopics));
+                    renderCategories();
+                    renderRadarResults();
+                } else {
                     handleCategoryFilter(category);
-                } 
-                window.scrollTo({ top: 0, behavior: 'smooth' }); 
-            }; 
-            categoriesContainer.appendChild(categoryButton); 
-        }); 
+                }
+            };
+            return tabButton;
+        };
         
-        if (currentRadarView === 'paraSi' && followedTopics.length > 0) { clearFollowedBtn.classList.remove('hidden'); } 
+        // Botão "Todas"
+        const allTab = createTab('Todas');
+        if (currentCategorySearch === null && currentRadarView === 'geral') {
+            allTab.classList.add('category-active');
+        }
+        tabsContainer.appendChild(allTab);
+
+        // Demais categorias
+        mainCategories.forEach(category => {
+            const tab = createTab(category);
+            if (currentCategorySearch === category && currentRadarView === 'geral') {
+                tab.classList.add('category-active');
+            }
+            tabsContainer.appendChild(tab);
+        });
+
+        categoriesContainer.appendChild(tabsContainer);
+
+        clearFollowedBtn.classList.toggle('hidden', !(currentRadarView === 'paraSi' && followedTopics.length > 0));
     }
 
+
     function handleCategoryFilter(category) {
-        currentCategorySearch = category;
-        document.querySelectorAll('#categoriesContainer button').forEach(btn => {
-            btn.classList.remove('category-active');
-            const catName = btn.textContent;
-            const index = mainCategories.indexOf(catName);
-            if (index >= 0) {
-                const colorClass = categoryButtonColors[index % categoryButtonColors.length];
-                btn.classList.add(colorClass.split(' ')[0], 'text-white');
-            }
-        });
-        
-        if (category === 'Todas' || category === null) {
-            currentCategorySearch = null;
-            filterAllCategoriesBtn.classList.add('category-active');
-        } else {
-            filterAllCategoriesBtn.classList.remove('category-active');
-            const activeBtn = Array.from(categoriesContainer.querySelectorAll('button')).find(btn => btn.textContent === category);
-            if(activeBtn) {
-                activeBtn.classList.add('category-active');
-                activeBtn.classList.remove(...(categoryButtonColors[mainCategories.indexOf(category) % categoryButtonColors.length]).split(' '));
-                activeBtn.classList.add('bg-cyan-600', 'text-white');
-            }
-        }
-        
+        currentCategorySearch = (category === 'Todas' || category === null) ? null : category;
+        renderCategories(); 
         renderRadarResults();
     }
     
@@ -765,7 +753,7 @@
     // --- LÓGICA DA "COBERTURA DA MÍDIA" ---
     async function setupAggregateView() { if (currentAggregateView === 'portal') { await renderPortalsPanel(); } else { renderTrendingTopicsView(); } const updateTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); aggregateLastUpdated.innerHTML = `Verificado às: <strong>${updateTime}</strong>`; }
     async function fetchRealPortalData() { const portalsToFetch = Object.keys(PORTAL_LOGOS); const fetchPromises = portalsToFetch.map(portal => { const domain = PORTAL_LOGOS[portal]; return fetchFromGoogleNewsAPI(`site:${domain}`); }); const results = await Promise.all(fetchPromises); return portalsToFetch.reduce((acc, portal, index) => { acc[portal] = results[index]; return acc; }, {}); }
-    async function renderPortalsPanel() { portalsPanelContainer.innerHTML = `<p class="text-center text-slate-400 col-span-full animate-pulse">Buscando manchetes em tempo real nos principais portais...</p>`; const portalData = await fetchRealPortalData(); portalsPanelContainer.innerHTML = ''; for (const portal in portalData) { const portalNews = portalData[portal]; if (portalNews.length === 0) continue; const logo = `https://www.google.com/s2/favicons?domain=${portalNews[0].sourceDomain}&sz=32`; const itemsHTML = portalNews.map((item, index) => { const isLead = index === 0; const time = new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); return `<a href="${item.url}" target="_blank" rel="noopener noreferrer" class="block border-t border-slate-700/50 pt-2 mt-2 hover:bg-slate-700/50 p-1 rounded-md transition-colors"><p class="${isLead ? 'font-bold text-cyan-400 text-base' : 'text-slate-300 text-sm'}">${item.title}</p><p class="text-xs text-slate-500 font-mono mt-1">${time}</p></a>`; }).join(''); const column = document.createElement('div'); column.className = 'portal-column bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col h-full'; column.innerHTML = `<div class="flex items-center gap-2 mb-4 flex-shrink-0"><img src="${logo}" class="w-5 h-5 rounded-full" alt="Logo ${portal}"/><h3 class="font-bold text-lg text-slate-100">${portal}</h3></div><div class="flex-grow overflow-y-auto pr-2 portal-news-list">${itemsHTML}</div>`; portalsPanelContainer.appendChild(column); } }
+    async function renderPortalsPanel() { portalsPanelContainer.innerHTML = `<p class="text-center text-slate-400 col-span-full animate-pulse">Buscando manchetes em tempo real nos principais portais...</p>`; const portalData = await fetchRealPortalData(); portalsPanelContainer.innerHTML = ''; for (const portal in portalData) { const portalNews = portalData[portal]; if (portalNews.length === 0) continue; const logo = `https://www.google.com/s2/favicons?domain=${portalNews[0].sourceDomain}&sz=32`; const itemsHTML = portalNews.map((item, index) => { const isLead = index === 0; const time = new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); return `<a href="${item.url}" target="_blank" rel="noopener noreferrer" class="block border-t border-slate-700/50 pt-2 mt-2 hover:bg-slate-700/50 p-1 rounded-md transition-colors"><p class="${isLead ? 'font-bold text-cyan-400 text-base' : 'text-slate-300 text-sm'}">${item.title}</p><p class="text-xs text-slate-500 font-mono mt-1">${time}</p></a>`; }).join(''); const column = document.createElement('div'); column.className = 'portal-column bg-slate-800/60 border border-slate-700 rounded-lg p-4 flex flex-col h-full'; column.innerHTML = `<div class="flex items-center gap-2 mb-4 flex-shrink-0"><img src="${logo}" class="w-5 h-5 rounded-full" alt="Logo ${portal}"/><h3 class="font-bold text-lg text-slate-100">${portal}</h3></div><div class="flex-grow overflow-y-auto pr-2 portal-news-list">${itemsHTML}</div>`; portalsPanelContainer.appendChild(column); } setTimeout(updatePortalScrollArrows, 100); }
     
     function renderTrendingTopicsView() {
         const newsItems = masterNewsCache;
@@ -788,7 +776,7 @@
             
             if (topicKeywords.length > 0) {
                 const topicKey = topicKeywords.slice(0, 2).join(' '); 
-                 if (!topicData.has(topicKey)) {
+                if (!topicData.has(topicKey)) {
                     topicData.set(topicKey, { count: 0, articles: [], fullTopics: new Set() });
                 }
                 const data = topicData.get(topicKey);
@@ -798,17 +786,24 @@
             }
         });
         
-        const sortedTopics = Array.from(topicData.entries())
-            .filter(([key, value]) => value.count > 2)
-            .sort((a, b) => b[1].count - a[1].count);
+        const filteredTopics = Array.from(topicData.entries())
+            .filter(([key, value]) => value.count > 1 && value.articles.length > 1);
+        
+        const topicsWithTimestamp = filteredTopics.map(([key, data]) => {
+            const mostRecentTimestamp = Math.max(...data.articles.map(a => a.timestamp));
+            return { key, data, mostRecentTimestamp };
+        });
+
+        const sortedTopics = topicsWithTimestamp.sort((a, b) => b.mostRecentTimestamp - a.mostRecentTimestamp);
+        const top50Topics = sortedTopics.slice(0, 50);
 
         trendingTopicsContainer.innerHTML = '';
-        if (sortedTopics.length === 0) {
+        if (top50Topics.length === 0) {
             trendingTopicsContainer.innerHTML = `<p class="text-center text-slate-400 col-span-full">Não há assuntos com cobertura suficiente no momento. Verifique mais tarde.</p>`;
             return;
         }
 
-        sortedTopics.forEach(([key, data]) => {
+        top50Topics.forEach(({ key, data }) => {
             trendingTopicsDataMap.set(key, data.articles);
             const representativeTitle = [...data.fullTopics][0];
             const uniquePortals = new Map();
@@ -857,6 +852,13 @@
             trendingTopicsContainer.appendChild(card);
         });
     }
+    
+    function updatePortalScrollArrows() {
+        if (!portalsPanelContainer) return;
+        const { scrollLeft, scrollWidth, clientWidth } = portalsPanelContainer;
+        scrollPortalsLeft.disabled = scrollLeft <= 0;
+        scrollPortalsRight.disabled = scrollLeft >= scrollWidth - clientWidth - 1;
+    }
 
     async function refreshAggregateView() { if (currentAppView === 'aggregate') { const container = currentAggregateView === 'portal' ? portalsPanelContainerWrapper : trendingTopicsContainerWrapper; const icon = refreshAggregateBtn.querySelector('svg'); icon.classList.add('animate-spin'); container.style.opacity = '0.5'; await setupAggregateView(); container.style.opacity = '1'; icon.classList.remove('animate-spin'); showToast("Painel de cobertura atualizado!"); } }
 
@@ -875,7 +877,6 @@
         setInterval(() => { loadInitialContent(true); refreshAggregateView(); }, 20 * 60 * 1000);
 
         // --- Event Listeners ---
-        filterAllCategoriesBtn.addEventListener('click', () => handleCategoryFilter(null));
         mediaFilterButton.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = mediaFilterButton.getAttribute('aria-expanded') === 'true'; mediaFilterButton.setAttribute('aria-expanded', !isExpanded); mediaDropdownMenu.classList.toggle('hidden', isExpanded); mediaDropdownIcon.classList.toggle('rotate-180', !isExpanded); });
         mediaDropdownMenu.querySelectorAll('button').forEach(button => button.addEventListener('click', (e) => handleMediaFilterChange(e.currentTarget.getAttribute('data-media-key'))));
         document.addEventListener('click', (e) => { if (mediaFilterDropdown && !mediaFilterDropdown.contains(e.target)) { mediaDropdownMenu.classList.add('hidden'); mediaFilterButton.setAttribute('aria-expanded', 'false'); mediaDropdownIcon.classList.remove('rotate-180'); } });
@@ -907,8 +908,11 @@
         helpButton.addEventListener('click', () => helpModal.classList.remove('hidden'));
         closeHelpModalBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
         helpModal.addEventListener('click', (e) => { if (e.target.id === 'helpModal') { helpModal.classList.add('hidden'); } });
+        
+        scrollPortalsLeft.addEventListener('click', () => portalsPanelContainer.scrollBy({ left: -350, behavior: 'smooth' }));
+        scrollPortalsRight.addEventListener('click', () => portalsPanelContainer.scrollBy({ left: 350, behavior: 'smooth' }));
+        portalsPanelContainer.addEventListener('scroll', updatePortalScrollArrows);
 
-        // --- NOVOS LISTENERS PARA O MODAL DE DETALHES DO TÓPICO ---
         trendingTopicsContainer.addEventListener('click', (e) => {
             const topicCard = e.target.closest('.topic-card');
             if (topicCard) {
@@ -923,8 +927,8 @@
                             <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 bg-slate-700/50 hover:bg-slate-700 p-2 rounded-lg transition-colors">
                                 <img src="${logoUrl}" alt="Logo" class="flex-shrink-0 w-5 h-5 rounded-full">
                                 <div class="flex-1 min-w-0">
-                                  <p class="text-sm text-slate-300 truncate font-semibold">${article.title}</p>
-                                  <p class="text-xs text-slate-400">${article.sourceName}</p>
+                                    <p class="text-sm text-slate-300 truncate font-semibold">${article.title}</p>
+                                    <p class="text-xs text-slate-400">${article.sourceName}</p>
                                 </div>
                             </a>
                         `;
